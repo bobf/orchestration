@@ -1,46 +1,43 @@
 require 'thor'
+require 'tempfile'
 
 module Orchestration
   class InstallGenerator < Thor::Group
     include Thor::Actions
 
-    def makefile
-      path = File.join(base_path, 'Makefile')
-      content = template('Makefile')
-      if File.exist?(path)
-        delete_and_inject_after(path, '#!!orchestration_orchestration', content)
-      else
-        create_file 'Makefile', content
-      end
+    def self.source_root
+      Orchestration.root.join(
+        'lib', 'orchestration_orchestration', 'templates'
+      )
     end
 
-    def database_healthcheck
-      create_file 'orchestration/database/healthcheck.rb',
-                  template('database_healthcheck')
-
-      create_file 'orchestration/database/wait',
-                  template('database_healthcheck')
+    def makefile
+      environment = { app_id: 'testing' }
+      content = template_content('Makefile', environment)
+      path = 'Makefile'
+      delete_and_inject_after(path, "#!!orchestration_orchestration\n", content)
     end
 
     private
 
-    def templates_path
-      File.join(__dir__, 'templates/')
-    end
-
-    def template(name)
-      File.read(File.join(templates_path, "#{name}.tt"))
+    def template_content(template, environment)
+      file = Tempfile.new
+      path = file.path
+      file.close
+      file.unlink
+      template('Makefile', path, environment.merge(verbose: false))
+      File.read(path)
     end
 
     def delete_and_inject_after(path, pattern, replacement)
-      File.open(path, 'rw') do |file|
-        input = file.read
-        index = input.index(pattern)
-        raise ArgumentError, 'Pattern not found' if index.nil?
-        output = input[0..index] + pattern + replacement
-        file.rewind
-        file.write(output)
-      end
+      return File.write(path, pattern + replacement) unless File.exist?(path)
+
+      input = File.read(path)
+      index = input.index(pattern)
+      raise ArgumentError, 'Pattern not found' if index.nil?
+      output = input[0..index] + pattern + replacement
+
+      create_file(path, output)
     end
   end
 end
