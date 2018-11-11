@@ -1,0 +1,8 @@
+FROM ruby:<%= config.fetch(:ruby_version) %>
+ARG BUNDLE_BITBUCKET__ORG
+RUN gem install bundler && mkdir /application
+WORKDIR /application
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+ADD .build/context.tar.gz .
+CMD ["bundle", "exec", "rails", "server", "-p", "3000"]
