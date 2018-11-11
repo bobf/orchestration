@@ -2,6 +2,7 @@
 
 require 'bundler/setup'
 require 'orchestration_orchestration'
+require File.join(__dir__, 'dummy/config/environment.rb')
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

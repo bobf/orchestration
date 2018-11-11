@@ -1,0 +1,8 @@
+en:
+  orchestration:
+    unknown_scheme: "Unrecognised database adapter for URL scheme: %{scheme}"
+    attempt_limit: "Unable to reconnect after %{limit} attempts. Aborting."
+    database:
+      waiting: "Waiting for database: %{config}"
+      ready: "Database is ready."
+      missing_default: "database.yml must define a `default` section."

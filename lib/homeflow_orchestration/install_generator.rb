@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require 'thor'
 require 'tempfile'
 
 module Orchestration
   class InstallGenerator < Thor::Group
     include Thor::Actions
+    include FileHelpers
 
     def self.source_root
       Orchestration.root.join(
@@ -12,32 +15,36 @@ module Orchestration
     end
 
     def makefile
-      environment = { app_id: 'testing' }
+      environment = { app_id: Rails.application.class.parent.name.underscore }
       content = template_content('Makefile', environment)
-      path = 'Makefile'
-      delete_and_inject_after(path, "#!!orchestration_orchestration\n", content)
+      path = Rails.root.join('Makefile')
+      delete_and_inject_after(path, "\n#!!orchestration_orchestration\n", content)
     end
 
-    private
+    def dockerfile
+      docker_dir = Rails.root.join('docker')
+      path = docker_dir.join('Dockerfile')
+      return if File.exist?(path)
 
-    def template_content(template, environment)
-      file = Tempfile.new
-      path = file.path
-      file.close
-      file.unlink
-      template('Makefile', path, environment.merge(verbose: false))
-      File.read(path)
+      content = template_content('Dockerfile', ruby_version: RUBY_VERSION)
+      FileUtils.mkdir(docker_dir) unless Dir.exist?(docker_dir)
+      write_file(path, content)
     end
 
-    def delete_and_inject_after(path, pattern, replacement)
-      return File.write(path, pattern + replacement) unless File.exist?(path)
+    def gitignore
+      path = Rails.root.join('.gitignore')
+      line = 'docker/.build'
+      ensure_line_in_file(path, line)
+    end
 
-      input = File.read(path)
-      index = input.index(pattern)
-      raise ArgumentError, 'Pattern not found' if index.nil?
-      output = input[0..index] + pattern + replacement
+    def docker_compose
+      path = Rails.root.join('docker-compose.yml')
+      return if File.exist?(path)
 
-      create_file(path, output)
+      docker_compose = DockerCompose.new(
+        database: Healthchecks::Database::Configuration.new
+      )
+      write_file(path, docker_compose.structure.to_yaml)
     end
   end
 end

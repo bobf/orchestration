@@ -1,0 +1,8 @@
+---
+version: '3.7'
+services:
+  database:
+    image: library/postgres
+    environment:
+      PGPORT: 5499
+      POSTGRES_PASSWORD: password

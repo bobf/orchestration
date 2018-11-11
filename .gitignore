@@ -14,3 +14,11 @@ Gemfile.lock
 
 *.swp
 *.swo
+
+spec/dummy/log/*
+!spec/dummy/log/.keep
+spec/dummy/.gitignore
+spec/dummy/Makefile
+spec/dummy/docker/*
+
+.byebug_history
