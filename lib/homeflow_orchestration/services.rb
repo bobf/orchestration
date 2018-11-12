@@ -8,3 +8,4 @@ module Orchestration
 end
 
 require 'orchestration_orchestration/services/database'
+require 'orchestration_orchestration/services/mongo'
