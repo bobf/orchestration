@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 module Orchestration
-  module Healthchecks
+  module Services
     module Database
       module Adapters
-        class Sqlite3
+        class Postgresql
           def credentials
             {
-              'username' => '',
-              'password' => '',
-              'database' => 'healthcheck'
+              'username' => 'postgres',
+              'password' => 'password',
+              'database' => 'postgres'
             }
           end
 
           def errors
-            []
+            [PG::ConnectionBad]
           end
         end
       end

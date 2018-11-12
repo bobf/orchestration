@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Healthchecks::Database::Configuration do
+RSpec.describe Orchestration::Services::Database::Configuration do
   let(:config_path) do
     Orchestration.root.join('spec', 'dummy', 'config', 'database.yml')
   end

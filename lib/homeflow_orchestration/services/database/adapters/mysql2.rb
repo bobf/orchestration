@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 module Orchestration
-  module Healthchecks
+  module Services
     module Database
       module Adapters
-        class Postgresql
+        class Mysql2
           def credentials
             {
-              'username' => 'postgres',
+              'username' => 'root',
               'password' => 'password',
-              'database' => 'postgres'
+              'database' => 'mysql'
             }
           end
 
           def errors
-            [PG::ConnectionBad]
+            [::Mysql2::Error]
           end
         end
       end

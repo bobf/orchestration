@@ -21,7 +21,7 @@ RSpec.describe Orchestration::DockerCompose do
 
       let(:init_options) { { database: database_config } }
       let(:database_config) do
-        Orchestration::Healthchecks::Database::Configuration.new(
+        Orchestration::Services::Database::Configuration.new(
           fixture(adapter)
         )
       end

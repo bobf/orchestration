@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Orchestration
-  module Healthchecks
+  module Services
     module Database
       class Configuration
         attr_reader :adapter, :settings
@@ -41,7 +41,7 @@ module Orchestration
         end
 
         def adapter_object(name)
-          adapters = Orchestration::Healthchecks::Database::Adapters
+          adapters = Orchestration::Services::Database::Adapters
           {
             'mysql2' => adapters::Mysql2,
             'postgresql' => adapters::Postgresql,
