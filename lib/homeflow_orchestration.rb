@@ -10,9 +10,9 @@ I18n.load_path += Dir[File.join(File.expand_path('..', __dir__),
 require 'orchestration_orchestration/docker_compose'
 require 'orchestration_orchestration/errors'
 require 'orchestration_orchestration/file_helpers'
-require 'orchestration_orchestration/healthchecks'
 require 'orchestration_orchestration/install_generator'
 require 'orchestration_orchestration/railtie'
+require 'orchestration_orchestration/services'
 require 'orchestration_orchestration/terminal'
 require 'orchestration_orchestration/version'
 
