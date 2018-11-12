@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 module Orchestration
-  module Healthchecks
+  module Services
     module Database
       module Adapters
-        class Mysql2
+        class Sqlite3
           def credentials
             {
-              'username' => 'root',
-              'password' => 'password',
-              'database' => 'mysql'
+              'username' => '',
+              'password' => '',
+              'database' => 'healthcheck'
             }
           end
 
           def errors
-            [::Mysql2::Error]
+            []
           end
         end
       end

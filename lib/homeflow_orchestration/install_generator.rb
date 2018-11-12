@@ -42,7 +42,7 @@ module Orchestration
       return if File.exist?(path)
 
       docker_compose = DockerCompose.new(
-        database: Healthchecks::Database::Configuration.new
+        database: Services::Database::Configuration.new
       )
       write_file(path, docker_compose.structure.to_yaml)
     end

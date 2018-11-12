@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Healthchecks::Database::Healthcheck do
+RSpec.describe Orchestration::Services::Database::Healthcheck do
   let(:terminal) { double('terminal') }
 
   subject(:healthcheck) { described_class.new(terminal) }

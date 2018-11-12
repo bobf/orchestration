@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Orchestration
-  module Healthchecks
+  module Services
     module Database
       class Healthcheck
         def self.start
