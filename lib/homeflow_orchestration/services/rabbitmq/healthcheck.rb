@@ -18,9 +18,15 @@ module Orchestration
           host = @configuration.settings.fetch('host')
           port = @configuration.settings.fetch('port')
 
-          connection = Bunny.new("amqp://#{host}:#{port}")
+          connection = Bunny.new("amqp://#{host}:#{port}", log_file: devnull)
           connection.start
           connection.stop
+        end
+
+        private
+
+        def devnull
+          File.open(File::NULL, 'w')
         end
       end
     end
