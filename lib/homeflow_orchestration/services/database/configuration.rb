@@ -9,6 +9,7 @@ module Orchestration
         def initialize(env)
           @env = env
           @adapter = nil
+          return unless defined?(ActiveRecord)
           return unless File.exist?(@env.database_configuration_path)
 
           environments = parse(File.read(@env.database_configuration_path))
