@@ -39,5 +39,21 @@ RSpec.describe Orchestration::InstallGenerator do
       gitignore
       expect(size).to eql File.size(gitignore_path)
     end
+
+    shared_examples 'a .gitignore entry' do |entry|
+      it 'writes entry to .gitignore' do
+        gitignore
+        expect(File.read(gitignore_path)).to include entry
+      end
+    end
+
+    [
+      'docker/.build',
+      'docker/Gemfile',
+      'docker/Gemfile.lock',
+      'docker/*.gemspec'
+    ].each do |entry|
+      it_behaves_like 'a .gitignore entry', entry
+    end
   end
 end
