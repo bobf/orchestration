@@ -6,6 +6,13 @@ _Orchestration_ provides a toolkit for building and launching _Rails_ applicatio
 
 A suite of tools is provided to assist in creating configuration files, launching service dependencies, verifying that dependencies have launched successfully (e.g. for running tests in contiuous integration tools), and building, tagging, and pushing _Docker_ images.
 
+Containers are automatically created for the following dependencies:
+
+* MySQL
+* MongoDB
+* PostgreSQL
+* RabbitMQ
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -80,7 +87,7 @@ To start services:
 $ make start
 ```
 
-This will launch any dependencies your project needs (e.g. SQL _MySQL_, _MongoDB_, etc.).
+This will launch any dependencies your project needs (e.g. _MySQL_, _MongoDB_, etc.).
 
 To wait for all services to be ready:
 ```bash
