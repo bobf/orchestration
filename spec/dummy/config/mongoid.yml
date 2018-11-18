@@ -1,0 +1,13 @@
+production:
+  clients:
+    default:
+      hosts:
+        - mongo-prod.example.com
+      database: production_db
+
+test:
+  clients:
+    default:
+      hosts:
+        - localhost
+      database: test_db

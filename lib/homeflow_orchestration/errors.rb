@@ -3,4 +3,5 @@
 module Orchestration
   class OrchestrationError < StandardError; end
   class DatabaseConfigurationError < OrchestrationError; end
+  class MongoConfigurationError < OrchestrationError; end
 end

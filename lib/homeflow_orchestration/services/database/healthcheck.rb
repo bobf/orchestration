@@ -6,14 +6,15 @@ module Orchestration
       class Healthcheck
         def self.start
           terminal = Terminal.new
-          terminal.write(:database)
+          terminal.write(:database, nil, :status)
           new(terminal).start
         end
 
-        def initialize(terminal)
+        def initialize(env, terminal)
+          @env = env
           @attempts = 0
           @terminal = terminal
-          @configuration = Database::Configuration.new
+          @configuration = Database::Configuration.new(@env)
         end
 
         def start

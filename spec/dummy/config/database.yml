@@ -6,7 +6,7 @@ default: &default
   password: ''
   port: 5432
 
-development:
+test:
   <<: *default
   host: localhost
   database: development_db
