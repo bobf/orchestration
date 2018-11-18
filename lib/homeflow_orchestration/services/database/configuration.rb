@@ -6,11 +6,12 @@ module Orchestration
       class Configuration
         attr_reader :adapter, :settings
 
-        def initialize(path = Rails.root.join('config', 'database.yml'))
+        def initialize(env)
+          @env = env
           @adapter = nil
-          return unless File.exist?(path)
+          return unless File.exist?(@env.database_configuration_path)
 
-          environments = parse(File.read(path))
+          environments = parse(File.read(@env.database_configuration_path))
           base = base_config(environments)
           @adapter = adapter_object(base['adapter'])
           @settings = base.merge(@adapter.credentials)
@@ -52,21 +53,17 @@ module Orchestration
         def base_config(environments)
           missing_default unless environments.key?('default')
 
-          host = url_config['host'] || environments[rails_env]['host']
+          host = url_config['host'] || environments[@env.environment]['host']
 
           environments['default']
             .merge(url_config)
             .merge('host' => host)
         end
 
-        def rails_env
-          ENV['RAILS_ENV'] || 'development'
-        end
-
         def url_config
-          return {} if ENV['DATABASE_URL'].nil?
+          return {} if @env.database_url.nil?
 
-          uri = URI.parse(ENV['DATABASE_URL'])
+          uri = URI.parse(@env.database_url)
 
           {
             'host' => uri.hostname,
