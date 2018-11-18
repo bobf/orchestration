@@ -41,8 +41,11 @@ module Orchestration
       path = Rails.root.join('docker-compose.yml')
       return if File.exist?(path)
 
-      docker_compose = DockerCompose.new(
-        database: Services::Database::Configuration.new
+      env = Environment.new
+
+      docker_compose = DockerCompose::Services.new(
+        database: Services::Database::Configuration.new(env),
+        mongo: Services::Mongo::Configuration.new(env)
       )
       write_file(path, docker_compose.structure.to_yaml)
     end

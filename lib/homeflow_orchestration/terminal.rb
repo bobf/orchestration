@@ -6,9 +6,10 @@ module Orchestration
     error: :red,
     waiting: :yellow,
     ready: :green,
-    database: :blue,
     create: :green,
-    update: :yellow
+    update: :yellow,
+    identical: :blue,
+    status: :blue
   }.freeze
 
   class Terminal
@@ -18,11 +19,12 @@ module Orchestration
 
     private
 
-    def colorize(desc, message)
+    def colorize(desc, message, color_name = nil)
+      color = color_name.nil? ? COLOR_MAP[desc] : COLOR_MAP[color_name]
       desc
         .to_s
-        .rjust(10)
-        .colorize(mode: :default, color: COLOR_MAP[desc])
+        .rjust(15)
+        .colorize(mode: :default, color: color)
         .concat(' ' + message)
     end
   end

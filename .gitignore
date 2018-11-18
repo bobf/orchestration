@@ -20,5 +20,6 @@ spec/dummy/log/*
 spec/dummy/.gitignore
 spec/dummy/Makefile
 spec/dummy/docker/*
+spec/dummy/docker-compose.yml
 
 .byebug_history

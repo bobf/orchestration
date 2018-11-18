@@ -1,11 +1,20 @@
 # frozen_string_literal: true
 
 RSpec.describe Orchestration::Services::Database::Configuration do
+  subject(:configuration) { described_class.new(env) }
+
   let(:config_path) do
     Orchestration.root.join('spec', 'dummy', 'config', 'database.yml')
   end
 
-  subject(:configuration) { described_class.new(config_path) }
+  let(:env) do
+    double(
+      'Environment',
+      environment: 'test',
+      database_url: nil,
+      database_configuration_path: config_path
+    )
+  end
 
   it { is_expected.to be_a described_class }
 
@@ -13,7 +22,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     subject(:settings) { configuration.settings }
 
     context 'sqlite3' do
-      let(:config_path) { fixture('sqlite3') }
+      let(:config_path) { fixture_path('sqlite3') }
 
       its(['adapter']) { is_expected.to eql 'sqlite3' }
       its(['host']) { is_expected.to be_nil }
@@ -25,7 +34,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     end
 
     context 'postgresql' do
-      let(:config_path) { fixture('postgresql') }
+      let(:config_path) { fixture_path('postgresql') }
 
       its(['adapter']) { is_expected.to eql 'postgresql' }
       its(['host']) { is_expected.to eql 'localhost' }
@@ -36,7 +45,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     end
 
     context 'mysql2' do
-      let(:config_path) { fixture('mysql2') }
+      let(:config_path) { fixture_path('mysql2') }
 
       its(['adapter']) { is_expected.to eql 'mysql2' }
       its(['host']) { is_expected.to eql 'localhost' }
@@ -46,15 +55,11 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       its(['pool']) { is_expected.to eql 5 }
     end
 
-    context 'DATABASE_URL' do
-      let(:config_path) { fixture('postgresql') }
+    context 'from DATABASE_URL environment variable' do
+      let(:config_path) { fixture_path('postgresql') }
 
       before do
-        allow(ENV).to receive(:[]).and_call_original
-        allow(ENV)
-          .to receive(:[])
-          .with('DATABASE_URL')
-          .and_return(database_url)
+        allow(env).to receive(:database_url) { database_url }
       end
 
       context 'host override' do
@@ -79,15 +84,11 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       end
     end
 
-    context 'RAILS_ENV' do
-      let(:config_path) { fixture('postgresql') }
+    context 'from environment (RAILS_ENV, RACK_ENV)' do
+      let(:config_path) { fixture_path('postgresql') }
 
       before do
-        allow(ENV).to receive(:[]).and_call_original
-        allow(ENV)
-          .to receive(:[])
-          .with('RAILS_ENV')
-          .and_return('production')
+        allow(env).to receive(:environment) { 'production' }
       end
 
       its(['adapter']) { is_expected.to eql 'postgresql' }
@@ -96,9 +97,5 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       its(['username']) { is_expected.to eql 'postgres' }
       its(['password']) { is_expected.to eql 'password' }
     end
-  end
-
-  def fixture(name)
-    Orchestration.root.join('spec', 'fixtures', "#{name}.yml")
   end
 end

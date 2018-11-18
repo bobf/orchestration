@@ -1,0 +1,6 @@
+test:
+  clients:
+    default:
+      hosts:
+        - localhost
+      database: test_db

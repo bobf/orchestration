@@ -22,13 +22,16 @@ module Orchestration
 
       input = File.read(path)
       index = append_index(pattern, input)
-      output = input[0..index] + pattern + replacement
+      output = input[0...index] + pattern + replacement
 
-      File.write(path, output)
-      terminal.write(:update, relative_path(path))
+      return terminal.write(:identical, relative_path(path)) if input == output
+
+      update_file(path, output)
     end
 
     def append_index(pattern, input)
+      return 0 if input.empty?
+
       index = input.index(pattern)
       index.nil? ? (input.size + 1) : index
     end
@@ -40,6 +43,11 @@ module Orchestration
     def write_file(path, content)
       File.write(path, content)
       terminal.write(:create, relative_path(path))
+    end
+
+    def update_file(path, content)
+      File.write(path, content)
+      terminal.write(:update, relative_path(path))
     end
 
     def append_file(path, content)

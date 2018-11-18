@@ -8,6 +8,7 @@ I18n.load_path += Dir[File.join(File.expand_path('..', __dir__),
                                 'config', 'locales', '**', '*.yml')]
 
 require 'orchestration_orchestration/docker_compose'
+require 'orchestration_orchestration/environment'
 require 'orchestration_orchestration/errors'
 require 'orchestration_orchestration/file_helpers'
 require 'orchestration_orchestration/install_generator'

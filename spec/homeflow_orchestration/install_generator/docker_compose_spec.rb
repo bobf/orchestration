@@ -28,5 +28,11 @@ RSpec.describe Orchestration::InstallGenerator do
       config = YAML.safe_load(File.read(docker_compose_path))
       expect(config['services']['database']['image']).to eql 'library/postgres'
     end
+
+    it 'includes mongo service' do
+      docker_compose
+      config = YAML.safe_load(File.read(docker_compose_path))
+      expect(config['services']['mongo']['image']).to eql 'library/mongo'
+    end
   end
 end
