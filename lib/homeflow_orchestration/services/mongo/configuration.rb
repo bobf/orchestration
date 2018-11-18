@@ -9,6 +9,7 @@ module Orchestration
         def initialize(env)
           @env = env
           @settings = nil
+          return unless defined?(Mongoid)
           return unless File.exist?(@env.mongoid_configuration_path)
 
           @settings = { 'database' => config.fetch(@env.environment) }

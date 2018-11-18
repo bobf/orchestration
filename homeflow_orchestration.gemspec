@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'colorize', '~> 0.8.1'
   spec.add_runtime_dependency 'i18n', '>= 0.5'
 
+  spec.add_development_dependency 'activerecord', '~> 5.2'
   spec.add_development_dependency 'bundler', '~> 1.16'
   spec.add_development_dependency 'byebug', '~> 10.0'
   spec.add_development_dependency 'mongoid', '~> 7.0'
