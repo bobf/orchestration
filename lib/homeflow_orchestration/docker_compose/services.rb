@@ -28,7 +28,8 @@ module Orchestration
       def services_available
         [
           { name: 'database', class: DatabaseService },
-          { name: 'mongo', class: MongoService }
+          { name: 'mongo', class: MongoService },
+          { name: 'rabbitmq', class: RabbitMQService }
         ]
       end
 

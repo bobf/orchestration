@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'activerecord', '~> 5.2'
   spec.add_development_dependency 'bundler', '~> 1.16'
+  spec.add_development_dependency 'bunny', '~> 2.12'
   spec.add_development_dependency 'byebug', '~> 10.0'
   spec.add_development_dependency 'mongoid', '~> 7.0'
   spec.add_development_dependency 'rails', '~> 5.2'

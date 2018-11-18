@@ -12,14 +12,29 @@
 #
 .PHONY: docker docker-build docker-push wait-database start
 
+### Container management commands ###
+
 start:
 	docker-compose up -d
 
-# TODO: Infer dependencies and include them here.
-wait: wait-database
+stop:
+	docker-compose down
+
+### Service healthcheck commands ###
+
+wait: <%= config.fetch(:wait_commands) %>
+	@echo "All Containers ready."
 
 wait-database:
-	bundle exec rake orchestration:orchestration:db:wait
+	@RAILS_ENV=test bundle exec rake orchestration:orchestration:db:wait
+
+wait-mongo:
+	@RAILS_ENV=test bundle exec rake orchestration:orchestration:mongo:wait
+
+wait-rabbitmq:
+	@RAILS_ENV=test bundle exec rake orchestration:orchestration:rabbitmq:wait
+
+### Docker build commands ###
 
 docker: docker-build docker-push
 

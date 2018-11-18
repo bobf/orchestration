@@ -27,7 +27,7 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
       }
     end
 
-    its(['database']) { is_expected.to eql(expected_settings) }
+    it { is_expected.to eql(expected_settings) }
   end
 
   describe '#friendly_config' do

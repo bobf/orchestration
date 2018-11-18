@@ -16,6 +16,10 @@ module Orchestration
           def errors
             [::Mysql2::Error]
           end
+
+          def default_port
+            3306
+          end
         end
       end
     end

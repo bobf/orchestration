@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe Orchestration::Environment do
-  subject(:environment) { described_class.new }
+  subject(:environment) { described_class.new(options) }
+
+  let(:options) { {} }
 
   it { is_expected.to be_a described_class }
 
@@ -22,6 +24,11 @@ RSpec.describe Orchestration::Environment do
         before { allow(ENV).to receive(:[]).with('RAILS_ENV') { 'myenv' } }
         it { is_expected.to eql 'myenv' }
       end
+    end
+
+    context 'from initializer' do
+      let(:options) { { environment: 'myenv' } }
+      it { is_expected.to eql 'myenv' }
     end
   end
 end
