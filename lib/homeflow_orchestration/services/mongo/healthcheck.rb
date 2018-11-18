@@ -15,6 +15,8 @@ module Orchestration
         end
 
         def connect
+          # REVIEW: For some reason this is extremely slow. Worth trying
+          # to see if there's a faster way to fail.
           Mongoid.load_configuration(@configuration.settings)
           !Mongoid.default_client.database_names.empty?
         end
