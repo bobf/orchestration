@@ -36,13 +36,13 @@ module Orchestration
 
     def gitignore
       path = Rails.root.join('.gitignore')
-      lines = [
+      entries = [
         'docker/.build',
         'docker/Gemfile',
         'docker/Gemfile.lock',
         'docker/*.gemspec'
-      ]
-      lines.each { |line| ensure_line_in_file(path, line) }
+      ].map { |entry| "#{entry} # Orchestration" }
+      ensure_lines_in_file(path, entries)
     end
 
     def docker_compose
