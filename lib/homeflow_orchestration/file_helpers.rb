@@ -50,17 +50,26 @@ module Orchestration
       terminal.write(:update, relative_path(path))
     end
 
-    def append_file(path, content)
+    def append_file(path, content, echo: true)
       return write_file(path, content) unless File.exist?(path)
 
       File.write(path, content, File.size(path), mode: 'a')
-      terminal.write(:update, relative_path(path))
+      terminal.write(:update, relative_path(path)) if echo
     end
 
-    def ensure_line_in_file(path, line)
+    def ensure_lines_in_file(path, lines)
+      updated = lines.map do |line|
+        ensure_line_in_file(path, line, echo: false)
+      end.compact
+
+      terminal.write(:update, relative_path(path)) if updated.any?
+    end
+
+    def ensure_line_in_file(path, line, echo: true)
       return if line_in_file?(path, line)
 
-      append_file(path, "\n#{line.chomp}\n")
+      append_file(path, "\n#{line.chomp}\n", echo: echo)
+      true
     end
 
     def line_in_file?(path, line)
