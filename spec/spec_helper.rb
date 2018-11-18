@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
+
+require 'active_record'
+require 'bunny'
+require 'mongoid'
+
 require 'orchestration_orchestration'
 require File.join(__dir__, 'dummy/config/environment.rb')
 

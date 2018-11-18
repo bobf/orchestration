@@ -3,6 +3,7 @@
 module Orchestration
   module Services
     module Mongo
+      PORT = 27_017
     end
   end
 end

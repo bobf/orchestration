@@ -2,23 +2,30 @@
 
 module Orchestration
   module DockerCompose
-    PORT = 3354
-
     class DatabaseService
+      # We dictate which port all database services will run on in their
+      # container to simplify port mapping.
+      PORT = 3354
+
       def initialize(config)
         @config = config
       end
 
       def definition
-        adapter = @config.settings['adapter']
+        return nil if @config.settings.nil?
+
+        adapter = @config.settings.fetch('adapter')
         return nil if adapter == 'sqlite3'
 
+        port = @config.settings.fetch('port')
         {
           'image' => image_from_adapter(adapter),
           'environment' => environment_from_adapter(adapter),
-          'ports' => ["#{PORT}:#{PORT}"]
+          'ports' => ["#{port}:#{PORT}"]
         }
       end
+
+      private
 
       def image_from_adapter(adapter)
         {

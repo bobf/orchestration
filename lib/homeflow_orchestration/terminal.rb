@@ -13,14 +13,18 @@ module Orchestration
   }.freeze
 
   class Terminal
-    def write(desc, message = '')
-      puts colorize(desc, message)
+    def write(desc, message, color_name = nil)
+      STDOUT.puts colorize(desc, message, color_name)
     end
 
     private
 
-    def colorize(desc, message, color_name = nil)
-      color = color_name.nil? ? COLOR_MAP[desc] : COLOR_MAP[color_name]
+    def colorize(desc, message, color_name)
+      color = if color_name.nil?
+                COLOR_MAP.fetch(desc)
+              else
+                COLOR_MAP.fetch(color_name)
+              end
       desc
         .to_s
         .rjust(15)

@@ -7,7 +7,6 @@ module Orchestration
   end
 end
 
-require 'active_record'
 require 'erb'
 require 'uri'
 
