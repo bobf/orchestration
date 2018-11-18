@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Orchestration::Services::Database::Healthcheck do
-  subject(:healthcheck) { described_class.new(env, terminal) }
+  subject(:healthcheck) { described_class.new(env) }
 
   let(:env) do
     double(
@@ -11,12 +11,13 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
       database_configuration_path: fixture_path('sqlite3')
     )
   end
-  let(:terminal) { double('Terminal') }
 
   it { is_expected.to be_a described_class }
 
-  describe '#start' do
-    subject(:start) { healthcheck.start }
+  describe '.start' do
+    let(:terminal) { double('Terminal') }
+
+    subject(:start) { described_class.start(env, terminal) }
 
     before do
       database_url = 'sqlite3://database.db'
@@ -26,6 +27,7 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
       allow(ENV).to receive(:[]).with('DATABASE_URL') { database_url }
       allow(ActiveRecord::Base).to receive(:establish_connection)
       allow(ActiveRecord::Base).to receive(:connection)
+      allow(terminal).to receive(:write)
     end
 
     it 'outputs a message' do
@@ -40,7 +42,6 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
     end
 
     it 'attempts to connect to database' do
-      allow(terminal).to receive(:write)
       expect(ActiveRecord::Base).to receive(:connection)
 
       start

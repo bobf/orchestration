@@ -1,0 +1,6 @@
+development:
+  host: example.com
+
+test:
+  host: localhost
+  port: 5673

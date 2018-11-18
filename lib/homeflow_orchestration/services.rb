@@ -2,10 +2,9 @@
 
 module Orchestration
   module Services
-    ATTEMPT_LIMIT = 10
-    RETRY_INTERVAL = 3 # seconds
   end
 end
 
 require 'orchestration_orchestration/services/database'
 require 'orchestration_orchestration/services/mongo'
+require 'orchestration_orchestration/services/rabbitmq'

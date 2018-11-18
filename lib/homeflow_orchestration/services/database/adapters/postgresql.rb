@@ -16,6 +16,10 @@ module Orchestration
           def errors
             [PG::ConnectionBad]
           end
+
+          def default_port
+            5432
+          end
         end
       end
     end

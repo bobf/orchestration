@@ -15,7 +15,10 @@ module Orchestration
     end
 
     def makefile
-      environment = { app_id: Rails.application.class.parent.name.underscore }
+      environment = {
+        app_id: Rails.application.class.parent.name.underscore,
+        wait_commands: wait_commands
+      }
       content = template_content('Makefile', environment)
       path = Rails.root.join('Makefile')
       delete_and_inject_after(path, "\n#!!orchestration_orchestration\n", content)
@@ -41,13 +44,33 @@ module Orchestration
       path = Rails.root.join('docker-compose.yml')
       return if File.exist?(path)
 
-      env = Environment.new
-
       docker_compose = DockerCompose::Services.new(
-        database: Services::Database::Configuration.new(env),
-        mongo: Services::Mongo::Configuration.new(env)
+        database: configuration(:database),
+        mongo: configuration(:mongo),
+        rabbitmq: configuration(:rabbitmq)
       )
       write_file(path, docker_compose.structure.to_yaml)
+    end
+
+    private
+
+    def configuration(service)
+      # REVIEW: At the moment we only handle test dependencies - it would be
+      # nice to also handle development dependencies.
+      env = Environment.new(environment: 'test')
+      {
+        database: Services::Database::Configuration,
+        mongo: Services::Mongo::Configuration,
+        rabbitmq: Services::RabbitMQ::Configuration
+      }.fetch(service).new(env)
+    end
+
+    def wait_commands
+      [
+        configuration(:database).settings.nil? ? nil : 'wait-database',
+        configuration(:mongo).settings.nil? ? nil : 'wait-mongo',
+        configuration(:rabbitmq).settings.nil? ? nil : 'wait-rabbitmq'
+      ].compact.join(' ')
     end
   end
 end

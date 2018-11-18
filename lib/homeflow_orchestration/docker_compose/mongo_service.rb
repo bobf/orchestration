@@ -10,9 +10,16 @@ module Orchestration
       def definition
         return nil if @config.settings.nil?
 
+        # REVIEW: If the host application defines multiple mongo hosts then we
+        # create one service instance and point them all at the same service.
+        # Instead we should probably create a separate service for each.
+        ports = @config.ports.map do |port|
+          "#{port}:#{Orchestration::Services::Mongo::PORT}"
+        end
+
         {
           'image' => 'library/mongo',
-          'ports' => ['27017:27017']
+          'ports' => ports
         }
       end
     end

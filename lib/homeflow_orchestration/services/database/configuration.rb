@@ -9,13 +9,11 @@ module Orchestration
         def initialize(env)
           @env = env
           @adapter = nil
+          @settings = nil
           return unless defined?(ActiveRecord)
           return unless File.exist?(@env.database_configuration_path)
 
-          environments = parse(File.read(@env.database_configuration_path))
-          base = base_config(environments)
-          @adapter = adapter_object(base['adapter'])
-          @settings = base.merge(@adapter.credentials)
+          setup
         end
 
         def friendly_config
@@ -30,6 +28,14 @@ module Orchestration
 
         private
 
+        def setup
+          environments = parse(File.read(@env.database_configuration_path))
+          base = base_config(environments)
+          @adapter = adapter_object(base['adapter'])
+          @settings = base.merge(@adapter.credentials)
+          @settings.merge!(default_port) unless @settings.key?('port')
+        end
+
         def parse(content)
           yaml(erb(content))
         end
@@ -43,7 +49,6 @@ module Orchestration
         end
 
         def adapter_object(name)
-          adapters = Orchestration::Services::Database::Adapters
           {
             'mysql2' => adapters::Mysql2,
             'postgresql' => adapters::Postgresql,
@@ -56,9 +61,20 @@ module Orchestration
 
           host = url_config['host'] || environments[@env.environment]['host']
 
-          environments['default']
+          environments
+            .fetch('default')
             .merge(url_config)
             .merge('host' => host)
+        end
+
+        def adapters
+          Orchestration::Services::Database::Adapters
+        end
+
+        def default_port
+          return {} if @adapter.is_a?(adapters::Sqlite3)
+
+          { 'port' => @adapter.default_port }
         end
 
         def url_config
