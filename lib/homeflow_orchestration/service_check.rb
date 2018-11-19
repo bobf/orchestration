@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Orchestration
+module HomeflowOrchestration
   class ServiceCheck
     ATTEMPT_LIMIT = 10
     RETRY_INTERVAL = 3 # seconds
@@ -74,7 +74,7 @@ module Orchestration
 
     def service_name(service)
       # e.g.:
-      # Orchestration::Services::RabbitMQ::Healthcheck => 'rabbitmq'
+      # HomeflowOrchestration::Services::RabbitMQ::Healthcheck => 'rabbitmq'
       service.class.name.split('::')[-2].downcase
     end
   end

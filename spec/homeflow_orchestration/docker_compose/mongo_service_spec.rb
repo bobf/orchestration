@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::DockerCompose::MongoService do
+RSpec.describe HomeflowOrchestration::DockerCompose::MongoService do
   subject(:mongo_service) { described_class.new(configuration) }
 
   let(:config) { fixture_path('mongoid') }
@@ -13,7 +13,7 @@ RSpec.describe Orchestration::DockerCompose::MongoService do
   end
 
   let(:configuration) do
-    Orchestration::Services::Mongo::Configuration.new(env)
+    HomeflowOrchestration::Services::Mongo::Configuration.new(env)
   end
 
   it { is_expected.to be_a described_class }

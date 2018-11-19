@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration do
+RSpec.describe HomeflowOrchestration do
   it 'has a version number' do
-    expect(Orchestration::VERSION).not_to be nil
+    expect(HomeflowOrchestration::VERSION).not_to be nil
   end
 end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Environment do
+RSpec.describe HomeflowOrchestration::Environment do
   subject(:environment) { described_class.new(options) }
 
   let(:options) { {} }

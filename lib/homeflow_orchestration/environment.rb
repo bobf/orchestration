@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Orchestration
+module HomeflowOrchestration
   class Environment
     def initialize(options = {})
       @environment = options.fetch(:environment, nil)

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::ServiceCheck do
+RSpec.describe HomeflowOrchestration::ServiceCheck do
   subject(:service_check) { described_class.new(service, terminal, options) }
 
   let(:options) { {} }
-  let(:service) { double(class: Orchestration::ServiceCheck) }
+  let(:service) { double(class: HomeflowOrchestration::ServiceCheck) }
   let(:terminal) { double('Terminal') }
 
   it { is_expected.to be_a described_class }
@@ -28,7 +28,7 @@ RSpec.describe Orchestration::ServiceCheck do
         ),
         # Any class will do here; we're only testing text transformation on the
         # class name:
-        class: Orchestration::Services::RabbitMQ::Healthcheck
+        class: HomeflowOrchestration::Services::RabbitMQ::Healthcheck
       )
     end
 
@@ -62,7 +62,7 @@ RSpec.describe Orchestration::ServiceCheck do
 
       context 'expected errors' do
         let(:connection_error) do
-          Orchestration::OrchestrationError
+          HomeflowOrchestration::HomeflowOrchestrationError
         end
 
         before do

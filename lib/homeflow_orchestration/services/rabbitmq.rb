@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Orchestration
+module HomeflowOrchestration
   module Services
     module RabbitMQ
       PORT = 5672
@@ -8,5 +8,5 @@ module Orchestration
   end
 end
 
-require 'orchestration_orchestration/services/rabbitmq/configuration'
-require 'orchestration_orchestration/services/rabbitmq/healthcheck'
+require 'homeflow_orchestration/services/rabbitmq/configuration'
+require 'homeflow_orchestration/services/rabbitmq/healthcheck'

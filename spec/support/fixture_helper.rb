@@ -6,6 +6,6 @@ module FixtureHelper
   end
 
   def fixture_path(name, extension = 'yml')
-    Orchestration.root.join('spec', 'fixtures', "#{name}.#{extension}")
+    HomeflowOrchestration.root.join('spec', 'fixtures', "#{name}.#{extension}")
   end
 end
