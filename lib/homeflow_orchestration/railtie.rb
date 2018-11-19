@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Orchestration
+module HomeflowOrchestration
   class Railtie < Rails::Railtie
     rake_tasks do
       load 'tasks/orchestration.rake'

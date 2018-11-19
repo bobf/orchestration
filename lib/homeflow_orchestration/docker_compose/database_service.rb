@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Orchestration
+module HomeflowOrchestration
   module DockerCompose
     class DatabaseService
       # We dictate which port all database services will run on in their

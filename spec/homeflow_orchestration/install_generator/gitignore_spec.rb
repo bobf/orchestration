@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::InstallGenerator do
+RSpec.describe HomeflowOrchestration::InstallGenerator do
   let(:install_generator) { described_class.new }
 
   describe '#gitignore' do
     subject(:gitignore) { install_generator.gitignore }
 
-    let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
+    let(:dummy_path) { HomeflowOrchestration.root.join('spec', 'dummy') }
     let(:gitignore_path) { dummy_path.join('.gitignore') }
 
     before { FileUtils.rm_f(gitignore_path) }
@@ -27,7 +27,7 @@ RSpec.describe Orchestration::InstallGenerator do
       File.write(gitignore_path, '/an/ignored/path')
       gitignore
       content = File.read(gitignore_path)
-      expect(content).to include "\ndocker/.build # Orchestration\n"
+      expect(content).to include "\ndocker/.build # HomeflowOrchestration\n"
     end
 
     it 'does not add content more than once' do

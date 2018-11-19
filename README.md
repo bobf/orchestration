@@ -1,8 +1,8 @@
-# Orchestration
+# HomeflowOrchestration
 
 ## Overview
 
-_Orchestration_ provides a toolkit for building and launching _Rails_ applications and dependencies in _Docker_.
+_HomeflowOrchestration_ provides a toolkit for building and launching _Rails_ applications and dependencies in _Docker_.
 
 A suite of tools is provided to assist in creating configuration files, launching service dependencies, verifying that dependencies have launched successfully (e.g. for running tests in contiuous integration tools), and building, tagging, and pushing _Docker_ images.
 
@@ -18,7 +18,7 @@ Containers are automatically created for the following dependencies:
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'orchestration_orchestration', git: 'https://bitbucket.org/orchestration_developers/orchestration_orchestration'
+gem 'homeflow_orchestration', git: 'https://bitbucket.org/homeflow_developers/homeflow_orchestration'
 ```
 
 And then build your bundle:
@@ -32,8 +32,8 @@ $ bundle install
 
 A _Rake_ task is provided to generate the following files:
 
-* `Makefile` - provides easy access to all _Orchestration_ utilities.
-* `.gitignore` - ensures any unwanted files created by _Orchestration_ do not clutter your project's version control system.
+* `Makefile` - provides easy access to all _HomeflowOrchestration_ utilities.
+* `.gitignore` - ensures any unwanted files created by _HomeflowOrchestration_ do not clutter your project's version control system.
 * `docker/Dockerfile` - a ready-to-use _Docker_ build script which should need minimal (if any) modification to build your _Rails_ project.
 * `docker-compose.yml` - a custom-made set of services to allow you to run your application's dependencies locally.
 
@@ -41,7 +41,7 @@ A _Rake_ task is provided to generate the following files:
 
 #### Prerequisites
 
-If your project has any dependencies on private _Git_ repositories then you will need to create a _Bitbucket_ app password.
+If your project has any dependencies on _Homeflow_ _Git_ repositories then you will need to create a _Bitbucket_ app password.
 
 See the [Atlassian documentation on app passwords](https://confluence.atlassian.com/bitbucket/app-passwords-828781300.html) and follow the instructions.
 
@@ -58,7 +58,7 @@ You will also need a _Docker Hub_ account. Visit the [_Docker Hub_ webpage](http
 $ docker login
 ```
 
-Finally, you will need to have your _Docker Hub_ account added to the `orchestrationdev` organisation - speak to your team leader for further information.
+Finally, you will need to have your _Docker Hub_ account added to the `homeflowdev` organisation - speak to your team leader for further information.
 
 #### Using provided `Makefile`
 
@@ -67,7 +67,7 @@ To build your project as a _Docker_ image run the following command:
 $ make docker-build
 ```
 
-This will create a new image tagged as `orchestrationdev/<your-project-name>` versioned using the current short version of the latest _Git_ commit hash on master, e.g. `a1d5d6b`.
+This will create a new image tagged as `homeflowdev/<your-project-name>` versioned using the current short version of the latest _Git_ commit hash on master, e.g. `a1d5d6b`.
 
 You can then push your image to _Docker Hub_:
 ```bash

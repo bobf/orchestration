@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Orchestration
+module HomeflowOrchestration
   module DockerCompose
     class MongoService
       def initialize(config)
@@ -14,7 +14,7 @@ module Orchestration
         # create one service instance and point them all at the same service.
         # Instead we should probably create a separate service for each.
         ports = @config.ports.map do |port|
-          "#{port}:#{Orchestration::Services::Mongo::PORT}"
+          "#{port}:#{HomeflowOrchestration::Services::Mongo::PORT}"
         end
 
         {

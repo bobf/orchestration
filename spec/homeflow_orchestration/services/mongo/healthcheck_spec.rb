@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Services::Mongo::Healthcheck do
+RSpec.describe HomeflowOrchestration::Services::Mongo::Healthcheck do
   subject(:healthcheck) { described_class.new(env) }
 
   let(:env) do

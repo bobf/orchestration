@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::DockerCompose::DatabaseService do
+RSpec.describe HomeflowOrchestration::DockerCompose::DatabaseService do
   subject(:database_service) { described_class.new(configuration) }
 
   let(:adapter) { 'sqlite3' }
@@ -14,7 +14,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
   end
 
   let(:configuration) do
-    Orchestration::Services::Database::Configuration.new(env)
+    HomeflowOrchestration::Services::Database::Configuration.new(env)
   end
 
   describe '#definition' do

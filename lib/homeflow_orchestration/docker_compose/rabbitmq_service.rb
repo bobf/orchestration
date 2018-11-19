@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Orchestration
+module HomeflowOrchestration
   module DockerCompose
     class RabbitMQService
       def initialize(config)
@@ -11,7 +11,7 @@ module Orchestration
         return nil if @config.settings.nil?
 
         host_port = @config.settings.fetch('port', 5672)
-        container_port = Orchestration::Services::RabbitMQ::PORT
+        container_port = HomeflowOrchestration::Services::RabbitMQ::PORT
 
         {
           'image' => 'library/rabbitmq',

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Services::RabbitMQ::Healthcheck do
+RSpec.describe HomeflowOrchestration::Services::RabbitMQ::Healthcheck do
   subject(:healthcheck) { described_class.new(env) }
 
   let(:env) do

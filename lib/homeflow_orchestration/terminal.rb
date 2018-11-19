@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Orchestration
+module HomeflowOrchestration
   COLOR_MAP = {
     failure: :light_red,
     error: :red,

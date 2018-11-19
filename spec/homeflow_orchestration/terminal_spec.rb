@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Terminal do
+RSpec.describe HomeflowOrchestration::Terminal do
   subject(:terminal) { described_class.new }
 
   it { is_expected.to be_a described_class }

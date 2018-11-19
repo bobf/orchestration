@@ -1,32 +1,32 @@
 # frozen_string_literal: true
 
-require 'orchestration_orchestration'
+require 'homeflow_orchestration'
 
-namespace 'orchestration' do
+namespace 'homeflow' do
   namespace :orchestration do
     desc 'Initialise boilerplate for adding Docker to your application'
     task :install do
-      Orchestration::InstallGenerator.start
+      HomeflowOrchestration::InstallGenerator.start
     end
 
     namespace :db do
       desc 'Wait for database to become available'
       task :wait do
-        Orchestration::Services::Database::Healthcheck.start
+        HomeflowOrchestration::Services::Database::Healthcheck.start
       end
     end
 
     namespace :mongo do
       desc 'Wait for mongo to become available'
       task :wait do
-        Orchestration::Services::Mongo::Healthcheck.start
+        HomeflowOrchestration::Services::Mongo::Healthcheck.start
       end
     end
 
     namespace :rabbitmq do
       desc 'Wait for database to become available'
       task :wait do
-        Orchestration::Services::RabbitMQ::Healthcheck.start
+        HomeflowOrchestration::Services::RabbitMQ::Healthcheck.start
       end
     end
   end
