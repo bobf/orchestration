@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Orchestration
+module HomeflowOrchestration
   module Services
     module Database
       class Configuration
@@ -68,7 +68,7 @@ module Orchestration
         end
 
         def adapters
-          Orchestration::Services::Database::Adapters
+          HomeflowOrchestration::Services::Database::Adapters
         end
 
         def default_port

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Services::Mongo::Configuration do
+RSpec.describe HomeflowOrchestration::Services::Mongo::Configuration do
   subject(:configuration) { described_class.new(env) }
 
   let(:config) { fixture_path('mongoid') }

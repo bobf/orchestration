@@ -3,14 +3,14 @@
 require 'thor'
 require 'tempfile'
 
-module Orchestration
+module HomeflowOrchestration
   class InstallGenerator < Thor::Group
     include Thor::Actions
     include FileHelpers
 
     def self.source_root
-      Orchestration.root.join(
-        'lib', 'orchestration_orchestration', 'templates'
+      HomeflowOrchestration.root.join(
+        'lib', 'homeflow_orchestration', 'templates'
       )
     end
 
@@ -21,7 +21,7 @@ module Orchestration
       }
       content = template_content('Makefile', environment)
       path = Rails.root.join('Makefile')
-      delete_and_inject_after(path, "\n#!!orchestration_orchestration\n", content)
+      delete_and_inject_after(path, "\n#!!homeflow_orchestration\n", content)
     end
 
     def dockerfile
@@ -41,7 +41,7 @@ module Orchestration
         'docker/Gemfile',
         'docker/Gemfile.lock',
         'docker/*.gemspec'
-      ].map { |entry| "#{entry} # Orchestration" }
+      ].map { |entry| "#{entry} # HomeflowOrchestration" }
       ensure_lines_in_file(path, entries)
     end
 

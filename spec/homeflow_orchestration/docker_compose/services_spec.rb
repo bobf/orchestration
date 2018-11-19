@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::DockerCompose::Services do
+RSpec.describe HomeflowOrchestration::DockerCompose::Services do
   let(:init_options) { {} }
 
   subject(:services) { described_class.new(init_options) }

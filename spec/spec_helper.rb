@@ -6,7 +6,7 @@ require 'active_record'
 require 'bunny'
 require 'mongoid'
 
-require 'orchestration_orchestration'
+require 'homeflow_orchestration'
 require File.join(__dir__, 'dummy/config/environment.rb')
 
 ENV['RACK_ENV'] = 'test'

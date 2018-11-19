@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Orchestration
+module HomeflowOrchestration
   module Services
     module Database
     end
@@ -10,6 +10,6 @@ end
 require 'erb'
 require 'uri'
 
-require 'orchestration_orchestration/services/database/adapters'
-require 'orchestration_orchestration/services/database/configuration'
-require 'orchestration_orchestration/services/database/healthcheck'
+require 'homeflow_orchestration/services/database/adapters'
+require 'homeflow_orchestration/services/database/configuration'
+require 'homeflow_orchestration/services/database/healthcheck'

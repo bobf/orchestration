@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::DockerCompose::RabbitMQService do
+RSpec.describe HomeflowOrchestration::DockerCompose::RabbitMQService do
   subject(:rabbitmq_service) { described_class.new(config) }
 
   let(:config) { double('Configuration', settings: settings) }

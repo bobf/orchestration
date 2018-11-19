@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::InstallGenerator do
+RSpec.describe HomeflowOrchestration::InstallGenerator do
   let(:install_generator) { described_class.new }
 
   describe '#dockerfile' do
     subject(:dockerfile) { install_generator.dockerfile }
 
-    let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
+    let(:dummy_path) { HomeflowOrchestration.root.join('spec', 'dummy') }
     let(:dockerfile_path) { dummy_path.join('docker', 'Dockerfile') }
 
     before { FileUtils.rm_f(dockerfile_path) }

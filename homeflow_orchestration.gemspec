@@ -2,14 +2,14 @@
 
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'orchestration_orchestration/version'
+require 'homeflow_orchestration/version'
 
 Gem::Specification.new do |spec|
-  url = 'https://bitbucket.org/orchestration_developers/orchestration_orchestration/src'
-  spec.name = 'orchestration_orchestration'
-  spec.version = Orchestration::VERSION
+  url = 'https://bitbucket.org/homeflow_developers/homeflow_orchestration/src'
+  spec.name = 'homeflow_orchestration'
+  spec.version = HomeflowOrchestration::VERSION
   spec.authors = ['Bob Farrell']
-  spec.email = ['bob@orchestration.co.uk']
+  spec.email = ['bob@homeflow.co.uk']
 
   spec.summary = 'Docker orchestration toolkit'
   spec.description = 'Tools to help launch apps in Docker'

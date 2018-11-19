@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Services::Database::Configuration do
+RSpec.describe HomeflowOrchestration::Services::Database::Configuration do
   subject(:configuration) { described_class.new(env) }
 
   let(:config_path) do
-    Orchestration.root.join('spec', 'dummy', 'config', 'database.yml')
+    HomeflowOrchestration.root.join('spec', 'dummy', 'config', 'database.yml')
   end
 
   let(:env) do

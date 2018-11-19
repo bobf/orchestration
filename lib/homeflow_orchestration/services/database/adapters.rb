@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Orchestration
+module HomeflowOrchestration
   module Services
     module Database
       module Adapters
@@ -9,6 +9,6 @@ module Orchestration
   end
 end
 
-require 'orchestration_orchestration/services/database/adapters/mysql2'
-require 'orchestration_orchestration/services/database/adapters/postgresql'
-require 'orchestration_orchestration/services/database/adapters/sqlite3'
+require 'homeflow_orchestration/services/database/adapters/mysql2'
+require 'homeflow_orchestration/services/database/adapters/postgresql'
+require 'homeflow_orchestration/services/database/adapters/sqlite3'
