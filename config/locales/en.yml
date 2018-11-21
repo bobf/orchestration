@@ -1,0 +1,14 @@
+en:
+  orchestration:
+    unknown_scheme: "Unrecognised database adapter for URL scheme: %{scheme}"
+    attempt_limit: "Unable to reconnect after %{limit} attempts. Aborting."
+    database:
+      waiting: "Waiting for database: %{config}"
+      ready: "Database is ready."
+      missing_default: "database.yml must define a `default` section."
+    mongo:
+      waiting: "Waiting for Mongo: %{config}"
+      ready: "Mongo is ready."
+    rabbitmq:
+      waiting: "Waiting for RabbitMQ: %{config}"
+      ready: "RabbitMQ is ready."
