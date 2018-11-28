@@ -22,30 +22,32 @@ stop:
 
 ### Service healthcheck commands ###
 
-wait: <%= config.fetch(:wait_commands) %>
+wait: <%= wait_commands %>
 	@echo "All Containers ready."
 
 wait-database:
-	@RAILS_ENV=test bundle exec rake orchestration:orchestration:db:wait
+	@RAILS_ENV=test bundle exec rake orchestration:db:wait
 
 wait-mongo:
-	@RAILS_ENV=test bundle exec rake orchestration:orchestration:mongo:wait
+	@RAILS_ENV=test bundle exec rake orchestration:mongo:wait
 
 wait-rabbitmq:
-	@RAILS_ENV=test bundle exec rake orchestration:orchestration:rabbitmq:wait
+	@RAILS_ENV=test bundle exec rake orchestration:rabbitmq:wait
 
 ### Docker build commands ###
 
 docker: docker-build docker-push
 
-docker-build: VERSION := $(shell git rev-parse --short --verify master)
 docker-build:
 	mkdir -p ./docker/.build
 	git show master:./Gemfile > ./docker/Gemfile
 	git show master:./Gemfile.lock > ./docker/Gemfile.lock
 	git archive --format tar.gz -o docker/.build/context.tar.gz master
-	docker build --build-arg BUNDLE_GITHUB__COM --build-arg BUNDLE_BITBUCKET__ORG -t orchestrationdev/<%= config.fetch(:app_id) %>:${VERSION} ./docker/
+	docker build --build-arg BUNDLE_GITHUB__COM \
+	             --build-arg BUNDLE_BITBUCKET__ORG \
+		     -t $(shell bundle exec rake orchestration:docker:username)/<%= app_id %>:$(shell git rev-parse --short --verify master) \
+		     ./docker/
 
 docker-push: VERSION := $(shell git rev-parse --short --verify master)
 docker-push:
-	docker push orchestrationdev/<%= config.fetch(:app_id) %>:${VERSION}
+	docker push $(shell bundle exec rake orchestration:docker:username)/<%= app_id %>:${VERSION}

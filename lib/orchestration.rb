@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'colorize'
+require 'erubis'
 require 'i18n'
 require 'rails'
 
@@ -16,6 +17,7 @@ require 'orchestration/install_generator'
 require 'orchestration/railtie'
 require 'orchestration/service_check'
 require 'orchestration/services'
+require 'orchestration/settings'
 require 'orchestration/terminal'
 require 'orchestration/version'
 

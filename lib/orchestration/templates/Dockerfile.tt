@@ -1,4 +1,4 @@
-FROM ruby:<%= config.fetch(:ruby_version) %>
+FROM ruby:<%= ruby_version %>
 ARG BUNDLE_BITBUCKET__ORG
 RUN apt-get update \
  && apt-get install -y node.js \

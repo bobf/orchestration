@@ -17,15 +17,31 @@ module Orchestration
     end
 
     def mongoid_configuration_path
-      Rails.root.join('config', 'mongoid.yml')
+      root.join('config', 'mongoid.yml')
     end
 
     def database_configuration_path
-      Rails.root.join('config', 'database.yml')
+      root.join('config', 'database.yml')
     end
 
     def rabbitmq_configuration_path
-      Rails.root.join('config', 'rabbitmq.yml')
+      root.join('config', 'rabbitmq.yml')
+    end
+
+    def orchestration_configuration_path
+      root.join('.orchestration.yml')
+    end
+
+    def application_name
+      Rails.application.class.parent.name.underscore
+    end
+
+    def settings
+      Settings.new(orchestration_configuration_path)
+    end
+
+    def root
+      Rails.root
     end
   end
 end
