@@ -33,6 +33,7 @@ module Orchestration
           base = base_config(environments)
           @adapter = adapter_object(base['adapter'])
           @settings = base.merge(@adapter.credentials)
+                          .merge('scheme' => scheme_name(base['adapter']))
           @settings.merge!(default_port) unless @settings.key?('port')
         end
 
@@ -84,15 +85,19 @@ module Orchestration
 
           {
             'host' => uri.hostname,
-            'adapter' => adapter_name_from_scheme(uri.scheme),
+            'adapter' => adapter_name(uri.scheme),
             'port' => uri.port
           }.merge(query_params(uri))
         end
 
-        def adapter_name_from_scheme(scheme)
-          return 'mysql2' if scheme == 'mysql'
-          return 'postgresql' if scheme == 'postgres'
-          return 'sqlite3' if scheme == 'sqlite3'
+        def scheme_name(adapter_name)
+          adapter_mapping.invert.fetch(adapter_name)
+        end
+
+        def adapter_name(scheme)
+          name = adapter_mapping.fetch(scheme, nil)
+
+          return name unless name.nil?
 
           raise ArgumentError,
                 I18n.t('orchestration.unknown_scheme', scheme: scheme)
@@ -107,6 +112,14 @@ module Orchestration
         def missing_default
           raise DatabaseConfigurationError,
                 I18n.t('orchestration.database.missing_default')
+        end
+
+        def adapter_mapping
+          {
+            'mysql' => 'mysql2',
+            'postgres' => 'postgresql',
+            'sqlite3' => 'sqlite3'
+          }
         end
       end
     end

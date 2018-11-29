@@ -68,9 +68,8 @@ module Orchestration
     private
 
     def configuration(service)
-      # REVIEW: At the moment we only handle test dependencies - it would be
-      # nice to also handle development dependencies.
       {
+        application: Services::Application::Configuration,
         database: Services::Database::Configuration,
         mongo: Services::Mongo::Configuration,
         rabbitmq: Services::RabbitMQ::Configuration

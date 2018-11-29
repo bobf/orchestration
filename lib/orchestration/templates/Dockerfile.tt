@@ -6,6 +6,6 @@ RUN apt-get update \
  && mkdir /application
 WORKDIR /application
 COPY Gemfile Gemfile.lock ./
-RUN bundle install --deployment --without development test
+RUN bundle install --deployment
 ADD .build/context.tar.gz .
 CMD ["bundle", "exec", "rails", "server", "-p", "3000"]

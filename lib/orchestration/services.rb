@@ -5,6 +5,7 @@ module Orchestration
   end
 end
 
+require 'orchestration/services/application'
 require 'orchestration/services/database'
 require 'orchestration/services/mongo'
 require 'orchestration/services/rabbitmq'

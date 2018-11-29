@@ -34,5 +34,17 @@ RSpec.describe Orchestration::InstallGenerator do
       config = YAML.safe_load(File.read(docker_compose_path))
       expect(config['services']['mongo']['image']).to eql 'library/mongo'
     end
+
+    it 'includes rabbitmq service' do
+      docker_compose
+      config = YAML.safe_load(File.read(docker_compose_path))
+      expect(config['services']['rabbitmq']['image']).to eql 'library/rabbitmq'
+    end
+
+    it 'includes application service' do
+      docker_compose
+      config = YAML.safe_load(File.read(docker_compose_path))
+      expect(config['services']['application']['image']).to eql 'testuser/dummy'
+    end
   end
 end
