@@ -29,6 +29,7 @@ RSpec.describe Orchestration::DockerCompose::ApplicationService do
 
     it { is_expected.to be_a Hash }
     its(['image']) { is_expected.to eql 'dockeruser/test_app' }
+    its(%w[environment RAILS_ENV]) { is_expected.to be_nil }
     its(%w[environment SECRET_KEY_BASE]) { is_expected.to be_nil }
     its(%w[environment RAILS_LOG_TO_STDOUT]) { is_expected.to eql '1' }
     its(%w[environment DATABASE_URL]) do

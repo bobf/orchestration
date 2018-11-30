@@ -9,7 +9,7 @@ module Orchestration
 
     def initialize(*_args)
       super
-      @env = Environment.new(environment: 'test')
+      @env = Environment.new
       @terminal ||= Terminal.new
     end
 
