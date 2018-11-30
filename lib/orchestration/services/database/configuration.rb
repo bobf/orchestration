@@ -13,14 +13,16 @@ module Orchestration
           return unless defined?(ActiveRecord)
           return unless File.exist?(@env.database_configuration_path)
 
+          @environments = parse(File.read(@env.database_configuration_path))
           setup
         end
 
         def friendly_config
-          adapter = @settings['adapter']
-          host = @settings['host']
-          port = @settings['port']
+          adapter = @settings.fetch('adapter')
           return "[#{adapter}]" if adapter == 'sqlite3'
+
+          host = @settings.fetch('host')
+          port = @settings.fetch('port')
           return "[#{adapter}] #{host}" unless port.present?
 
           "[#{adapter}] #{host}:#{port}"
@@ -29,8 +31,6 @@ module Orchestration
         private
 
         def setup
-          environments = parse(File.read(@env.database_configuration_path))
-          base = base_config(environments)
           @adapter = adapter_object(base['adapter'])
           @settings = base.merge(@adapter.credentials)
                           .merge('scheme' => scheme_name(base['adapter']))
@@ -57,15 +57,19 @@ module Orchestration
           }.fetch(name).new
         end
 
-        def base_config(environments)
-          missing_default unless environments.key?('default')
+        def environment
+          @environments[@env.environment]
+        end
 
-          host = url_config['host'] || environments[@env.environment]['host']
+        def base
+          environment.merge(url_config).merge('host' => host)
+        end
 
-          environments
-            .fetch('default')
-            .merge(url_config)
-            .merge('host' => host)
+        def host
+          return nil if @adapter.is_a?(adapters::Sqlite3)
+          return url_config['host'] if url_config['host']
+
+          environment.fetch('host', 'localhost')
         end
 
         def adapters
@@ -107,11 +111,6 @@ module Orchestration
           return {} if uri.query.nil?
 
           Hash[URI.decode_www_form(uri.query)]
-        end
-
-        def missing_default
-          raise DatabaseConfigurationError,
-                I18n.t('orchestration.database.missing_default')
         end
 
         def adapter_mapping

@@ -7,3 +7,5 @@ Create a production docker-compose.yml and set:
   - DATABASE_URL (from config/database.yml)
 
 Provide volumes for databases and mount appropriate directories for adapter
+
+Add healthcheck for application in development mode

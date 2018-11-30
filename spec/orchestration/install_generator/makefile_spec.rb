@@ -27,7 +27,7 @@ RSpec.describe Orchestration::InstallGenerator do
       File.write(makefile_path, 'some make commands')
       makefile
       content = File.read(makefile_path)
-      expect(content).to include '.PHONY: docker'
+      expect(content).to include '.PHONY: start stop migrate'
     end
 
     it 'replaces previous Orchestration-specific content' do
