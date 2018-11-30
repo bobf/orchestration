@@ -8,4 +8,4 @@ WORKDIR /application
 COPY Gemfile Gemfile.lock ./
 RUN bundle install --deployment
 ADD .build/context.tar.gz .
-CMD ["bundle", "exec", "rails", "server", "-p", "3000"]
+CMD ["bundle", "exec", "rails", "server", "-p", "3000", "-b", "0.0.0.0"]
