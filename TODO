@@ -1,11 +1,13 @@
 Be aware of yarn and include build steps in Dockerfile if present. Use dashboard
 front end as a reference.
 
-Create a production docker-compose.yml and set:
-  - RAILS_ENV
-  - SECRET_KEY_BASE
-  - DATABASE_URL (from config/database.yml)
-
 Provide volumes for databases and mount appropriate directories for adapter
 
-Add healthcheck for application in development mode
+Refactor docker-compose services - these really belong in
+lib/orchestration/services/<service-name>/docker_compose.rb
+
+Add a note to README to handle `RAILS_LOG_TO_STDOUT` in development -
+unfortunately Rails ignores this value in development mode. (It's configured in
+config/environments/production.rb)
+
+Standardise on log formats - by policy or recommendation ?

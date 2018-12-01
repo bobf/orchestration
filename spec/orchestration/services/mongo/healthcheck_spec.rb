@@ -24,7 +24,7 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
       allow(terminal).to receive(:write)
     end
 
-    it 'outputs a message' do
+    it 'outputs a waiting message' do
       expect(terminal)
         .to receive(:write)
         .with(:waiting, 'Waiting for Mongo: [mongoid] localhost:27017')
@@ -32,8 +32,7 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
       start
     end
 
-    it 'outputs a message' do
-      expect(terminal)
+    it 'outputs a ready message' do
       expect(terminal)
         .to receive(:write)
         .with(:ready, 'Mongo is ready.')
