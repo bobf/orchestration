@@ -1,6 +1,6 @@
 #!/bin/sh
 set -u
 useradd -u ${HOST_UID} -m -o owner
-mkdir -p ${UNICORN_SOCKET_DIR}
-chown -R owner:owner /application/tmp /application/log /application/db ${UNICORN_SOCKET_DIR}
+mkdir -p /application/tmp/pids
+chown -R owner:owner /application/tmp /application/log /application/db
 exec gosu owner "$@"

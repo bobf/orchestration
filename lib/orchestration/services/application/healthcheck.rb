@@ -11,11 +11,25 @@ module Orchestration
         end
 
         def connect
-          Net::HTTP.start('localhost', 3000)
+          response = Net::HTTP.get_response(
+            URI("http://localhost:#{@configuration.local_port}")
+          )
+          connection_error(response.code) if connection_error?(response.code)
         end
 
         def connection_errors
-          [Errno::ECONNREFUSED]
+          [Errno::ECONNREFUSED, ApplicationConnectionError]
+        end
+
+        private
+
+        def connection_error(code)
+          raise ApplicationConnectionError,
+                I18n.t('orchestration.application.connection_error', code: code)
+        end
+
+        def connection_error?(code)
+          %w[502 503 500].include?(code)
         end
       end
     end

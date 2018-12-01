@@ -8,7 +8,8 @@ module Orchestration
           'application' => options.fetch(:application, nil),
           'database' => options.fetch(:database, nil),
           'mongo' => options.fetch(:mongo, nil),
-          'rabbitmq' => options.fetch(:rabbitmq, nil)
+          'rabbitmq' => options.fetch(:rabbitmq, nil),
+          'nginx-proxy' => options.fetch(:nginx_proxy, nil)
         }
       end
 
@@ -31,7 +32,8 @@ module Orchestration
           { name: 'application', class: ApplicationService },
           { name: 'database', class: DatabaseService },
           { name: 'mongo', class: MongoService },
-          { name: 'rabbitmq', class: RabbitMQService }
+          { name: 'rabbitmq', class: RabbitMQService },
+          { name: 'nginx-proxy', class: NginxProxyService }
         ]
       end
 

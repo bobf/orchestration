@@ -32,6 +32,10 @@ module Orchestration
       root.join('.orchestration.yml')
     end
 
+    def docker_compose_configuration_path
+      root.join('docker-compose.yml')
+    end
+
     def application_name
       Rails.application.class.parent.name.underscore
     end

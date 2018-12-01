@@ -18,12 +18,13 @@ COMPOSE:=HOST_UID=$(shell id -u) docker-compose
 
 start:
 	@echo "Starting containers..."
-	@${COMPOSE} up -d
+	@${COMPOSE} up -d --scale application=$${INSTANCES:-1}
 	@make wait
 
 stop:
 	@echo "Stopping containers..."
 	@${COMPOSE} down
+	@echo "All containers stopped."
 
 ### Database utility commands ###
 
@@ -41,10 +42,13 @@ wait-application:
 	@bin/rake orchestration:application:wait
 
 wait-database:
-	@bin/rake orchestration:db:wait
+	@bin/rake orchestration:database:wait
 
 wait-mongo:
 	@bin/rake orchestration:mongo:wait
+
+wait-nginx-proxy:
+	@bin/rake orchestration:nginx_proxy:wait
 
 wait-rabbitmq:
 	@bin/rake orchestration:rabbitmq:wait

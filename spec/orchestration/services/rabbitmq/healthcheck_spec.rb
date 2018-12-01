@@ -24,11 +24,17 @@ RSpec.describe Orchestration::Services::RabbitMQ::Healthcheck do
       allow(terminal).to receive(:write)
     end
 
-    it 'outputs a message' do
+    it 'outputs a ready message' do
       allow(Bunny).to receive(:new) { double(start: nil, stop: nil) }
       expect(terminal)
         .to receive(:write)
         .with(:waiting, 'Waiting for RabbitMQ: [bunny] amqp://localhost:5673')
+
+      start
+    end
+
+    it 'outputs a waiting message' do
+      allow(Bunny).to receive(:new) { double(start: nil, stop: nil) }
       expect(terminal)
         .to receive(:write)
         .with(:ready, 'RabbitMQ is ready.')

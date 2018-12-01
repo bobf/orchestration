@@ -5,12 +5,16 @@ en:
     application:
       waiting: "Waiting for application: %{config}"
       ready: "Application is ready."
+      connection_error: "Error attempting to connect to application: received status code %{code}"
     database:
       waiting: "Waiting for database: %{config}"
       ready: "Database is ready."
     mongo:
       waiting: "Waiting for Mongo: %{config}"
       ready: "Mongo is ready."
+    nginxproxy:
+      waiting: "Waiting for Nginx proxy: %{config}"
+      ready: "Nginx proxy is ready."
     rabbitmq:
       waiting: "Waiting for RabbitMQ: %{config}"
       ready: "RabbitMQ is ready."
