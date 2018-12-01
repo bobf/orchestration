@@ -14,7 +14,8 @@
 
 ### Container management commands ###
 
-COMPOSE:=HOST_UID=$${UID} docker-compose
+COMPOSE:=HOST_UID=$(shell id -u) docker-compose
+
 start:
 	@echo "Starting containers..."
 	@${COMPOSE} up -d
