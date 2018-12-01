@@ -37,6 +37,9 @@ migrate: wait-database
 wait: <%= wait_commands %>
 	@echo "All Containers ready."
 
+wait-application:
+	@bin/rake orchestration:application:wait
+
 wait-database:
 	@bin/rake orchestration:db:wait
 

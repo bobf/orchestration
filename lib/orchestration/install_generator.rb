@@ -91,7 +91,8 @@ module Orchestration
       [
         configuration(:database).settings.nil? ? nil : 'wait-database',
         configuration(:mongo).settings.nil? ? nil : 'wait-mongo',
-        configuration(:rabbitmq).settings.nil? ? nil : 'wait-rabbitmq'
+        configuration(:rabbitmq).settings.nil? ? nil : 'wait-rabbitmq',
+        'wait-application' # No-op unless in development mode
       ].compact.join(' ')
     end
 
