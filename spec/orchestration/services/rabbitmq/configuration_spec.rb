@@ -9,7 +9,10 @@ RSpec.describe Orchestration::Services::RabbitMQ::Configuration do
     double(
       'Environment',
       environment: environment,
-      rabbitmq_configuration_path: config
+      rabbitmq_configuration_path: config,
+      docker_compose_config: {
+        'services' => { 'rabbitmq' => { 'ports' => ['5673:5672'] } }
+      }
     )
   end
 
@@ -28,7 +31,7 @@ RSpec.describe Orchestration::Services::RabbitMQ::Configuration do
 
     context 'development environment (default port)' do
       let(:environment) { 'development' }
-      it { is_expected.to eql '[bunny] amqp://example.com:5672' }
+      it { is_expected.to eql '[bunny] amqp://localhost:5673' }
     end
   end
 end

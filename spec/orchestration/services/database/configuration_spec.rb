@@ -12,11 +12,33 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       'Environment',
       environment: 'test',
       database_url: nil,
-      database_configuration_path: config_path
+      database_configuration_path: config_path,
+      docker_compose_config: {
+        'services' => { 'database' => { 'ports' => ['3354:3354'] } }
+      }
     )
   end
 
   it { is_expected.to be_a described_class }
+
+  describe '#friendly_config' do
+    subject(:friendly_config) { configuration.friendly_config }
+
+    context 'sqlite3' do
+      let(:config_path) { fixture_path('sqlite3') }
+      it { is_expected.to eql '[sqlite3]' }
+    end
+
+    context 'postgresql' do
+      let(:config_path) { fixture_path('postgresql') }
+      it { is_expected.to eql '[postgresql] localhost:3354' }
+    end
+
+    context 'mysql' do
+      let(:config_path) { fixture_path('mysql2') }
+      it { is_expected.to eql '[mysql2] localhost:3354' }
+    end
+  end
 
   describe '#settings' do
     subject(:settings) { configuration.settings }
@@ -66,10 +88,10 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       end
 
       context 'host override' do
-        let(:database_url) { 'postgres://custom.host' }
+        let(:database_url) { 'postgres://localhost' }
 
         its(['adapter']) { is_expected.to eql 'postgresql' }
-        its(['host']) { is_expected.to eql 'custom.host' }
+        its(['host']) { is_expected.to eql 'localhost' }
         its(['database']) { is_expected.to eql 'postgres' }
         its(['username']) { is_expected.to eql 'postgres' }
         its(['password']) { is_expected.to eql 'password' }
@@ -95,7 +117,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       end
 
       its(['adapter']) { is_expected.to eql 'postgresql' }
-      its(['host']) { is_expected.to eql 'database.company.org' }
+      its(['host']) { is_expected.to eql 'localhost' }
       its(['database']) { is_expected.to eql 'postgres' }
       its(['username']) { is_expected.to eql 'postgres' }
       its(['password']) { is_expected.to eql 'password' }

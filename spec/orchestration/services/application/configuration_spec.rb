@@ -11,7 +11,10 @@ RSpec.describe Orchestration::Services::Application::Configuration do
       environment: 'development',
       database_url: nil,
       application_name: 'testapp',
-      settings: instance_double(Orchestration::Settings)
+      settings: instance_double(Orchestration::Settings),
+      docker_compose_config: {
+        'services' => { 'nginx-proxy' => { 'ports' => ['3000:80'] } }
+      }
     )
   end
 
@@ -22,10 +25,10 @@ RSpec.describe Orchestration::Services::Application::Configuration do
   it { is_expected.to be_a described_class }
   its(:docker_username) { is_expected.to eql 'testuser' }
   its(:application_name) { is_expected.to eql 'testapp' }
-  its(:friendly_config) { is_expected.to eql '[testapp]' }
+  its(:friendly_config) { is_expected.to eql '[testapp] localhost:3000' }
   its(:local_port) { is_expected.to eql 3000 }
   its(:database_settings) { is_expected.to be_a Hash }
   its(:database_url) do
-    is_expected.to eql 'mysql://root:password@database:3354/mysql'
+    is_expected.to eql 'mysql://root:password@database:3306/mysql'
   end
 end

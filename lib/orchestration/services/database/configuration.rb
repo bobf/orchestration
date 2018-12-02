@@ -4,7 +4,11 @@ module Orchestration
   module Services
     module Database
       class Configuration
-        attr_reader :adapter, :settings
+        include ConfigurationBase
+
+        self.service_name = 'database'
+
+        attr_reader :adapter
 
         def initialize(env)
           @env = env
@@ -21,11 +25,7 @@ module Orchestration
           adapter = @settings.fetch('adapter')
           return "[#{adapter}]" if adapter == 'sqlite3'
 
-          host = @settings.fetch('host')
-          port = @settings.fetch('port')
-          return "[#{adapter}] #{host}" unless port.present?
-
-          "[#{adapter}] #{host}:#{port}"
+          "[#{adapter}] #{host}:#{local_port}"
         end
 
         private
@@ -34,7 +34,7 @@ module Orchestration
           @adapter = adapter_object(base['adapter'])
           @settings = base.merge(@adapter.credentials)
                           .merge('scheme' => scheme_name(base['adapter']))
-          @settings.merge!(default_port) unless @settings.key?('port')
+          @settings.merge!(default_port) if @settings['port'].nil?
         end
 
         def parse(content)
@@ -67,9 +67,8 @@ module Orchestration
 
         def host
           return nil if @adapter.is_a?(adapters::Sqlite3)
-          return url_config['host'] if url_config['host']
 
-          environment.fetch('host', 'localhost')
+          super
         end
 
         def adapters

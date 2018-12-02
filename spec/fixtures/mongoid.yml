@@ -2,5 +2,5 @@ test:
   clients:
     default:
       hosts:
-        - localhost
+        - localhost:27020
       database: test_db

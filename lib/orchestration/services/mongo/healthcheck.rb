@@ -6,6 +6,8 @@ module Orchestration
       class Healthcheck
         include HealthcheckBase
 
+        dependencies 'mongoid'
+
         def initialize(env)
           @configuration = Configuration.new(env)
         end
@@ -19,14 +21,6 @@ module Orchestration
           # to see if there's a faster way to fail.
           Mongoid.load_configuration(@configuration.settings)
           !Mongoid.default_client.database_names.empty?
-        end
-
-        private
-
-        def clients
-          return Mongoid.sessions if Mongoid.respond_to?(:sessions)
-
-          Mongoid.clients
         end
       end
     end

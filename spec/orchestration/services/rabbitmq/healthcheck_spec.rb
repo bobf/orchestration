@@ -7,7 +7,10 @@ RSpec.describe Orchestration::Services::RabbitMQ::Healthcheck do
     double(
       'Environment',
       environment: 'test',
-      rabbitmq_configuration_path: fixture_path('rabbitmq')
+      rabbitmq_configuration_path: fixture_path('rabbitmq'),
+      docker_compose_config: {
+        'services' => { 'rabbitmq' => { 'ports' => ['5673:5672'] } }
+      }
     )
   end
 
@@ -24,16 +27,16 @@ RSpec.describe Orchestration::Services::RabbitMQ::Healthcheck do
       allow(terminal).to receive(:write)
     end
 
-    it 'outputs a ready message' do
+    it 'outputs a waiting message' do
       allow(Bunny).to receive(:new) { double(start: nil, stop: nil) }
       expect(terminal)
         .to receive(:write)
-        .with(:waiting, 'Waiting for RabbitMQ: [bunny] amqp://localhost:5673')
+        .with(:waiting, any_args)
 
       start
     end
 
-    it 'outputs a waiting message' do
+    it 'outputs a ready message' do
       allow(Bunny).to receive(:new) { double(start: nil, stop: nil) }
       expect(terminal)
         .to receive(:write)

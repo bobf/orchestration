@@ -7,7 +7,10 @@ RSpec.describe Orchestration::Services::NginxProxy::Healthcheck do
     instance_double(
       Orchestration::Environment,
       settings: settings,
-      docker_compose_configuration_path: fixture_path('docker-compose')
+      docker_compose_configuration_path: fixture_path('docker-compose'),
+      docker_compose_config: {
+        'services' => { 'nginx-proxy' => { 'ports' => ['3000:80'] } }
+      }
     )
   end
 
@@ -28,14 +31,14 @@ RSpec.describe Orchestration::Services::NginxProxy::Healthcheck do
     it 'outputs a waiting message' do
       expect(terminal)
         .to receive(:write)
-        .with(:waiting, 'Waiting for Nginx proxy: [nginx-proxy]')
+        .with(:waiting, any_args)
       start
     end
 
     it 'outputs a ready message' do
       expect(terminal)
         .to receive(:write)
-        .with(:waiting, 'Waiting for Nginx proxy: [nginx-proxy]')
+        .with(:waiting, any_args)
         .with(:ready, 'Nginx proxy is ready.')
       start
     end

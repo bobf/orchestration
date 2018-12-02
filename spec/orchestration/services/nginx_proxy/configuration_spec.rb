@@ -7,10 +7,13 @@ RSpec.describe Orchestration::Services::NginxProxy::Configuration do
   let(:env) do
     instance_double(
       Orchestration::Environment,
-      docker_compose_configuration_path: config
+      docker_compose_configuration_path: config,
+      docker_compose_config: {
+        'services' => { 'nginx-proxy' => { 'ports' => ['3000:80'] } }
+      }
     )
   end
 
   it { is_expected.to be_a described_class }
-  its(:friendly_config) { is_expected.to eql '[nginx-proxy]' }
+  its(:friendly_config) { is_expected.to eql '[nginx-proxy] localhost:3000' }
 end

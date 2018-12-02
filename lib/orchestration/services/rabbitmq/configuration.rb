@@ -4,7 +4,9 @@ module Orchestration
   module Services
     module RabbitMQ
       class Configuration
-        attr_reader :settings
+        include ConfigurationBase
+
+        self.service_name = 'rabbitmq'
 
         def initialize(env)
           @env = env
@@ -17,10 +19,7 @@ module Orchestration
         end
 
         def friendly_config
-          host = @settings.fetch('host')
-          port = @settings.fetch('port')
-
-          "[bunny] amqp://#{host}:#{port}"
+          "[bunny] amqp://#{host}:#{local_port}"
         end
 
         private

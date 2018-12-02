@@ -36,6 +36,10 @@ module Orchestration
       root.join('docker-compose.yml')
     end
 
+    def docker_compose_config
+      YAML.safe_load(File.read(docker_compose_configuration_path))
+    end
+
     def application_name
       Rails.application.class.parent.name.underscore
     end
@@ -45,7 +49,9 @@ module Orchestration
     end
 
     def root
-      Rails.root
+      return Rails.root if defined?(Rails) && Rails.root
+
+      Pathname.new(Dir.pwd)
     end
   end
 end
