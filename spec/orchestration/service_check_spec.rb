@@ -4,7 +4,10 @@ RSpec.describe Orchestration::ServiceCheck do
   subject(:service_check) { described_class.new(service, terminal, options) }
 
   let(:options) { {} }
-  let(:service) { double(class: Orchestration::ServiceCheck) }
+  let(:service) do
+    double(class: Orchestration::ServiceCheck, service_name: 'service')
+  end
+
   let(:terminal) { double('Terminal') }
 
   it { is_expected.to be_a described_class }
@@ -21,6 +24,7 @@ RSpec.describe Orchestration::ServiceCheck do
         echo_ready: nil,
         echo_failure: nil,
         echo_error: nil,
+        service_name: 'rabbitmq',
         connection_errors: [connection_error],
         configuration: double(
           'Configuration',

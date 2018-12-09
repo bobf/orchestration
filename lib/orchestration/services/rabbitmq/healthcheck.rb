@@ -8,10 +8,6 @@ module Orchestration
 
         dependencies 'bunny'
 
-        def initialize(env)
-          @configuration = Configuration.new(env)
-        end
-
         def connection_errors
           [
             Bunny::TCPConnectionFailedForAllHosts,

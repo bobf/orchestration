@@ -3,53 +3,60 @@
 require 'orchestration'
 
 namespace :orchestration do
-  desc 'Initialise boilerplate for adding Docker to your application'
+  desc I18n.t('orchestration.rake.install')
   task :install do
     Orchestration::InstallGenerator.start
   end
 
   namespace :application do
-    desc 'Wait for application to become available'
+    desc I18n.t('orchestration.application.wait')
     task :wait do
       Orchestration::Services::Application::Healthcheck.start
     end
   end
 
   namespace :database do
-    desc 'Wait for database to become available'
+    desc I18n.t('orchestration.database.wait')
     task :wait do
       Orchestration::Services::Database::Healthcheck.start
     end
   end
 
   namespace :mongo do
-    desc 'Wait for mongo to become available'
+    desc I18n.t('orchestration.mongo.wait')
     task :wait do
       Orchestration::Services::Mongo::Healthcheck.start
     end
   end
 
   namespace :nginx_proxy do
-    desc 'Wait for Nginx proxy to become available'
+    desc I18n.t('orchestration.nginx-proxy.wait')
     task :wait do
       Orchestration::Services::NginxProxy::Healthcheck.start
     end
   end
 
   namespace :rabbitmq do
-    desc 'Wait for database to become available'
+    desc I18n.t('orchestration.rabbitmq.wait')
     task :wait do
       Orchestration::Services::RabbitMQ::Healthcheck.start
     end
   end
 
   namespace :docker do
-    desc 'Output configured Docker username'
+    desc I18n.t('orchestration.rake.listener.wait')
     task :username do
       STDOUT.write(
         Orchestration::Environment.new.settings.get('docker.username')
       )
       STDOUT.flush
+    end
+  end
+
+  namespace :listener do
+    desc I18n.t('orchestration.rake.listener.wait')
+    task :wait do
+      Orchestration::Services::Listener::Healthcheck.start(ENV.fetch('service'))
     end
   end
 end

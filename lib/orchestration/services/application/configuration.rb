@@ -8,8 +8,8 @@ module Orchestration
 
         self.service_name = 'application'
 
-        def initialize(env)
-          @env = env
+        def initialize(env, service_name = nil)
+          super
           @settings = {} # Included for interface consistency; currently unused.
         end
 

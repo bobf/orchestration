@@ -8,8 +8,8 @@ module Orchestration
 
         self.service_name = 'mongo'
 
-        def initialize(env)
-          @env = env
+        def initialize(env, service_name = nil)
+          super
           @settings = nil
           return unless defined?(Mongoid)
           return unless File.exist?(@env.mongoid_configuration_path)

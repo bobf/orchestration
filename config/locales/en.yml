@@ -16,7 +16,7 @@ en:
       waiting: "Waiting for Mongo: %{config}"
       ready: "Mongo is ready."
 
-    nginxproxy:
+    nginx-proxy:
       waiting: "Waiting for Nginx proxy: %{config}"
       ready: "Nginx proxy is ready."
 
@@ -24,5 +24,34 @@ en:
       waiting: "Waiting for RabbitMQ: %{config}"
       ready: "RabbitMQ is ready."
 
+    custom_service:
+      waiting: "Waiting for [%{service}]: %{config}"
+      ready: "[%{service}] is ready."
+
     docker:
       username_request: "Enter your Docker registry username (used for tagging images)"
+
+    rake:
+      docker:
+        username: "Output configured Docker username"
+
+      application:
+        wait: "Wait for database to become available"
+
+      database:
+        wait: "Wait for database to become available"
+
+      listener:
+        wait: "Wait for a locally-bound service to accept connections (pass `service=NAME`)"
+
+      mongo:
+        wait: "Wait for Mongo to become available"
+
+      nginx-proxy:
+        wait: "Wait for Nginx proxy to become available"
+
+      rabbitmq:
+        wait: "Wait for RabbitMQ to become available"
+
+      rabbitmq:
+        wait: "Initialise boilerplate for adding Docker to your application"

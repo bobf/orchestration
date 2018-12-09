@@ -8,10 +8,6 @@ module Orchestration
 
         dependencies 'active_record'
 
-        def initialize(env)
-          @configuration = Configuration.new(env)
-        end
-
         def connect
           ActiveRecord::Base.establish_connection(@configuration.settings)
           ActiveRecord::Base.connection

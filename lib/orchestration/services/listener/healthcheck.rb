@@ -2,7 +2,7 @@
 
 module Orchestration
   module Services
-    module NginxProxy
+    module Listener
       class Healthcheck
         include HealthcheckBase
 

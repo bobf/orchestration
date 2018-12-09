@@ -8,8 +8,8 @@ module Orchestration
 
         self.service_name = 'rabbitmq'
 
-        def initialize(env)
-          @env = env
+        def initialize(env, service_name = nil)
+          super
           @settings = nil
           return unless defined?(RabbitMQ)
           return unless File.exist?(@env.rabbitmq_configuration_path)

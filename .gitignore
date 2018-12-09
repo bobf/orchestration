@@ -23,4 +23,6 @@ spec/dummy/docker/*
 spec/dummy/docker-compose.yml
 spec/dummy/config/unicorn.rb
 
+orchestration-*.gem
+
 .byebug_history

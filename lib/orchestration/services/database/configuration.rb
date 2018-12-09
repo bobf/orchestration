@@ -10,8 +10,8 @@ module Orchestration
 
         attr_reader :adapter
 
-        def initialize(env)
-          @env = env
+        def initialize(env, service_name = nil)
+          super
           @adapter = nil
           @settings = nil
           return unless defined?(ActiveRecord)
