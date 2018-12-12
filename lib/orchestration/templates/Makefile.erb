@@ -57,21 +57,23 @@ wait-rabbitmq:
 
 docker: build push
 
+GIT_BRANCH:=BRANCH:=$(if $(BRANCH),$(BRANCH),$(shell git rev-parse --abbrev-ref HEAD))
+
 build:
 	@echo "Preparing build."
 	@mkdir -p ./docker/.build
-	@git show master:./Gemfile > ./docker/Gemfile
-	@git show master:./Gemfile.lock > ./docker/Gemfile.lock
+	@git show ${GIT_BRANCH}:./Gemfile > ./docker/Gemfile
+	@git show ${GIT_BRANCH}:./Gemfile.lock > ./docker/Gemfile.lock
 	@echo "Building..."
-	@git archive --format tar.gz -o docker/.build/context.tar.gz master
+	@git archive --format tar.gz -o docker/.build/context.tar.gz ${GIT_BRANCH}
 	@docker build \
 	             --build-arg BUNDLE_GITHUB__COM \
 	             --build-arg BUNDLE_BITBUCKET__ORG \
 		     -t $(shell bin/rake orchestration:docker:username)/<%= app_id %> \
-		     -t $(shell bin/rake orchestration:docker:username)/<%= app_id %>:$(shell git rev-parse --short --verify master) \
+		     -t $(shell bin/rake orchestration:docker:username)/<%= app_id %>:$(shell git rev-parse --short --verify ${GIT_BRANCH}) \
 		     ./docker/
 	@echo "Build complete."
 
-push: VERSION := $(shell git rev-parse --short --verify master)
+push: VERSION := $(shell git rev-parse --short --verify ${GIT_BRANCH})
 push:
 	docker push $(shell bin/rake orchestration:docker:username)/<%= app_id %>:${VERSION}
