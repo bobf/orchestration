@@ -24,7 +24,7 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
       {
         'clients' => {
           'default' => {
-            'database' => 'test_db', 'hosts' => ['localhost:27020']
+            'database' => 'test_db', 'hosts' => ['127.0.0.1:27020']
           }
         }
       }
@@ -33,5 +33,7 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
     it { is_expected.to eql(expected_settings) }
   end
 
-  its(:friendly_config) { is_expected.to eql '[mongoid] localhost:27018' }
+  its(:friendly_config) do
+    is_expected.to eql '[mongoid] 127.0.0.1:27018/test_db'
+  end
 end

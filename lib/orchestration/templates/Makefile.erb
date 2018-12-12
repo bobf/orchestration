@@ -57,10 +57,10 @@ wait-rabbitmq:
 
 docker: build push
 
-GIT_BRANCH:=BRANCH:=$(if $(BRANCH),$(BRANCH),$(shell git rev-parse --abbrev-ref HEAD))
+GIT_BRANCH:=$(if $(BRANCH),$(BRANCH),$(shell git rev-parse --abbrev-ref HEAD))
 
 build:
-	@echo "Preparing build."
+	@echo "Preparing build from ${GIT_BRANCH}"
 	@mkdir -p ./docker/.build
 	@git show ${GIT_BRANCH}:./Gemfile > ./docker/Gemfile
 	@git show ${GIT_BRANCH}:./Gemfile.lock > ./docker/Gemfile.lock

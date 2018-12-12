@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'orchestration/version'
 
 Gem::Specification.new do |spec|
-  url = 'https://bitbucket.org/orchestration_developers/orchestration/src'
+  url = 'https://github.com/bobf/orchestration'
   spec.name = 'orchestration'
   spec.version = Orchestration::VERSION
   spec.authors = ['Bob Farrell']

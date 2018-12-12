@@ -15,5 +15,5 @@ RSpec.describe Orchestration::Services::Listener::Configuration do
   end
 
   it { is_expected.to be_a described_class }
-  its(:friendly_config) { is_expected.to eql '[custom-service] localhost:3000' }
+  its(:friendly_config) { is_expected.to eql '[custom-service] 127.0.0.1:3000' }
 end

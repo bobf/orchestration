@@ -22,12 +22,6 @@ module Orchestration
           connection.start
           connection.stop
         end
-
-        private
-
-        def devnull
-          File.open(File::NULL, 'w')
-        end
       end
     end
   end

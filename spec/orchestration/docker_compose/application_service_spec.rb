@@ -12,7 +12,7 @@ RSpec.describe Orchestration::DockerCompose::ApplicationService do
       'Environment',
       application_name: 'test_app',
       environment: 'test',
-      database_url: 'postgres://hostname',
+      database_url: 'postgresql://hostname',
       settings: settings,
       database_configuration_path: fixture_path('postgresql')
     )
@@ -42,7 +42,7 @@ RSpec.describe Orchestration::DockerCompose::ApplicationService do
     its(['environment']) { is_expected.to have_key 'SECRET_KEY_BASE' }
     its(%w[environment RAILS_LOG_TO_STDOUT]) { is_expected.to eql '1' }
     its(%w[environment DATABASE_URL]) do
-      is_expected.to eql 'postgres://postgres:password@database:3354/postgres'
+      is_expected.to eql 'postgresql://postgres:password@database:3354/postgres'
     end
 
     its(%w[environment UNICORN_PRELOAD_APP]) { is_expected.to eql '1' }

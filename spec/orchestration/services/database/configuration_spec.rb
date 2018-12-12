@@ -31,12 +31,12 @@ RSpec.describe Orchestration::Services::Database::Configuration do
 
     context 'postgresql' do
       let(:config_path) { fixture_path('postgresql') }
-      it { is_expected.to eql '[postgresql] localhost:3354' }
+      it { is_expected.to eql '[postgresql] 127.0.0.1:3354' }
     end
 
     context 'mysql' do
       let(:config_path) { fixture_path('mysql2') }
-      it { is_expected.to eql '[mysql2] localhost:3354' }
+      it { is_expected.to eql '[mysql2] 127.0.0.1:3354' }
     end
   end
 
@@ -60,8 +60,8 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       let(:config_path) { fixture_path('postgresql') }
 
       its(['adapter']) { is_expected.to eql 'postgresql' }
-      its(['scheme']) { is_expected.to eql 'postgres' }
-      its(['host']) { is_expected.to eql 'localhost' }
+      its(['scheme']) { is_expected.to eql 'postgresql' }
+      its(['host']) { is_expected.to eql '127.0.0.1' }
       its(['database']) { is_expected.to eql 'postgres' }
       its(['username']) { is_expected.to eql 'postgres' }
       its(['password']) { is_expected.to eql 'password' }
@@ -72,8 +72,8 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       let(:config_path) { fixture_path('mysql2') }
 
       its(['adapter']) { is_expected.to eql 'mysql2' }
-      its(['scheme']) { is_expected.to eql 'mysql' }
-      its(['host']) { is_expected.to eql 'localhost' }
+      its(['scheme']) { is_expected.to eql 'mysql2' }
+      its(['host']) { is_expected.to eql '127.0.0.1' }
       its(['database']) { is_expected.to eql 'mysql' }
       its(['username']) { is_expected.to eql 'root' }
       its(['password']) { is_expected.to eql 'password' }
@@ -88,20 +88,20 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       end
 
       context 'host override' do
-        let(:database_url) { 'postgres://localhost' }
+        let(:database_url) { 'postgresql://localhost' }
 
         its(['adapter']) { is_expected.to eql 'postgresql' }
-        its(['host']) { is_expected.to eql 'localhost' }
+        its(['host']) { is_expected.to eql '127.0.0.1' }
         its(['database']) { is_expected.to eql 'postgres' }
         its(['username']) { is_expected.to eql 'postgres' }
         its(['password']) { is_expected.to eql 'password' }
       end
 
       context 'port override' do
-        let(:database_url) { 'postgres://:5678' }
+        let(:database_url) { 'postgresql://:5678' }
 
         its(['adapter']) { is_expected.to eql 'postgresql' }
-        its(['host']) { is_expected.to eql 'localhost' }
+        its(['host']) { is_expected.to eql '127.0.0.1' }
         its(['database']) { is_expected.to eql 'postgres' }
         its(['username']) { is_expected.to eql 'postgres' }
         its(['password']) { is_expected.to eql 'password' }
@@ -117,7 +117,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       end
 
       its(['adapter']) { is_expected.to eql 'postgresql' }
-      its(['host']) { is_expected.to eql 'localhost' }
+      its(['host']) { is_expected.to eql '127.0.0.1' }
       its(['database']) { is_expected.to eql 'postgres' }
       its(['username']) { is_expected.to eql 'postgres' }
       its(['password']) { is_expected.to eql 'password' }
