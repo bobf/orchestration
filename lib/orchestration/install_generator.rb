@@ -49,7 +49,7 @@ module Orchestration
     def gitignore
       path = @env.root.join('.gitignore')
       entries = [
-        'docker/.build',
+        'docker/.build/context.tar.gz',
         'docker/Gemfile',
         'docker/Gemfile.lock',
         'docker/*.gemspec'
