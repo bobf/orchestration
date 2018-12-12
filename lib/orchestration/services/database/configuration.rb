@@ -33,8 +33,10 @@ module Orchestration
         def setup
           @adapter = adapter_object(base['adapter'])
           @settings = base.merge(@adapter.credentials)
-                          .merge('scheme' => scheme_name(base['adapter']))
-          @settings.merge!(default_port) if @settings['port'].nil?
+                          .merge(
+                            'scheme' => scheme_name(base['adapter']),
+                            'port' => DockerCompose::DatabaseService::PORT
+                          )
         end
 
         def parse(content)

@@ -29,6 +29,6 @@ RSpec.describe Orchestration::Services::Application::Configuration do
   its(:local_port) { is_expected.to eql 3000 }
   its(:database_settings) { is_expected.to be_a Hash }
   its(:database_url) do
-    is_expected.to eql 'mysql://root:password@database:3306/mysql'
+    is_expected.to eql 'mysql://root:password@database:3354/mysql'
   end
 end
