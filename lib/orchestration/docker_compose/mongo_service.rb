@@ -19,13 +19,17 @@ module Orchestration
       private
 
       def local_port
-        _host, _, port = @config.settings
-                                .fetch('clients')
-                                .fetch('default')
+        _host, _, port = clients.fetch('default')
                                 .fetch('hosts')
                                 .first
                                 .partition(':')
         port.empty? ? remote_port : port
+      end
+
+      def clients
+        @config.settings.fetch('clients')
+      rescue KeyError
+        @config.settings.fetch('sessions')
       end
 
       def remote_port
