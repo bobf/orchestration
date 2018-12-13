@@ -26,6 +26,12 @@ stop:
 	@${COMPOSE} down
 	@echo "All containers stopped."
 
+start-application:
+	@echo "Starting containers..."
+	@${COMPOSE} up -d --scale application=$${INSTANCES:-1} nginx-proxy application
+	@make wait-nginx-proxy wait-application
+	@echo "Application started."
+
 ### Database utility commands ###
 
 migrate: wait-database
