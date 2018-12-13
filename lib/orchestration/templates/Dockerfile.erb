@@ -2,10 +2,9 @@ FROM ruby:<%= ruby_version %>
 ARG BUNDLE_BITBUCKET__ORG
 ARG BUNDLE_GITHUB__COM
 RUN apt-get update \
- && apt-get install -y node.js gosu \
+ && apt-get install -y node.js gosu sendmail \
  && rm -rf /var/lib/apt/lists/* \
  && gem install bundler \
- && gem install unicorn \
  && mkdir /application
 WORKDIR /application
 COPY Gemfile Gemfile.lock ./
