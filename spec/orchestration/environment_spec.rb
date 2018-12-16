@@ -35,6 +35,8 @@ RSpec.describe Orchestration::Environment do
   its(:database_configuration_path) { is_expected.to be_a Pathname }
   its(:mongoid_configuration_path) { is_expected.to be_a Pathname }
   its(:rabbitmq_configuration_path) { is_expected.to be_a Pathname }
+  its(:docker_compose_configuration_path) { is_expected.to be_a Pathname }
+  its(:docker_compose_config?) { is_expected.to be true }
 
   its(:application_name) { is_expected.to eql 'dummy' }
 

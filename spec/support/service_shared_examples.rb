@@ -16,7 +16,8 @@ RSpec.shared_examples 'a service' do |service|
         database_url: nil,
         database_configuration_path: fixture_path('sqlite3'),
         mongoid_configuration_path: fixture_path('mongoid'),
-        rabbitmq_configuration_path: fixture_path('rabbitmq')
+        rabbitmq_configuration_path: fixture_path('rabbitmq'),
+        docker_compose_config?: false
       )
     end
 

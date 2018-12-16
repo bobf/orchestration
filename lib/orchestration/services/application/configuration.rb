@@ -37,7 +37,7 @@ module Orchestration
           database = settings.fetch('database')
           username = settings.fetch('username')
           password = settings.fetch('password')
-          port = settings.fetch('port')
+          port = DockerCompose::DatabaseService::PORT
           host = Database::Configuration.service_name
 
           "#{scheme}://#{username}:#{password}@#{host}:#{port}/#{database}"
