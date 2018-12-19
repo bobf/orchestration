@@ -1,6 +1,3 @@
-Be aware of yarn and include build steps in Dockerfile if present. Use dashboard
-front end as a reference.
-
 Provide volumes for databases and mount appropriate directories for adapter
 
 Refactor docker-compose services - these really belong in

@@ -5,9 +5,14 @@ RUN apt-get update \
  && apt-get install -y node.js gosu sendmail \
  && rm -rf /var/lib/apt/lists/* \
  && gem install bundler \
- && mkdir /application
+ && mkdir /application<%if defined?(Webpacker) %> \
+ && curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash \
+ && . /root/.bashrc \
+ && nvm install 10.11.0 \
+ && npm install -g yarn<% end %>
 WORKDIR /application
 COPY Gemfile Gemfile.lock ./
-RUN bundle install --deployment
+RUN bundle install --without development test --deployment
 COPY entrypoint.sh /
 ADD .build/context.tar.gz .
+<% if defined?(Webpacker) %>RUN . /root/.bashrc && yarn install && bundle exec rake assets:precompile<% else %>RUN bundle exec rake assets:precompile<% end %>
