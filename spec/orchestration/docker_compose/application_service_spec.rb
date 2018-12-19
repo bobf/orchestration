@@ -29,13 +29,6 @@ RSpec.describe Orchestration::DockerCompose::ApplicationService do
     end
 
     it { is_expected.to be_a Hash }
-    its(['command']) do
-      is_expected.to eql %w[
-        bundle exec unicorn -c /application/config/unicorn.rb
-      ]
-    end
-
-    its(['entrypoint']) { is_expected.to eql '/entrypoint.sh' }
     its(['expose']) { is_expected.to eql [8080] }
     its(['image']) { is_expected.to eql 'dockeruser/test_app' }
     its(['environment']) { is_expected.to have_key 'HOST_UID' }
