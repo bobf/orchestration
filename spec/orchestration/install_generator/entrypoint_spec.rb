@@ -7,7 +7,7 @@ RSpec.describe Orchestration::InstallGenerator do
     subject(:entrypoint) { install_generator.entrypoint }
 
     let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
-    let(:entrypoint_path) { dummy_path.join('docker', 'entrypoint.sh') }
+    let(:entrypoint_path) { dummy_path.join('orchestration', 'entrypoint.sh') }
 
     before { FileUtils.rm_f(entrypoint_path) }
 

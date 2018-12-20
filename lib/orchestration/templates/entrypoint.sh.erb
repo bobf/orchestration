@@ -1,7 +1,9 @@
 #!/bin/sh
 set -u
 id owner >/dev/null 2>&1 || useradd -u ${HOST_UID} -m -o owner
-mkdir -p /application/tmp/pids
-chown -R owner:owner /application/tmp /application/log /application/db
-rm -f /application/tmp/pids/unicorn.pid
+mkdir -p /app/tmp/pids
+chown -R owner:owner /app/tmp /app/log /app/db
+rm -f /app/tmp/pids/unicorn.pid
+mkdir -p /var/www/public/
+ln -nfs /app/public/* /var/www/public/
 exec gosu owner "$@"

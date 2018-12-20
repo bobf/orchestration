@@ -1,6 +1,7 @@
 en:
   orchestration:
     attempt_limit: "Unable to reconnect after %{limit} attempts. Aborting."
+    default: "default"
 
     application:
       waiting: "Waiting for application: %{config}"
@@ -27,8 +28,15 @@ en:
       waiting: "Waiting for [%{service}]: %{config}"
       ready: "[%{service}] is ready."
 
-    docker:
-      username_request: "Enter your Docker registry username (used for tagging images)"
+    settings:
+      docker:
+        username:
+          description: "Docker registry username"
+          prompt: "username"
+
+        repository:
+          description: "Project name (will be used as Docker registry repository)"
+          prompt: "project name"
 
     rake:
       docker:

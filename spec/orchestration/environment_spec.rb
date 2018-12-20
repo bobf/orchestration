@@ -38,7 +38,7 @@ RSpec.describe Orchestration::Environment do
   its(:docker_compose_configuration_path) { is_expected.to be_a Pathname }
   its(:docker_compose_config?) { is_expected.to be true }
 
-  its(:application_name) { is_expected.to eql 'dummy' }
+  its(:default_application_name) { is_expected.to eql 'dummy' }
 
   describe '#settings' do
     subject(:settings) { environment.settings }

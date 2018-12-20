@@ -4,9 +4,11 @@ RSpec.describe Orchestration::DockerCompose::NginxProxyService do
   subject(:nginx_proxy_service) { described_class.new(configuration) }
 
   let(:env) do
-    double(
-      'Environment',
-      environment: 'test'
+    instance_double(
+      Orchestration::Environment,
+      environment: 'test',
+      orchestration_root: Pathname.new('orchestration'),
+      public_volume: 'myapp_public'
     )
   end
 
@@ -21,7 +23,11 @@ RSpec.describe Orchestration::DockerCompose::NginxProxyService do
 
     its(['image']) { is_expected.to eql 'jwilder/nginx-proxy' }
     its(['volumes']) do
-      is_expected.to eql ['/var/run/docker.sock:/tmp/docker.sock:ro']
+      is_expected.to eql [
+        '/var/run/docker.sock:/tmp/docker.sock:ro',
+        './nginx.tmpl:/app/nginx.tmpl:ro',
+        'myapp_public:/var/www/public/:ro'
+      ]
     end
   end
 end

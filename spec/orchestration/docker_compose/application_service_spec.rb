@@ -8,10 +8,12 @@ RSpec.describe Orchestration::DockerCompose::ApplicationService do
   end
 
   let(:env) do
-    double(
-      'Environment',
-      application_name: 'test_app',
+    instance_double(
+      Orchestration::Environment,
       environment: 'test',
+      orchestration_root: Pathname.new('orchestration'),
+      public_volume: 'myapp_public',
+      application_name: 'test_app',
       database_url: 'postgresql://hostname',
       settings: settings,
       docker_compose_config?: false,
@@ -24,13 +26,12 @@ RSpec.describe Orchestration::DockerCompose::ApplicationService do
   describe '#definition' do
     subject(:definition) { application_service.definition }
 
-    before do
-      allow(settings).to receive(:get).with('docker.username') { 'dockeruser' }
-    end
-
     it { is_expected.to be_a Hash }
     its(['expose']) { is_expected.to eql [8080] }
-    its(['image']) { is_expected.to eql 'dockeruser/test_app' }
+    its(['image']) do
+      is_expected.to eql '${DOCKER_USERNAME}/${DOCKER_REPOSITORY}'
+    end
+
     its(['environment']) { is_expected.to have_key 'HOST_UID' }
     its(['environment']) { is_expected.to have_key 'RAILS_ENV' }
     its(['environment']) { is_expected.to have_key 'SECRET_KEY_BASE' }

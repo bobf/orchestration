@@ -17,6 +17,3 @@ bindings).
 
 Make docker-compose file additive - detect existing services and add new ones
 rather than overwriting.
-
-Create a Makefile.orchestration and inject it into Makefile as an include rather
-than clobbering any existing Makefile with orchestration commands.

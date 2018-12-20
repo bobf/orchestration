@@ -7,37 +7,61 @@ RSpec.describe Orchestration::InstallGenerator do
     subject(:makefile) { install_generator.makefile }
 
     let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
-    let(:makefile_path) { dummy_path.join('Makefile') }
+    let(:makefile_path) { dummy_path.join('orchestration', 'Makefile') }
+    let(:host_makefile_path) { dummy_path.join('Makefile') }
 
-    before { FileUtils.rm_f(makefile_path) }
+    before do
+      FileUtils.rm_f(makefile_path)
+      FileUtils.rm_f(host_makefile_path)
+    end
 
     it 'creates a Makefile when not present' do
       makefile
       expect(File.exist?(makefile_path)).to be true
     end
 
-    it 'appends to an existing Makefile' do
-      File.write(makefile_path, 'some make commands')
-      makefile
-      content = File.read(makefile_path)
-      expect(content).to include 'some make commands'
-    end
-
-    it 'includes new content when appending' do
-      File.write(makefile_path, 'some make commands')
+    it 'creates a Makefile with expected content' do
       makefile
       content = File.read(makefile_path)
       expect(content).to include '.PHONY: start stop migrate'
     end
 
-    it 'replaces previous Orchestration-specific content' do
-      File.write(makefile_path, 'some make commands')
+    it 'creates makefile in host if not present' do
       makefile
-      size = File.size(makefile_path)
+      expect(File).to exist(host_makefile_path)
+    end
+
+    it 'injects `include` to host Makefile if not present' do
       makefile
+      expect(
+        File.readlines(host_makefile_path).map(&:chomp)
+      ).to include 'include orchestration/Makefile'
+    end
+
+    it 'does not inject `include` to host Makefile if already present' do
+      File.write(host_makefile_path, 'include orchestration/Makefile')
       makefile
+      filter = proc { |line| line == 'include orchestration/Makefile' }
+      expect(
+        File.readlines(host_makefile_path).map(&:chomp).select(&filter).size
+      ).to eql 1
+    end
+
+    it 'injects `include` to existing host Makefile if not present' do
+      File.write(host_makefile_path, 'some make commands')
       makefile
-      expect(File.size(makefile_path)).to eql size
+      filter = proc { |line| line == 'include orchestration/Makefile' }
+      expect(
+        File.readlines(host_makefile_path).map(&:chomp).select(&filter).size
+      ).to eql 1
+    end
+
+    it 'retains existing host Makefile content' do
+      File.write(host_makefile_path, 'some make commands')
+      makefile
+      expect(
+        File.readlines(host_makefile_path).map(&:chomp)
+      ).to include 'some make commands'
     end
   end
 end

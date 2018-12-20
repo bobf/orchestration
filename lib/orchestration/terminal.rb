@@ -8,7 +8,6 @@ module Orchestration
     ready: :green,
     create: :green,
     update: :yellow,
-    identical: :blue,
     status: :blue,
     setup: :blue,
     input: :red,
@@ -21,12 +20,21 @@ module Orchestration
       STDOUT.print colorize(desc, output, color_name)
     end
 
-    def read(message)
-      write(:input, message + ' ', nil, false)
-      STDIN.gets.chomp
+    def read(message, default = nil)
+      write(:input, prompt(message, default), nil, false)
+      result = STDIN.gets.chomp.strip
+      return default if result.empty?
+
+      result
     end
 
     private
+
+    def prompt(message, default)
+      return "(#{message}): " if default.nil?
+
+      "(#{message}) [#{I18n.t('orchestration.default')}: #{default}]: "
+    end
 
     def colorize(desc, message, color_name)
       color = if color_name.nil?

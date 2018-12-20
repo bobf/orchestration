@@ -29,7 +29,7 @@ RSpec.describe Orchestration::InstallGenerator do
       content = File.read(gitignore_path)
       expect(
         content
-      ).to include "\ndocker/.build/\n"
+      ).to include "\norchestration/.build/\n"
     end
 
     it 'does not add content more than once' do
@@ -50,10 +50,10 @@ RSpec.describe Orchestration::InstallGenerator do
     end
 
     [
-      'docker/.build',
-      'docker/Gemfile',
-      'docker/Gemfile.lock',
-      'docker/*.gemspec'
+      'orchestration/.build',
+      'orchestration/Gemfile',
+      'orchestration/Gemfile.lock',
+      'orchestration/*.gemspec'
     ].each do |entry|
       it_behaves_like 'a .gitignore entry', entry
     end

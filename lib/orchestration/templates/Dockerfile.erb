@@ -5,16 +5,20 @@ RUN apt-get update \
  && apt-get install -y node.js gosu sendmail \
  && rm -rf /var/lib/apt/lists/* \
  && gem install bundler \
- && mkdir /application<%if defined?(Webpacker) %> \
+ && mkdir /app<%if defined?(Webpacker) %> \
  && curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash \
  && . /root/.bashrc \
  && nvm install 10.11.0 \
  && npm install -g yarn<% end %>
-WORKDIR /application
-COPY Gemfile Gemfile.lock ./
+WORKDIR /app
+COPY .build/Gemfile .build/Gemfile.lock ./
 RUN bundle install --without development test --deployment
+<% if defined?(Webpacker) %>
+COPY .build/package.json .build/yarn.lock ./
+RUN . /root/.bashrc && yarn install
+<% end %>
 COPY entrypoint.sh /
 ADD .build/context.tar.gz .
 <% if defined?(Webpacker) %>RUN . /root/.bashrc && yarn install && bundle exec rake assets:precompile<% else %>RUN bundle exec rake assets:precompile<% end %>
-ENTRYPOINT "/entrypoint.sh"
-CMD ["bundle", "exec", "unicorn", "-c", "/application/config/unicorn.rb"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bundle", "exec", "unicorn", "-c", "/app/config/unicorn.rb"]
