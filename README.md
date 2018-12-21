@@ -18,7 +18,7 @@ Containers are automatically created for the following dependencies:
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'orchestration', '~> 0.2.8'
+gem 'orchestration', '~> 0.3.0'
 ```
 
 And then build your bundle:
@@ -32,11 +32,14 @@ $ bundle install
 
 A _Rake_ task is provided to generate the following files:
 
-* `Makefile` - provides easy access to all _Orchestration_ utilities.
 * `.gitignore` - ensures any unwanted files created by _Orchestration_ do not clutter your project's version control system.
-* `docker/Dockerfile` - a ready-to-use _Docker_ build script which should need minimal (if any) modification to build your _Rails_ project.
-* `docker-compose.yml` - a custom-made set of services to allow you to run your application's dependencies locally.
 * `.orchestration.yml` - _Orchestration_ internal configuration, e.g. _Docker_ username.
+* `Makefile` - Adds `orchestration/Makefile` as an `include` to avoid clobbering any existing _make_ commands.
+* `orchestration/docker-compose.yml` - a custom-made set of services to allow you to run your application's dependencies locally.
+* `orchestration/Dockerfile` - a ready-to-use _Docker_ build script which should need minimal (if any) modification to build your _Rails_ project.
+* `orchestration/entrypoint.sh` - Container setup for your Docker application.
+* `orchestration/Makefile` - provides easy access to all _Orchestration_ utilities.
+* `orchestration/yaml.bash` - A _bash_ _YAML_ parser (used by _make_ utilities).
 
 ### Building and pushing your project as a _Docker_ image
 
@@ -47,7 +50,7 @@ If your project has any dependencies on private  _Git_ repositories then you wil
 * [GitHub](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
 * [Bitbucket](https://confluence.atlassian.com/bitbucket/app-passwords-828781300.html)
 
-Create a file named `.env` in the same directory as your `docker-compose.yml` and add one or both of the following (note that _Bitbucket_ and _GitHub_ use a different format):
+Create a file named `.env` in your project's root directory and add one or both of the following (note that _Bitbucket_ and _GitHub_ use a different format):
 
 ```bash
 BUNDLE_BITBUCKET__ORG=<bitbucket-username>:<app-password>
