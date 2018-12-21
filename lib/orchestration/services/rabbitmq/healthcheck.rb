@@ -11,7 +11,8 @@ module Orchestration
         def connection_errors
           [
             Bunny::TCPConnectionFailedForAllHosts,
-            AMQ::Protocol::EmptyResponseError
+            AMQ::Protocol::EmptyResponseError,
+            Errno::ECONNRESET
           ]
         end
 
