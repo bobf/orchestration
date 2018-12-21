@@ -29,7 +29,7 @@ module Orchestration
       environment = { env: @env, wait_commands: wait_commands }
       content = template('Makefile', environment)
       path = @env.orchestration_root.join('Makefile')
-      path.exist? ? update_file(path, content) : write_file(path, content)
+      path.exist? ? update_file(path, content) : create_file(path, content)
       inject_if_missing(
         @env.root.join('Makefile'),
         'include orchestration/Makefile'
@@ -38,7 +38,7 @@ module Orchestration
 
     def dockerfile
       content = template('Dockerfile', ruby_version: RUBY_VERSION)
-      write_file(
+      create_file(
         orchestration_dir.join('Dockerfile'),
         content,
         overwrite: false
@@ -48,7 +48,7 @@ module Orchestration
     def entrypoint
       content = template('entrypoint.sh')
       path = orchestration_dir.join('entrypoint.sh')
-      write_file(path, content, overwrite: false)
+      create_file(path, content, overwrite: false)
       FileUtils.chmod('a+x', path)
     end
 
@@ -66,13 +66,13 @@ module Orchestration
       return if File.exist?(path)
 
       docker_compose = DockerCompose::Services.new(@env, service_configurations)
-      write_file(path, docker_compose.structure.to_yaml)
+      create_file(path, docker_compose.structure.to_yaml)
     end
 
     def unicorn
       content = template('unicorn.rb')
       path = @env.root.join('config', 'unicorn.rb')
-      write_file(path, content, overwrite: false)
+      create_file(path, content, overwrite: false)
     end
 
     def yaml_bash
