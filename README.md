@@ -88,13 +88,6 @@ To start services:
 $ make start
 ```
 
-This will launch any dependencies your project needs (e.g. _MySQL_, _MongoDB_, etc.).
-
-To wait for all services to be ready:
-```bash
-$ make wait
-```
-
 It is recommended that you create a `test` command in your `Makefile` which will launch all dependencies and wait for them to be ready before running all tests. For example:
 
 ```Makefile
