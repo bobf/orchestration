@@ -21,11 +21,10 @@ RSpec.describe Orchestration::DockerCompose::NginxProxyService do
   describe '#definition' do
     subject(:definition) { nginx_proxy_service.definition }
 
-    its(['image']) { is_expected.to eql 'jwilder/nginx-proxy' }
+    its(['image']) { is_expected.to eql 'rubyorchestration/nginx-proxy' }
     its(['volumes']) do
       is_expected.to eql [
         '/var/run/docker.sock:/tmp/docker.sock:ro',
-        './nginx.tmpl:/app/nginx.tmpl:ro',
         'myapp_public:/var/www/public/:ro'
       ]
     end
