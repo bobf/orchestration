@@ -4,7 +4,13 @@
 
 DOCKER_USERNAME:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_username)
 DOCKER_REPOSITORY:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository)
-COMPOSE:=HOST_UID=$(shell id -u) DOCKER_USERNAME=${DOCKER_USERNAME} DOCKER_REPOSITORY=${DOCKER_REPOSITORY} docker-compose -p $(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository) -f orchestration/docker-compose.yml
+COMPOSE:=HOST_UID=$(shell id -u) \
+         DOCKER_USERNAME=${DOCKER_USERNAME} \
+         DOCKER_REPOSITORY=${DOCKER_REPOSITORY} \
+         docker-compose \
+         -p $(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository) \
+         -f orchestration/docker-compose.yml \
+         -f orchestration/docker-compose.override.yml
 
 start:
 	@echo "Starting containers..."

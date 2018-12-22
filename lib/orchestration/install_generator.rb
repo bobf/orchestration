@@ -10,14 +10,14 @@ module Orchestration
     def initialize(*_args)
       super
       @env = Environment.new
-      @terminal ||= Terminal.new
       @settings = Settings.new(@env.orchestration_configuration_path)
+      @terminal = Terminal.new(@settings)
     end
 
     def orchestration_configuration
       path = @env.orchestration_configuration_path
-      ask_setting('docker.username')
-      ask_setting('docker.repository', @env.default_application_name)
+      @terminal.ask_setting('docker.username')
+      @terminal.ask_setting('docker.repository', @env.default_application_name)
       relpath = relative_path(path)
       return @terminal.write(:create, relpath) unless @settings.exist?
       return @terminal.write(:update, relpath) if @settings.dirty?
@@ -79,6 +79,14 @@ module Orchestration
       simple_copy('yaml.bash', @env.orchestration_root.join('yaml.bash'))
     end
 
+    def docker_compose_override_yml
+      simple_copy(
+        'docker-compose.override.yml',
+        @env.orchestration_root.join('docker-compose.override.yml'),
+        overwrite: false
+      )
+    end
+
     private
 
     def t(key)
@@ -111,14 +119,6 @@ module Orchestration
         'wait-nginx-proxy',
         'wait-application'
       ].compact.join(' ')
-    end
-
-    def ask_setting(setting, default = nil)
-      return unless @settings.get(setting).nil?
-
-      @terminal.write(:setup, t("settings.#{setting}.description"))
-      prompt = t("settings.#{setting}.prompt")
-      @settings.set(setting, @terminal.read(prompt, default))
     end
   end
 end

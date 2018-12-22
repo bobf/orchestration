@@ -5,11 +5,13 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
 
   let(:adapter) { 'sqlite3' }
   let(:env) do
-    double(
-      'Environment',
+    instance_double(
+      Orchestration::Environment,
+      application_name: 'dummy',
       environment: 'test',
       database_url: nil,
       docker_compose_config?: false,
+      database_volume: 'dummy_database',
       database_configuration_path: fixture_path(adapter)
     )
   end
@@ -26,9 +28,12 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
 
       it { is_expected.to be_a Hash }
       its(['image']) { is_expected.to eql 'library/postgres' }
+      its(['volumes']) { is_expected.to eql ['dummy_database:/var/pgdata'] }
       its(['environment']) do
         is_expected.to eql(
-          'PGPORT' => '3354', 'POSTGRES_PASSWORD' => 'password'
+          'PGPORT' => '3354',
+          'POSTGRES_PASSWORD' => 'password',
+          'PGDATA' => '/var/pgdata'
         )
       end
     end
@@ -38,6 +43,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
 
       it { is_expected.to be_a Hash }
       its(['image']) { is_expected.to eql 'library/mysql' }
+      its(['volumes']) { is_expected.to eql ['dummy_database:/var/lib/mysql'] }
       its(['environment']) do
         is_expected.to eql(
           'MYSQL_ROOT_PASSWORD' => 'password',

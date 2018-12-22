@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe Orchestration::Terminal do
-  subject(:terminal) { described_class.new }
+  subject(:terminal) { described_class.new(settings) }
+
+  let(:settings) { instance_double(Orchestration::Settings) }
 
   it { is_expected.to be_a described_class }
 
