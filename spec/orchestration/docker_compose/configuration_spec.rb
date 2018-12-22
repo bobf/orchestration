@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::DockerCompose::Services do
-  subject(:services) { described_class.new(env, init_options) }
+RSpec.describe Orchestration::DockerCompose::Configuration do
+  subject(:configuration) { described_class.new(env, init_options) }
 
   let(:env) do
     instance_double(
@@ -10,20 +10,17 @@ RSpec.describe Orchestration::DockerCompose::Services do
       docker_api_version: '3.7'
     )
   end
+
   let(:init_options) { {} }
 
   it { is_expected.to be_a described_class }
 
-  its(:structure) do
-    is_expected.to eql(
-      'version' => '3.7',
-      'services' => {},
-      'volumes' => { 'myapp_public' => {} }
-    )
-  end
+  its(:services) { is_expected.to eql({}) }
+  its(:version) { is_expected.to eql('3.7') }
+  its(:volumes) { is_expected.to eql('myapp_public' => {}) }
 
-  describe '#structure["volumes"]' do
-    subject { services.structure.fetch('volumes') }
+  describe '#volumes' do
+    subject { configuration.volumes }
 
     context 'with database' do
       let(:init_options) { { database: database_configuration } }

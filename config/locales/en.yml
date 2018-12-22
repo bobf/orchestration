@@ -11,6 +11,7 @@ en:
     database:
       waiting: "Waiting for database: %{config}"
       ready: "Database is ready."
+      unknown_environment: "Environment not defined in database configuration: %{environment}"
 
     mongo:
       waiting: "Waiting for Mongo: %{config}"

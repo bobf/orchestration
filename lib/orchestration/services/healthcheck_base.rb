@@ -15,7 +15,7 @@ module Orchestration
           exit_on_error = options.fetch(:exit_on_error, true)
           options.delete(:exit_on_error)
           env ||= Environment.new
-          terminal ||= Terminal.new
+          terminal ||= Terminal.new(env.settings)
           name = options.delete(:service_name)
           check = ServiceCheck.new(new(env, name), terminal, options)
 

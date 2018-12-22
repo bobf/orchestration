@@ -6,7 +6,7 @@ RSpec.describe Orchestration::Services::Application::Configuration do
   let(:env) do
     instance_double(
       Orchestration::Environment,
-      docker_compose_configuration_path: fixture_path('docker-compose'),
+      docker_compose_path: fixture_path('docker-compose'),
       database_configuration_path: fixture_path('mysql2'),
       environment: 'development',
       database_url: nil,

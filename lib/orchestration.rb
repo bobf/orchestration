@@ -8,10 +8,11 @@ require 'rails'
 I18n.load_path += Dir[File.join(File.expand_path('..', __dir__),
                                 'config', 'locales', '**', '*.yml')]
 
+require 'orchestration/file_helpers'
+
 require 'orchestration/docker_compose'
 require 'orchestration/environment'
 require 'orchestration/errors'
-require 'orchestration/file_helpers'
 require 'orchestration/install_generator'
 require 'orchestration/railtie'
 require 'orchestration/service_check'

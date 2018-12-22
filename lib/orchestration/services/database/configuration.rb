@@ -36,6 +36,8 @@ module Orchestration
                             'scheme' => base['adapter'],
                             'port' => DockerCompose::DatabaseService::PORT
                           )
+          return if @adapter.name == 'sqlite3'
+
           @settings.merge!('port' => local_port) if @env.docker_compose_config?
         end
 
@@ -60,7 +62,13 @@ module Orchestration
         end
 
         def environment
-          @environments[@env.environment]
+          @environments.fetch(@env.environment)
+        rescue KeyError
+          raise UnknownEnvironmentError,
+                I18n.t(
+                  'orchestration.database.unknown_environment',
+                  @env.environment
+                )
         end
 
         def base

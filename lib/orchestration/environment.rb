@@ -36,16 +36,20 @@ module Orchestration
       '3.7'
     end
 
-    def docker_compose_configuration_path
-      orchestration_root.join('docker-compose.yml')
+    def docker_compose_path(env = nil)
+      return orchestration_root.join('docker-compose.yml') if env.nil?
+
+      orchestration_root.join("docker-compose.#{env}.yml")
     end
 
-    def docker_compose_config
-      YAML.safe_load(File.read(docker_compose_configuration_path))
+    def docker_compose_config(env = nil)
+      env ||= environment
+      YAML.safe_load(File.read(docker_compose_path(env)))
     end
 
-    def docker_compose_config?
-      docker_compose_configuration_path.file?
+    def docker_compose_config?(env = nil)
+      env ||= environment
+      docker_compose_path(env).file?
     end
 
     def default_application_name

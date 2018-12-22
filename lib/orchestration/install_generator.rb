@@ -12,6 +12,7 @@ module Orchestration
       @env = Environment.new
       @settings = Settings.new(@env.orchestration_configuration_path)
       @terminal = Terminal.new(@settings)
+      @docker_compose = DockerCompose::InstallGenerator.new(@env, @terminal)
     end
 
     def orchestration_configuration
@@ -26,8 +27,7 @@ module Orchestration
     end
 
     def makefile
-      environment = { env: @env, wait_commands: wait_commands }
-      content = template('Makefile', environment)
+      content = template('Makefile', makefile_environment)
       path = @env.orchestration_root.join('Makefile')
       path.exist? ? update_file(path, content) : create_file(path, content)
       inject_if_missing(
@@ -45,7 +45,7 @@ module Orchestration
       )
     end
 
-    def entrypoint
+    def entrypoint_sh
       content = template('entrypoint.sh')
       path = orchestration_dir.join('entrypoint.sh')
       create_file(path, content, overwrite: false)
@@ -61,14 +61,6 @@ module Orchestration
       ensure_lines_in_file(path, entries)
     end
 
-    def docker_compose
-      path = @env.orchestration_root.join('docker-compose.yml')
-      return if File.exist?(path)
-
-      docker_compose = DockerCompose::Services.new(@env, service_configurations)
-      create_file(path, docker_compose.structure.to_yaml)
-    end
-
     def unicorn
       content = template('unicorn.rb')
       path = @env.root.join('config', 'unicorn.rb')
@@ -79,12 +71,12 @@ module Orchestration
       simple_copy('yaml.bash', @env.orchestration_root.join('yaml.bash'))
     end
 
-    def docker_compose_override_yml
-      simple_copy(
-        'docker-compose.override.yml',
-        @env.orchestration_root.join('docker-compose.override.yml'),
-        overwrite: false
-      )
+    def docker_compose
+      @docker_compose.docker_compose_yml
+      @docker_compose.docker_compose_test_yml
+      @docker_compose.docker_compose_development_yml
+      @docker_compose.docker_compose_production_yml
+      @docker_compose.docker_compose_override_yml
     end
 
     private
@@ -93,32 +85,18 @@ module Orchestration
       I18n.t("orchestration.#{key}")
     end
 
-    def service_configurations
-      Hash[
-        %i[application database mongo rabbitmq nginx_proxy].map do |key|
-          [key, configuration(key)]
-        end
-      ]
-    end
-
-    def configuration(service)
+    def makefile_environment
       {
-        application: Services::Application::Configuration,
-        database: Services::Database::Configuration,
-        mongo: Services::Mongo::Configuration,
-        rabbitmq: Services::RabbitMQ::Configuration,
-        nginx_proxy: Services::NginxProxy::Configuration
-      }.fetch(service).new(@env)
+        env: @env,
+        test_wait_commands: wait_commands(:test),
+        production_wait_commands: wait_commands(:production)
+      }
     end
 
-    def wait_commands
-      [
-        configuration(:database).settings.nil? ? nil : 'wait-database',
-        configuration(:mongo).settings.nil? ? nil : 'wait-mongo',
-        configuration(:rabbitmq).settings.nil? ? nil : 'wait-rabbitmq',
-        'wait-nginx-proxy',
-        'wait-application'
-      ].compact.join(' ')
+    def wait_commands(environment)
+      @docker_compose.enabled_services(environment).map do |service|
+        "wait-#{service}"
+      end
     end
   end
 end

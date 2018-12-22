@@ -35,9 +35,9 @@ module Orchestration
     def ask_setting(setting, default = nil)
       return unless @settings.get(setting).nil?
 
-      @terminal.write(:setup, t("settings.#{setting}.description"))
+      write(:setup, t("settings.#{setting}.description"))
       prompt = t("settings.#{setting}.prompt")
-      @settings.set(setting, @terminal.read(prompt, default))
+      @settings.set(setting, read(prompt, default))
     end
 
     private
@@ -45,7 +45,7 @@ module Orchestration
     def prompt(message, default)
       return "(#{message}): " if default.nil?
 
-      "(#{message}) [#{I18n.t('orchestration.default')}: #{default}]: "
+      "(#{message}) [#{t('default')}: #{default}]: "
     end
 
     def colorize(desc, message, color_name)
@@ -59,6 +59,10 @@ module Orchestration
         .rjust(15)
         .colorize(mode: :default, color: color)
         .concat(' ' + message)
+    end
+
+    def t(key)
+      I18n.t("orchestration.#{key}")
     end
   end
 end
