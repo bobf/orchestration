@@ -18,7 +18,7 @@ module Orchestration
     def orchestration_configuration
       path = @env.orchestration_configuration_path
       @terminal.ask_setting('docker.username')
-      @terminal.ask_setting('docker.repository', @env.default_application_name)
+      @terminal.ask_setting('docker.repository', @env.default_app_name)
       relpath = relative_path(path)
       return @terminal.write(:create, relpath) unless @settings.exist?
       return @terminal.write(:update, relpath) if @settings.dirty?
@@ -90,17 +90,15 @@ module Orchestration
     end
 
     def makefile_environment
-      {
-        env: @env,
-        test_wait_commands: wait_commands(:test),
-        production_wait_commands: wait_commands(:production)
-      }
+      { env: @env, wait_commands: wait_commands }
     end
 
-    def wait_commands(environment)
-      @docker_compose.enabled_services(environment).map do |service|
-        "wait-#{service}"
-      end
+    def wait_commands
+      %i[test development production].map do |environment|
+        @docker_compose.enabled_services(environment).map do |service|
+          "wait-#{service}"
+        end
+      end.flatten.uniq
     end
   end
 end

@@ -52,7 +52,7 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
       context 'production' do
         let(:env) { :production }
         it do
-          is_expected.to eql %i[application nginx_proxy database mongo rabbitmq]
+          is_expected.to eql %i[nginx_proxy app database mongo rabbitmq]
         end
       end
     end
@@ -99,11 +99,16 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
           ).to eql 'library/rabbitmq'
         end
 
-        it 'includes application service' do
+        it 'includes app service' do
           config = YAML.safe_load(File.read(path))
           expect(
-            config['services']['application']['image']
+            config['services']['app']['image']
           ).to eql '${DOCKER_USERNAME}/${DOCKER_REPOSITORY}'
+        end
+
+        it 'includes volumes' do
+          config = YAML.safe_load(File.read(path))
+          expect(config.fetch('volumes')).to_not be_empty
         end
       end
 
@@ -135,6 +140,47 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
           expect(
             config['services']['rabbitmq']['image']
           ).to eql 'library/rabbitmq'
+        end
+
+        it 'does not include volumes' do
+          config = YAML.safe_load(File.read(path))
+          expect(config.fetch('volumes')).to be_empty
+        end
+      end
+
+      context 'development' do
+        let(:env) { :development }
+
+        before { install_generator.docker_compose_development_yml }
+
+        it 'creates docker-compose.development.yml' do
+          expect(File).to exist(path)
+        end
+
+        it 'includes database service' do
+          config = YAML.safe_load(File.read(path))
+          expect(
+            config['services']['database']['image']
+          ).to eql 'library/postgres'
+        end
+
+        it 'includes mongo service' do
+          config = YAML.safe_load(File.read(path))
+          expect(
+            config['services']['mongo']['image']
+          ).to eql 'library/mongo'
+        end
+
+        it 'includes rabbitmq service' do
+          config = YAML.safe_load(File.read(path))
+          expect(
+            config['services']['rabbitmq']['image']
+          ).to eql 'library/rabbitmq'
+        end
+
+        it 'includes volumes' do
+          config = YAML.safe_load(File.read(path))
+          expect(config.fetch('volumes')).to_not be_empty
         end
       end
 

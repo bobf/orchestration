@@ -2,7 +2,7 @@
 
 module Orchestration
   module Services
-    module Application
+    module App
       class Healthcheck
         include HealthcheckBase
 
@@ -14,14 +14,14 @@ module Orchestration
         end
 
         def connection_errors
-          [Errno::ECONNREFUSED, ApplicationConnectionError]
+          [Errno::ECONNREFUSED, AppConnectionError]
         end
 
         private
 
         def connection_error(code)
-          raise ApplicationConnectionError,
-                I18n.t('orchestration.application.connection_error', code: code)
+          raise AppConnectionError,
+                I18n.t('orchestration.app.connection_error', code: code)
         end
 
         def connection_error?(code)

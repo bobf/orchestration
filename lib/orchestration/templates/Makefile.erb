@@ -1,4 +1,4 @@
-.PHONY: start stop migrate docker build push start logs compose config <%= (test_wait_commands + production_wait_commands).uniq.join(' ') %>
+.PHONY: start stop migrate docker build push start logs compose config <%= wait_commands.join(' ') %>
 
 ### Environment setup ###
 
@@ -16,13 +16,17 @@ COMPOSE_PRODUCTION:=-f orchestration/docker-compose.production.yml -f orchestrat
 COMPOSE_TEST:=-f orchestration/docker-compose.test.yml -f orchestration/docker-compose.override.yml
 COMPOSE_DEVELOPMENT:=-f orchestration/docker-compose.development.yml -f orchestration/docker-compose.override.yml
 
+-include .env
+export
+
 ifeq ($(RAILS_ENV),)
   ENV:=development
 else
   ENV:=$(RAILS_ENV)
 endif
 
-COMPOSE:=${COMPOSE_BASE} -f orchestration/docker-compose.$(ENV).yml -f orchestration/docker-compose.override.yml
+COMPOSE:=${COMPOSE_BASE} -f orchestration/docker-compose.${ENV}.yml -f orchestration/docker-compose.override.yml
+RAKE:=bin/rake
 
 ### Container management commands ###
 
@@ -31,14 +35,19 @@ start:
 ifeq (${ENV},$(filter ${ENV},test development))
 	@${COMPOSE} up -d
 else
-	@${COMPOSE} up -d --scale application=$${INSTANCES:-1}
+	@${COMPOSE} up -d --scale app=$${INSTANCES:-1}
 endif
 	@make wait
+	@make migrate
 
 stop:
 	@echo "Stopping containers..."
 	@${COMPOSE} down
 	@echo "All containers stopped."
+
+deploy:
+	@echo "Deploying application to Docker swarm..."
+	@${COMPOSE} config | docker stack deploy -c - ${DOCKER_REPOSITORY}
 
 logs:
 	@${COMPOSE} logs
@@ -53,35 +62,46 @@ compose:
 
 migrate: wait-database
 	@echo "Running migrations..."
-ifeq (${ENV},production)
-	@${COMPOSE} run application bundle exec rake db:migrate RAILS_ENV=${ENV}
+ifeq (${ENV},$(filter ${ENV},test development))
+	@${RAKE} db:migrate
 else
-	@bundle exec rake db:migrate RAILS_ENV=${ENV}
+	@${COMPOSE} run --rm app bin/rake db:migrate RAILS_ENV=${ENV}
 endif
 	@echo "Migrations complete."
 
 ### Service healthcheck commands ###
 
-wait: <%= production_wait_commands.join(' ') %>
+wait: <%= wait_commands.join(' ') %>
 	@echo "All Containers ready."
 
-wait-test: <%= test_wait_commands.join(' ') %>
-	@echo "All Containers ready."
-
-wait-application:
-	@bin/rake orchestration:application:wait
+## Test/development wait commands
 
 wait-database:
-	@bin/rake orchestration:database:wait
+ifeq (${ENV},$(filter ${ENV},test development))
+	@${RAKE} orchestration:database:wait
+endif
 
 wait-mongo:
-	@bin/rake orchestration:mongo:wait
-
-wait-nginx-proxy:
-	@bin/rake orchestration:nginx_proxy:wait
+ifeq (${ENV},$(filter ${ENV},test development))
+	@${RAKE} orchestration:mongo:wait
+endif
 
 wait-rabbitmq:
-	@bin/rake orchestration:rabbitmq:wait
+ifeq (${ENV},$(filter ${ENV},test development))
+	@${RAKE} orchestration:rabbitmq:wait
+endif
+
+## Production wait commands
+
+wait-nginx_proxy:
+ifneq (${ENV},$(filter ${ENV},test development))
+	@${RAKE} orchestration:nginx_proxy:wait LISTEN_PORT=${LISTEN_PORT}
+endif
+
+wait-app:
+ifneq (${ENV},$(filter ${ENV},test development))
+	@${RAKE} orchestration:app:wait LISTEN_PORT=${LISTEN_PORT}
+endif
 
 ### Docker build commands ###
 

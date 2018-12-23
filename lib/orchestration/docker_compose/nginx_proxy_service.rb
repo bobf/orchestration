@@ -11,7 +11,7 @@ module Orchestration
       def definition
         {
           'image' => 'rubyorchestration/nginx-proxy',
-          'ports' => %w[3000:80],
+          'ports' => %w[${LISTEN_PORT}:80],
           'volumes' => [
             '/var/run/docker.sock:/tmp/docker.sock:ro',
             "#{@config.env.public_volume}:/var/www/public/:ro"

@@ -2,7 +2,7 @@
 
 module Orchestration
   module DockerCompose
-    class ApplicationService
+    class AppService
       def initialize(config, environment)
         @environment = environment
         @config = config

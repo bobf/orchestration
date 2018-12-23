@@ -8,7 +8,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
   let(:env) do
     instance_double(
       Orchestration::Environment,
-      application_name: 'dummy',
+      app_name: 'dummy',
       environment: 'test',
       database_url: nil,
       docker_compose_config?: false,

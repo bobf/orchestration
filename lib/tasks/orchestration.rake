@@ -11,7 +11,7 @@ namespace :orchestration do
   namespace :app do
     desc I18n.t('orchestration.rake.app.wait')
     task :wait do
-      Orchestration::Services::Application::Healthcheck.start
+      Orchestration::Services::App::Healthcheck.start
     end
   end
 

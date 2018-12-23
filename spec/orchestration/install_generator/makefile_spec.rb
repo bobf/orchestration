@@ -26,7 +26,19 @@ RSpec.describe Orchestration::InstallGenerator do
       expect(content).to include '.PHONY: start stop migrate'
     end
 
-    it 'creates makefile in host if not present' do
+    it 'includes correct wait commands' do
+      makefile
+      content = File.read(makefile_path)
+      expect(content).to include %w[
+        wait-database
+        wait-mongo
+        wait-rabbitmq
+        wait-nginx_proxy
+        wait-app
+      ].join(' ')
+    end
+
+    it 'creates makefile in application directory if not present' do
       makefile
       expect(File).to exist(host_makefile_path)
     end

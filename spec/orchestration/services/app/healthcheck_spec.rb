@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Services::Application::Healthcheck do
+RSpec.describe Orchestration::Services::App::Healthcheck do
   subject(:healthcheck) { described_class.new(env) }
 
   let(:env) do
     instance_double(
       Orchestration::Environment,
       settings: settings,
-      application_name: 'test_app',
+      app_name: 'test_app',
       docker_compose_path: fixture_path('docker-compose'),
       docker_compose_config: {
         'services' => { 'nginx_proxy' => { 'ports' => ['3000:80'] } }
@@ -48,12 +48,12 @@ RSpec.describe Orchestration::Services::Application::Healthcheck do
     it 'outputs a ready message' do
       expect(terminal)
         .to receive(:write)
-        .with(:ready, 'Application is ready.')
+        .with(:ready, 'App is ready.')
 
       start
     end
 
-    it 'attempts to connect to application' do
+    it 'attempts to connect to app' do
       start
       expect(@stub).to have_been_requested
     end

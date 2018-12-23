@@ -22,6 +22,7 @@ RSpec.describe Orchestration::DockerCompose::NginxProxyService do
     subject(:definition) { nginx_proxy_service.definition }
 
     its(['image']) { is_expected.to eql 'rubyorchestration/nginx-proxy' }
+    its(['ports']) { is_expected.to eql ['${LISTEN_PORT}:80'] }
     its(['volumes']) do
       is_expected.to eql [
         '/var/run/docker.sock:/tmp/docker.sock:ro',

@@ -18,16 +18,14 @@ module Orchestration
       end
 
       def volumes
-        {
-          @env.public_volume => {}
-        }.merge(database_volume)
+        public_volume.merge(database_volume).merge(mongo_volume)
       end
 
       private
 
       def services_available
         {
-          application: ApplicationService,
+          app: AppService,
           database: DatabaseService,
           mongo: MongoService,
           rabbitmq: RabbitMQService,
@@ -44,10 +42,20 @@ module Orchestration
         end.compact
       end
 
+      def public_volume
+        { @env.public_volume => {} }
+      end
+
       def database_volume
         return {} unless services.key?('database')
 
         { @env.database_volume => {} }
+      end
+
+      def mongo_volume
+        return {} unless services.key?('mongo')
+
+        { @env.mongo_volume => {} }
       end
 
       def service_definition(service, config)

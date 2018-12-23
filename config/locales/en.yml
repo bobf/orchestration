@@ -4,9 +4,9 @@ en:
     default: "default"
 
     app:
-      waiting: "Waiting for application: %{config}"
-      ready: "Application is ready."
-      connection_error: "Error attempting to connect to application: received status code %{code}"
+      waiting: "Waiting for app: %{config}"
+      ready: "App is ready."
+      connection_error: "Error attempting to connect to app: received status code %{code}"
 
     database:
       waiting: "Waiting for database: %{config}"
@@ -41,7 +41,7 @@ en:
 
     rake:
       app:
-        wait: "Wait for application to become available"
+        wait: "Wait for app to become available"
 
       database:
         wait: "Wait for database to become available"
