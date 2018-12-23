@@ -69,6 +69,7 @@ module Orchestration
       def compose_config(environment)
         DockerCompose::Configuration.new(
           @env,
+          environment,
           Hash[configurations(environment)]
         )
       end

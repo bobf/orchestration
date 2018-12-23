@@ -8,48 +8,38 @@ namespace :orchestration do
     Orchestration::InstallGenerator.start
   end
 
-  namespace :application do
-    desc I18n.t('orchestration.application.wait')
+  namespace :app do
+    desc I18n.t('orchestration.rake.app.wait')
     task :wait do
       Orchestration::Services::Application::Healthcheck.start
     end
   end
 
   namespace :database do
-    desc I18n.t('orchestration.database.wait')
+    desc I18n.t('orchestration.rake.database.wait')
     task :wait do
       Orchestration::Services::Database::Healthcheck.start
     end
   end
 
   namespace :mongo do
-    desc I18n.t('orchestration.mongo.wait')
+    desc I18n.t('orchestration.rake.mongo.wait')
     task :wait do
       Orchestration::Services::Mongo::Healthcheck.start
     end
   end
 
   namespace :nginx_proxy do
-    desc I18n.t('orchestration.nginx-proxy.wait')
+    desc I18n.t('orchestration.rake.nginx_proxy.wait')
     task :wait do
       Orchestration::Services::NginxProxy::Healthcheck.start
     end
   end
 
   namespace :rabbitmq do
-    desc I18n.t('orchestration.rabbitmq.wait')
+    desc I18n.t('orchestration.rake.rabbitmq.wait')
     task :wait do
       Orchestration::Services::RabbitMQ::Healthcheck.start
-    end
-  end
-
-  namespace :docker do
-    desc I18n.t('orchestration.rake.docker.username')
-    task :username do
-      STDOUT.write(
-        Orchestration::Environment.new.settings.get('docker.username')
-      )
-      STDOUT.flush
     end
   end
 

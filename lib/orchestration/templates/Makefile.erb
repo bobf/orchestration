@@ -1,32 +1,44 @@
 .PHONY: start stop migrate docker build push start logs compose config <%= (test_wait_commands + production_wait_commands).uniq.join(' ') %>
 
-### Container management commands ###
+### Environment setup ###
 
 DOCKER_USERNAME:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_username)
 DOCKER_REPOSITORY:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository)
-COMPOSE:=HOST_UID=$(shell id -u) \
-         DOCKER_USERNAME=${DOCKER_USERNAME} \
-         DOCKER_REPOSITORY=${DOCKER_REPOSITORY} \
-         docker-compose \
-         -p $(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository) \
-         -f orchestration/docker-compose.yml \
-         -f orchestration/docker-compose.override.yml
+
+COMPOSE_BASE:=HOST_UID=$(shell id -u) \
+              DOCKER_USERNAME=${DOCKER_USERNAME} \
+              DOCKER_REPOSITORY=${DOCKER_REPOSITORY} \
+              docker-compose \
+              -p $(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository) \
+              -f orchestration/docker-compose.yml
+
+COMPOSE_PRODUCTION:=-f orchestration/docker-compose.production.yml -f orchestration/docker-compose.override.yml
+COMPOSE_TEST:=-f orchestration/docker-compose.test.yml -f orchestration/docker-compose.override.yml
+COMPOSE_DEVELOPMENT:=-f orchestration/docker-compose.development.yml -f orchestration/docker-compose.override.yml
+
+ifeq ($(RAILS_ENV),)
+  ENV:=development
+else
+  ENV:=$(RAILS_ENV)
+endif
+
+COMPOSE:=${COMPOSE_BASE} -f orchestration/docker-compose.$(ENV).yml -f orchestration/docker-compose.override.yml
+
+### Container management commands ###
 
 start:
 	@echo "Starting containers..."
+ifeq (${ENV},$(filter ${ENV},test development))
+	@${COMPOSE} up -d
+else
 	@${COMPOSE} up -d --scale application=$${INSTANCES:-1}
+endif
 	@make wait
 
 stop:
 	@echo "Stopping containers..."
 	@${COMPOSE} down
 	@echo "All containers stopped."
-
-start-application:
-	@echo "Starting containers..."
-	@${COMPOSE} up -d --scale application=$${INSTANCES:-1} nginx-proxy application
-	@make wait-nginx-proxy wait-application
-	@echo "Application started."
 
 logs:
 	@${COMPOSE} logs
@@ -41,7 +53,11 @@ compose:
 
 migrate: wait-database
 	@echo "Running migrations..."
-	@${COMPOSE} run application bundle exec rake db:migrate
+ifeq (${ENV},production)
+	@${COMPOSE} run application bundle exec rake db:migrate RAILS_ENV=${ENV}
+else
+	@bundle exec rake db:migrate RAILS_ENV=${ENV}
+endif
 	@echo "Migrations complete."
 
 ### Service healthcheck commands ###

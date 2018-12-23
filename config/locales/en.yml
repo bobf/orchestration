@@ -3,7 +3,7 @@ en:
     attempt_limit: "Unable to reconnect after %{limit} attempts. Aborting."
     default: "default"
 
-    application:
+    app:
       waiting: "Waiting for application: %{config}"
       ready: "Application is ready."
       connection_error: "Error attempting to connect to application: received status code %{code}"
@@ -17,7 +17,7 @@ en:
       waiting: "Waiting for Mongo: %{config}"
       ready: "Mongo is ready."
 
-    nginx-proxy:
+    nginx_proxy:
       waiting: "Waiting for Nginx proxy: %{config}"
       ready: "Nginx proxy is ready."
 
@@ -40,11 +40,8 @@ en:
           prompt: "project name"
 
     rake:
-      docker:
-        username: "Output configured Docker username"
-
-      application:
-        wait: "Wait for database to become available"
+      app:
+        wait: "Wait for application to become available"
 
       database:
         wait: "Wait for database to become available"
@@ -55,11 +52,10 @@ en:
       mongo:
         wait: "Wait for Mongo to become available"
 
-      nginx-proxy:
+      nginx_proxy:
         wait: "Wait for Nginx proxy to become available"
 
       rabbitmq:
         wait: "Wait for RabbitMQ to become available"
 
-      rabbitmq:
-        wait: "Initialise boilerplate for adding Docker to your application"
+      install: "Install Orchestration tools"

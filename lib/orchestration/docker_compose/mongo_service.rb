@@ -5,20 +5,30 @@ module Orchestration
     class MongoService
       PORT = 27_020
 
-      def initialize(config)
+      def initialize(config, environment)
         @config = config
+        @environment = environment
       end
 
       def definition
         return nil if @config.settings.nil?
 
-        {
-          'image' => 'library/mongo',
-          'ports' => ["#{local_port}:#{remote_port}"]
-        }
+        { 'image' => 'library/mongo' }.merge(ports).merge(volumes)
       end
 
       private
+
+      def ports
+        return {} unless %i[development test].include?(@environment)
+
+        { 'ports' => ["#{local_port}:#{remote_port}"] }
+      end
+
+      def volumes
+        return {} if @environment == :test
+
+        { 'volumes' => ["#{@config.env.mongo_volume}:/data/db"] }
+      end
 
       def local_port
         _host, _, port = clients.fetch('default')

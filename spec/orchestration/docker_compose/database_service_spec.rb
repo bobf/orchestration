@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Orchestration::DockerCompose::DatabaseService do
-  subject(:database_service) { described_class.new(configuration) }
+  subject(:database_service) { described_class.new(configuration, environment) }
 
   let(:adapter) { 'sqlite3' }
+  let(:environment) { :test }
   let(:env) do
     instance_double(
       Orchestration::Environment,
@@ -25,6 +26,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
 
     context 'postgresql' do
       let(:adapter) { 'postgresql' }
+      let(:environment) { :production }
 
       it { is_expected.to be_a Hash }
       its(['image']) { is_expected.to eql 'library/postgres' }
@@ -40,6 +42,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
 
     context 'mysql2' do
       let(:adapter) { 'mysql2' }
+      let(:environment) { :production }
 
       it { is_expected.to be_a Hash }
       its(['image']) { is_expected.to eql 'library/mysql' }
@@ -56,6 +59,27 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
       let(:adapter) { 'sqlite3' }
 
       it { is_expected.to be_nil }
+    end
+
+    context 'production' do
+      let(:environment) { :production }
+      let(:adapter) { 'postgresql' }
+      it { is_expected.to include 'volumes' }
+      it { is_expected.to_not include 'ports' }
+    end
+
+    context 'test' do
+      let(:environment) { :test }
+      let(:adapter) { 'postgresql' }
+      it { is_expected.to_not include 'volumes' }
+      its(['ports']) { is_expected.to eql(['3354:3354']) }
+    end
+
+    context 'development' do
+      let(:environment) { :development }
+      let(:adapter) { 'mysql2' }
+      it { is_expected.to include 'volumes' }
+      its(['ports']) { is_expected.to eql(['3354:3354']) }
     end
   end
 end

@@ -3,8 +3,9 @@
 module Orchestration
   module DockerCompose
     class Configuration
-      def initialize(env, selected_services)
-        @env = env
+      def initialize(env, environment, selected_services)
+        @env = env # Global environment
+        @environment = environment # Current build environment
         @selected_services = selected_services
       end
 
@@ -36,7 +37,7 @@ module Orchestration
 
       def services_enabled
         @selected_services.map do |service, config|
-          definition = services_available.fetch(service).new(config).definition
+          definition = service_definition(service, config)
           next if definition.nil?
 
           [service.to_s, definition]
@@ -47,6 +48,13 @@ module Orchestration
         return {} unless services.key?('database')
 
         { @env.database_volume => {} }
+      end
+
+      def service_definition(service, config)
+        services_available
+          .fetch(service)
+          .new(config, @environment)
+          .definition
       end
     end
   end

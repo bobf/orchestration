@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Orchestration::DockerCompose::Configuration do
-  subject(:configuration) { described_class.new(env, init_options) }
+  subject(:configuration) { described_class.new(env, :test, init_options) }
 
   let(:env) do
     instance_double(
