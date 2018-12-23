@@ -1,5 +1,3 @@
-Provide volumes for databases and mount appropriate directories for adapter
-
 Refactor docker-compose services - these really belong in
 lib/orchestration/services/<service-name>/docker_compose.rb
 
@@ -7,13 +5,5 @@ Standardise on log formats - by policy or recommendation ?
 
 Redis support
 
-Stop supporting development mode. Provide a docker-compose.yml for loading
-development and test dependencies and expect user to run Rails application
-locally.
-
-Build a docker-compose.production.yml for running application in
-production (i.e. including application as a service and removing local port
-bindings).
-
-Make docker-compose file additive - detect existing services and add new ones
-rather than overwriting.
+Use `Paint` instead of `Colorize` for colouring output - better licensing and no
+monkeypatching `String` etc.
