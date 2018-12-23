@@ -21,4 +21,11 @@ RSpec.describe Orchestration::InstallGenerator do
     install_generator.env
     expect(File).to exist(path)
   end
+
+  it 'does not overwrite .env' do
+    path = dummy_path.join('.env')
+    File.write(path, 'some env settings')
+    install_generator.env
+    expect(File.read(path)).to eql 'some env settings'
+  end
 end
