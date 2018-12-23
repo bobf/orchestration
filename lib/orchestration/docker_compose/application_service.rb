@@ -28,8 +28,7 @@ module Orchestration
           'UNICORN_PRELOAD_APP' => '1',
           'UNICORN_TIMEOUT' => '60',
           'UNICORN_WORKER_PROCESSES' => '8',
-          'VIRTUAL_PORT' => '8080',
-          'VIRTUAL_HOST' => 'localhost'
+          'VIRTUAL_PORT' => '8080'
         }.merge(inherited_environment)
       end
 
@@ -37,7 +36,8 @@ module Orchestration
         {
           'HOST_UID' => nil,
           'RAILS_ENV' => nil,
-          'SECRET_KEY_BASE' => nil
+          'SECRET_KEY_BASE' => nil,
+          'VIRTUAL_HOST' => nil
         }
       end
     end

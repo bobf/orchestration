@@ -44,6 +44,6 @@ RSpec.describe Orchestration::DockerCompose::ApplicationService do
     its(%w[environment UNICORN_TIMEOUT]) { is_expected.to eql '60' }
     its(%w[environment UNICORN_WORKER_PROCESSES]) { is_expected.to eql '8' }
     its(%w[environment VIRTUAL_PORT]) { is_expected.to eql '8080' }
-    its(%w[environment VIRTUAL_HOST]) { is_expected.to eql 'localhost' }
+    its(%w[environment VIRTUAL_HOST]) { is_expected.to be_nil }
   end
 end
