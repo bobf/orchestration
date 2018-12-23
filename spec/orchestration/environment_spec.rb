@@ -78,7 +78,19 @@ RSpec.describe Orchestration::Environment do
     end
   end
 
-  its(:default_app_name) { is_expected.to eql 'dummy' }
+  describe '#default_app_name' do
+    subject(:default_app_name) { environment.default_app_name }
+    it { is_expected.to eql 'dummy' }
+
+    context 'Rails application not defined' do
+      before do
+        allow(Rails).to receive(:application) { Class.new(Object).new }
+        allow(Dir).to receive(:pwd) { '/path/to/my_app' }
+      end
+
+      it { is_expected.to eql 'my_app' }
+    end
+  end
 
   describe '#settings' do
     subject(:settings) { environment.settings }

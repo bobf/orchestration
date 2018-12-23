@@ -27,7 +27,7 @@ module Orchestration
     end
 
     def relative_path(path)
-      path.relative_path_from(Rails.root).to_s
+      path.relative_path_from(@env.root).to_s
     end
 
     def simple_copy(template_name, dest, options = {})

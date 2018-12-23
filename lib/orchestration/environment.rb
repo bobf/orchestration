@@ -53,6 +53,11 @@ module Orchestration
     end
 
     def default_app_name
+      default = root.basename.to_s
+      return default unless defined?(Rails)
+      # Edge case if Rails is used as a dependency but we are not a Rails app:
+      return default if Rails.application.class.parent == Object
+
       Rails.application.class.parent.name.underscore
     end
 
@@ -65,8 +70,8 @@ module Orchestration
     end
 
     def root
-      return Rails.root if defined?(Rails) && Rails.root
-
+      defined?(Rails) && Rails.root ? Rails.root : Pathname.new(Dir.pwd)
+    rescue NoMethodError
       Pathname.new(Dir.pwd)
     end
 
