@@ -22,6 +22,38 @@ RSpec.describe Orchestration::InstallGenerator do
     expect(File).to exist(path)
   end
 
+  it 'creates Makefile' do
+    path = dummy_path.join('Makefile')
+    FileUtils.rm_f(path)
+    install_generator.application_makefile
+    expect(File).to exist(path)
+  end
+
+  it 'does not overwrite Makefile' do
+    path = dummy_path.join('Makefile')
+    File.write(path, 'some make commands')
+    install_generator.application_makefile
+    expect(File.read(path)).to include 'some make commands'
+  end
+
+  it 'injects Makefile include directive if not present' do
+    path = dummy_path.join('Makefile')
+    File.write(path, 'some make commands')
+    install_generator.application_makefile
+    expect(File.read(path))
+      .to start_with 'include orchestration/Makefile'
+  end
+
+  it 'does not inject Makefile if already present' do
+    path = dummy_path.join('Makefile')
+    File.write(path, 'include orchestration/Makefile')
+    install_generator.application_makefile
+    filter = proc { |line| line == 'include orchestration/Makefile' }
+    expect(
+      File.readlines(path).map(&:chomp).select(&filter).size
+    ).to eql 1
+  end
+
   it 'creates .env' do
     path = dummy_path.join('.env')
     FileUtils.rm_f(path)

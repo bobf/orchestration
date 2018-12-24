@@ -1,0 +1,14 @@
+#
+# Example test command
+#
+# This command will call `test-setup` before running your usual test pipeline.
+#
+# `test-setup` starts all containers specified in `docker-compose.test.yml`,
+# waits for them to be ready, and runs DB migrations.
+#
+# In your CI environment, simply run `make test`.
+#
+.PHONY: test
+test: test-setup
+	bundle exec rspec
+        bundle exec rubocop
