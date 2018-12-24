@@ -15,6 +15,13 @@ RSpec.describe Orchestration::InstallGenerator do
     expect(File).to exist(path)
   end
 
+  it 'creates deploy.mk' do
+    path = orchestration_path.join('deploy.mk')
+    FileUtils.rm_f(path)
+    install_generator.deploy_mk
+    expect(File).to exist(path)
+  end
+
   it 'creates .env' do
     path = dummy_path.join('.env')
     FileUtils.rm_f(path)

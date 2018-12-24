@@ -1,4 +1,4 @@
-.PHONY: start stop migrate docker build push start logs compose config <%= wait_commands.join(' ') %>
+.PHONY: start stop migrate bundle docker build push start logs compose config <%= wait_commands.join(' ') %>
 
 ### Environment setup ###
 
@@ -9,12 +9,11 @@ COMPOSE_BASE:=HOST_UID=$(shell id -u) \
               DOCKER_USERNAME=${DOCKER_USERNAME} \
               DOCKER_REPOSITORY=${DOCKER_REPOSITORY} \
               docker-compose \
-              -p $(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository) \
-              -f orchestration/docker-compose.yml
+              -p ${DOCKER_REPOSITORY} \
+              -f <%= env.orchestration_dir_name %>/docker-compose.yml
 
-COMPOSE_PRODUCTION:=-f orchestration/docker-compose.production.yml -f orchestration/docker-compose.override.yml
-COMPOSE_TEST:=-f orchestration/docker-compose.test.yml -f orchestration/docker-compose.override.yml
-COMPOSE_DEVELOPMENT:=-f orchestration/docker-compose.development.yml -f orchestration/docker-compose.override.yml
+GIT_BRANCH:=$(if $(BRANCH),$(BRANCH),$(shell git rev-parse --abbrev-ref HEAD))
+GIT_VERSION:=$(shell git rev-parse --short --verify ${GIT_BRANCH})
 
 -include .env
 export
@@ -27,8 +26,8 @@ else
   ENV:=development
 endif
 
-COMPOSE:=${COMPOSE_BASE} -f orchestration/docker-compose.${ENV}.yml -f orchestration/docker-compose.override.yml
-RAKE:=bin/rake
+COMPOSE:=${COMPOSE_BASE} -f <%= env.orchestration_dir_name %>/docker-compose.${ENV}.yml -f <%= env.orchestration_dir_name %>/docker-compose.override.yml
+RAKE:=RACK_ENV=${ENV} RAILS_ENV=${ENV} bin/rake
 
 ### Container management commands ###
 
@@ -40,16 +39,11 @@ else
 	@${COMPOSE} up -d --scale app=$${INSTANCES:-1}
 endif
 	@make wait
-	@make migrate
 
 stop:
 	@echo "Stopping containers..."
 	@${COMPOSE} down
 	@echo "All containers stopped."
-
-deploy:
-	@echo "Deploying application to Docker swarm..."
-	@${COMPOSE} config | docker stack deploy -c - ${DOCKER_REPOSITORY}
 
 logs:
 	@${COMPOSE} logs
@@ -60,9 +54,27 @@ config:
 compose:
 	@${COMPOSE} $$cmd
 
+### Deployment utility commands ###
+
+bundle:
+	@echo 'Building deployment bundle...'
+	@rm -rf <%= env.orchestration_dir_name %>/.deploy/
+	@mkdir -p <%= env.orchestration_dir_name %>/.deploy/${DOCKER_REPOSITORY}/
+	@sed -e "s/%%VERSION%%/${GIT_VERSION}/g" \
+             -e "s/%%REPOSITORY%%/${DOCKER_REPOSITORY}/g" \
+             -e "s/%%USERNAME%%/${DOCKER_USERNAME}/g" \
+             <%= env.orchestration_dir_name %>/deploy.mk > \
+             <%= env.orchestration_dir_name %>/.deploy/${DOCKER_REPOSITORY}/Makefile
+	@cp <%= env.orchestration_dir_name %>/docker-compose.yml \
+            <%= env.orchestration_dir_name %>/docker-compose.production.yml \
+            <%= env.orchestration_dir_name %>/docker-compose.override.yml \
+            <%= env.orchestration_dir_name %>/.deploy/${DOCKER_REPOSITORY}/
+	@tar -C <%= env.orchestration_dir_name %>/.deploy -cf ./orchestration.tar ./${DOCKER_REPOSITORY}
+	@echo 'Deployment bundle written to ./orchestration.tar'
+
 ### Database utility commands ###
 
-migrate: wait-database
+migrate:
 	@echo "Running migrations..."
 ifeq (${ENV},$(filter ${ENV},test development))
 	@${RAKE} db:migrate
@@ -109,8 +121,6 @@ endif
 
 docker: build push
 
-GIT_BRANCH:=$(if $(BRANCH),$(BRANCH),$(shell git rev-parse --abbrev-ref HEAD))
-
 build:
 	@echo "Preparing build from ${GIT_BRANCH}"
 	@mkdir -p ./<%= env.orchestration_dir_name %>/.build
@@ -124,10 +134,9 @@ build:
 	             --build-arg BUNDLE_GITHUB__COM \
 	             --build-arg BUNDLE_BITBUCKET__ORG \
 		     -t ${DOCKER_USERNAME}/${DOCKER_REPOSITORY} \
-		     -t ${DOCKER_USERNAME}/${DOCKER_REPOSITORY}:$(shell git rev-parse --short --verify ${GIT_BRANCH}) \
+		     -t ${DOCKER_USERNAME}/${DOCKER_REPOSITORY}:${GIT_VERSION} \
 		     ./<%= env.orchestration_dir_name %>/
 	@echo "Build complete."
 
-push: VERSION := $(shell git rev-parse --short --verify ${GIT_BRANCH})
 push:
-	docker push ${DOCKER_USERNAME}/${DOCKER_REPOSITORY}:${VERSION}
+	docker push ${DOCKER_USERNAME}/${DOCKER_REPOSITORY}:${GIT_VERSION}

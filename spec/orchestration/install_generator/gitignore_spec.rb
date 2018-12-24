@@ -51,9 +51,9 @@ RSpec.describe Orchestration::InstallGenerator do
 
     [
       'orchestration/.build',
+      'orchestration/.deploy',
       'orchestration/Gemfile',
-      'orchestration/Gemfile.lock',
-      'orchestration/*.gemspec'
+      'orchestration/Gemfile.lock'
     ].each do |entry|
       it_behaves_like 'a .gitignore entry', entry
     end
