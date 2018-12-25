@@ -7,3 +7,5 @@ Redis support
 
 Use `Paint` instead of `Colorize` for colouring output - better licensing and no
 monkeypatching `String` etc.
+
+Make unicorn `config.rb` resilient to database connectivity failures
