@@ -1,5 +1,7 @@
 ### Environment setup ###
 
+SHELL:=$(shell /bin/bash)
+
 docker_username:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_username)
 docker_repository:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository)
 
