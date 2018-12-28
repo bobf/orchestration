@@ -19,7 +19,7 @@ RSpec.describe Orchestration::InstallGenerator do
     it 'creates a Makefile with expected content' do
       makefile
       content = File.read(makefile_path)
-      expect(content).to include '.PHONY: start stop migrate'
+      expect(content).to include '.PHONY: start'
     end
 
     it 'includes correct wait commands' do
