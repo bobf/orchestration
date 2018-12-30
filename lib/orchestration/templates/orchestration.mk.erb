@@ -15,11 +15,11 @@ endif
 
 rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
 
-docker_username:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_username)
+docker_organization:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_organization)
 docker_repository:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository)
 
 compose_base:=env HOST_UID=$(shell id -u) \
-              DOCKER_USERNAME=${docker_username} \
+              DOCKER_USERNAME=${docker_organization} \
               DOCKER_REPOSITORY=${docker_repository} \
               docker-compose \
               -p ${docker_repository} \
@@ -38,7 +38,7 @@ start:
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up -d
 else
-	@${compose} up -d --scale app=$${INSTANCES:-1}
+	@${compose} up -d --scale app=$${instances:-1}
 endif
 	@$(MAKE) wait
 
@@ -73,7 +73,7 @@ bundle:
 	@mkdir -p <%= env.orchestration_dir_name %>/.deploy/${docker_repository}/
 	@sed -e "s/%%VERSION%%/${git_version}/g" \
              -e "s/%%REPOSITORY%%/${docker_repository}/g" \
-             -e "s/%%USERNAME%%/${docker_username}/g" \
+             -e "s/%%ORGANIZATION%%/${docker_organization}/g" \
              <%= env.orchestration_dir_name %>/deploy.mk > \
              <%= env.orchestration_dir_name %>/.deploy/${docker_repository}/Makefile
 	@cp <%= env.orchestration_dir_name %>/docker-compose.yml \
@@ -155,11 +155,11 @@ build:
 	@docker build \
 	             --build-arg BUNDLE_GITHUB__COM \
 	             --build-arg BUNDLE_BITBUCKET__ORG \
-		     -t ${docker_username}/${docker_repository} \
-		     -t ${docker_username}/${docker_repository}:${git_version} \
+		     -t ${docker_organization}/${docker_repository} \
+		     -t ${docker_organization}/${docker_repository}:${git_version} \
 		     ./<%= env.orchestration_dir_name %>/
 	@echo "Build complete."
 
 .PHONY: push
 push:
-	docker push ${docker_username}/${docker_repository}:${git_version}
+	docker push ${docker_organization}/${docker_repository}:${git_version}

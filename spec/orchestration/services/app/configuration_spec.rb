@@ -23,12 +23,14 @@ RSpec.describe Orchestration::Services::App::Configuration do
   end
 
   before do
-    allow(env.settings).to receive(:get).with('docker.username') { 'testuser' }
     allow(env.settings).to receive(:get).with('docker.repository') { 'repo' }
+    allow(env.settings)
+      .to receive(:get)
+        .with('docker.organization') { 'testuser' }
   end
 
   it { is_expected.to be_a described_class }
-  its(:docker_username) { is_expected.to eql 'testuser' }
+  its(:docker_organization) { is_expected.to eql 'testuser' }
   its(:app_name) { is_expected.to eql 'repo' }
   its(:friendly_config) { is_expected.to eql '[repo] 127.0.0.1:3000' }
   its(:local_port) { is_expected.to eql 3000 }

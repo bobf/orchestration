@@ -1,34 +1,43 @@
-.PHONY: deploy stop start config pull logs migrate
-
-COMPOSE_BASE:=HOST_UID=$(shell id -u) \
+compose_base:=HOST_UID=$(shell id -u) \
               DOCKER_USERNAME=%%USERNAME%% \
               DOCKER_REPOSITORY=%%REPOSITORY%%:%%VERSION%% \
               docker-compose \
               -p %%REPOSITORY%% \
               -f docker-compose.yml
 
-COMPOSE:=${COMPOSE_BASE} -f docker-compose.production.yml -f docker-compose.override.yml
+compose:=${compose_base} -f docker-compose.production.yml -f docker-compose.override.yml
 
+.PHONY: deploy
 deploy:
 	@echo "Deploying application to Docker swarm..."
-	@${COMPOSE} config | docker stack deploy -c - %%REPOSITORY%%
+	@${compose} config | docker stack deploy -c - %%REPOSITORY%%
 
+.PHONY: deploy
 stop:
 	@echo "Stopping containers..."
-	@${COMPOSE} down
+	@${compose} down
 
+.PHONY: deploy
 start:
 	@echo "Launching application..."
-	@${COMPOSE} up -d
+	@${compose} up -d --scale app=$${instances:-1}
 
+.PHONY: deploy
 config:
-	@${COMPOSE} config
+	@${compose} config
 
+.PHONY: deploy
 pull:
-	@${COMPOSE} pull
+	@${compose} pull
 
+.PHONY: deploy
 logs:
-	@${COMPOSE} logs -f
+	@${compose} logs -f
 
+.PHONY: deploy
 migrate:
-	@${COMPOSE} run --rm app bundle exec rake db:migrate
+	@${compose} run --rm app bundle exec rake db:migrate
+
+.PHONY: compose
+compose:
+	@echo ${compose}

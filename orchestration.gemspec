@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.name = 'orchestration'
   spec.version = Orchestration::VERSION
   spec.authors = ['Bob Farrell']
-  spec.email = ['bob@orchestration.co.uk']
+  spec.email = ['robertanthonyfarrell@gmail.com']
 
   spec.summary = 'Docker orchestration toolkit'
   spec.description = 'Tools to help launch apps in Docker'

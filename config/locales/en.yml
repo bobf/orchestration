@@ -31,9 +31,9 @@ en:
 
     settings:
       docker:
-        username:
-          description: "Docker registry username"
-          prompt: "username"
+        organization:
+          description: "Docker registry organization/username"
+          prompt: "organization"
 
         repository:
           description: "Project name (will be used as Docker registry repository)"

@@ -11,21 +11,24 @@ RSpec.describe Orchestration::Settings do
 
   describe '#get' do
     before do
-      File.write(path, { 'docker' => { 'username' => 'dockeruser' } }.to_yaml)
+      File.write(
+        path,
+        { 'docker' => { 'organization' => 'dockeruser' } }.to_yaml
+      )
     end
 
     let(:path) { Orchestration.root.join('spec', 'fixtures', 'config.yml') }
     subject(:get) { settings.get(key) }
-    context 'docker.username' do
-      let(:key) { 'docker.username' }
+    context 'docker.organization' do
+      let(:key) { 'docker.organization' }
       it { is_expected.to eql 'dockeruser' }
     end
   end
 
   describe '#set' do
     subject(:set) { settings.set(key, value) }
-    context 'docker.username' do
-      let(:key) { 'docker.username' }
+    context 'docker.organization' do
+      let(:key) { 'docker.organization' }
       let(:value) { 'testuser' }
 
       it 'sets a value' do

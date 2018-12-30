@@ -10,7 +10,7 @@ module Orchestration
 
       def definition
         {
-          'image' => '${DOCKER_USERNAME}/${DOCKER_REPOSITORY}',
+          'image' => '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}',
           'environment' => environment,
           'expose' => [8080],
           'volumes' => [

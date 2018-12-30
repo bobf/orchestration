@@ -1,7 +1,7 @@
 Refactor docker-compose services - these really belong in
 lib/orchestration/services/<service-name>/docker_compose.rb
 
-Standardise on log formats - by policy or recommendation ?
+Add default logging section to each service ?
 
 Redis support
 
@@ -10,12 +10,10 @@ monkeypatching `String` etc.
 
 Make unicorn `config.rb` resilient to database connectivity failures
 
-Environment-based config in `orchestration.yml`. Move template files out of
-`orchestration/` and store inside gem; generate on the fly on each invocation.
-Config entries in `orchestration.yml` will override defaults (using
-docker-compose to merge configs).
-
 Group healthcheck rake tasks - run all at once in the same process. Create a
 master process that generates config files and calls each healthcheck in batch.
 
 Provide a way of declaratively configuring bespoke healthchecks.
+
+Auto-healthcheck any services with a local port bind using the Listener
+healthcheck.
