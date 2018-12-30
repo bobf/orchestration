@@ -27,7 +27,7 @@ module Orchestration
     end
 
     def orchestration_makefile
-      content = template('Makefile', makefile_environment)
+      content = template('orchestration.mk', makefile_environment)
       path = @env.orchestration_root.join('Makefile')
       path.exist? ? update_file(path, content) : create_file(path, content)
     end

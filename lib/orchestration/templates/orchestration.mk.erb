@@ -1,6 +1,19 @@
 ### Environment setup ###
 
-SHELL:=$(shell /bin/bash)
+SHELL:=/bin/bash
+
+-include .env
+export
+
+ifneq (,$(RAILS_ENV))
+  env:=$(RAILS_ENV)
+else ifneq (,$(RACK_ENV))
+  env:=$(RACK_ENV)
+else ifeq (,$(env))
+  env:=development
+endif
+
+rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
 
 docker_username:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_username)
 docker_repository:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository)
@@ -15,19 +28,7 @@ compose_base:=HOST_UID=$(shell id -u) \
 git_branch:=$(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
 git_version:=$(shell git rev-parse --short --verify ${git_branch})
 
--include .env
-export
-
-ifneq (,$(RAILS_ENV))
-  env:=$(RAILS_ENV)
-else ifneq (,$(RACK_ENV))
-  env:=$(RACK_ENV)
-else ifeq (,$(env))
-  env:=development
-endif
-
 compose:=${compose_base} -f <%= env.orchestration_dir_name %>/docker-compose.${env}.yml -f <%= env.orchestration_dir_name %>/docker-compose.override.yml
-rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
 
 ### Container management commands ###
 
@@ -61,7 +62,7 @@ compose:
 
 .PHONY: test-setup
 test-setup:
-	@$(MAKE) start wait migrate env=test
+	@$(MAKE) start migrate env=test
 
 ### Deployment utility commands ###
 
@@ -88,7 +89,7 @@ bundle:
 migrate:
 	@echo "Running migrations..."
 ifeq (${env},$(filter ${env},test development))
-	@${rake} db:migrate
+	@(${rake} db:create && ${rake} db:migrate) || ${rake} db:migrate
 else
 	@${compose} run --rm app bin/rake db:migrate RAILS_ENV=${env}
 endif
@@ -144,8 +145,8 @@ build:
 	@mkdir -p ./<%= env.orchestration_dir_name %>/.build
 	@git show ${git_branch}:./Gemfile > ./<%= env.orchestration_dir_name %>/.build/Gemfile
 	@git show ${git_branch}:./Gemfile.lock > ./<%= env.orchestration_dir_name %>/.build/Gemfile.lock
-	<% if defined?(Webpacker) %>@git show ${git_branch}:./package.json > ./<%= env.orchestration_dir_name %>/.build/package.json<% end %>
-	<% if defined?(Webpacker) %>@git show ${git_branch}:./yarn.lock > ./<%= env.orchestration_dir_name %>/.build/yarn.lock<% end %>
+<% if defined?(Webpacker) %>	@git show ${git_branch}:./package.json > ./<%= env.orchestration_dir_name %>/.build/package.json<% end %>
+<% if defined?(Webpacker) %>	@git show ${git_branch}:./yarn.lock > ./<%= env.orchestration_dir_name %>/.build/yarn.lock<% end %>
 	@echo "Building..."
 	@git archive --format tar.gz -o ./<%= env.orchestration_dir_name %>/.build/context.tar.gz ${git_branch}
 	@docker build \
