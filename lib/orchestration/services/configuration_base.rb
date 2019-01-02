@@ -45,6 +45,11 @@ module Orchestration
             .first
             .to_i
       end
+
+      def yaml(content)
+        # Whitelist `Symbol` and permit aliases:
+        YAML.safe_load(content, [Symbol], [], true)
+      end
     end
   end
 end

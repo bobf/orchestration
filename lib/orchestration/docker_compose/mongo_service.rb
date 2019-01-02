@@ -31,17 +31,13 @@ module Orchestration
       end
 
       def local_port
-        _host, _, port = clients.fetch('default')
-                                .fetch('hosts')
-                                .first
-                                .partition(':')
-        port.empty? ? remote_port : port
+        @config.port.nil? ? remote_port : @config.port
       end
 
-      def clients
-        @config.settings.fetch('clients')
-      rescue KeyError
-        @config.settings.fetch('sessions')
+      def client
+        Services::Mong::Configuration::CONFIG_KEYS.each do |key|
+          return @config.settings.fetch(key) if @config.settings.key?(key)
+        end
       end
 
       def remote_port

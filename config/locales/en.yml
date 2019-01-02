@@ -16,6 +16,7 @@ en:
     mongo:
       waiting: "Waiting for Mongo: %{config}"
       ready: "Mongo is ready."
+      bad_config: "Unable to parse Mongo config: %{path}. Expected section for one of: %{expected}"
 
     nginx_proxy:
       waiting: "Waiting for Nginx proxy: %{config}"
