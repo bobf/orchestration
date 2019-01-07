@@ -11,7 +11,7 @@ _Orchestration_ is a toolkit for testing, building, and deploying _Ruby_ (includ
 Add _Orchestration_ to your Gemfile:
 
 ```ruby
-gem 'orchestration', '~> 0.3.5'
+gem 'orchestration', '~> 0.3.6'
 ```
 
 Install:
