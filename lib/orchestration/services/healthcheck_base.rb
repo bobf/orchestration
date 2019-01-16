@@ -48,7 +48,8 @@ module Orchestration
       def configuration_class
         # Find the relevant `Configuration` class for whatever `Healthcheck`
         # class we happen to be included in.
-        self.class.parent.const_get(:Configuration)
+        instance_eval(self.class.name.rpartition('::').first)
+          .const_get(:Configuration)
       end
 
       def devnull
