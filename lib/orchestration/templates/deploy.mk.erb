@@ -1,20 +1,30 @@
 -include .env
 export
 
+ifneq (,$(RAILS_ENV))
+  env:=$(RAILS_ENV)
+else ifneq (,$(RACK_ENV))
+  env:=$(RACK_ENV)
+endif
+
 verify-environment:
 ifndef VIRTUAL_HOST
-        @$(error VIRTUAL_HOST must be defined in environment)
+        @$(error `VIRTUAL_HOST` must be defined in environment)
 endif
 
 ifndef LISTEN_PORT
-        @$(error LISTEN_PORT must be defined in environment)
+        @$(error `LISTEN_PORT` must be defined in environment)
+endif
+
+ifndef env
+        @$(error Either `env`, `RACK_ENV` or `RAILS_ENV` must be defined in environment)
 endif
 
 compose_base:=env HOST_UID=$(shell id -u) \
               DOCKER_ORGANIZATION=%%ORGANIZATION%% \
               DOCKER_REPOSITORY=%%REPOSITORY%%:%%VERSION%% \
               docker-compose \
-              -p %%REPOSITORY%% \
+              -p %%REPOSITORY%%_${env} \
               -f docker-compose.yml
 
 compose:=${compose_base} -f docker-compose.production.yml -f docker-compose.override.yml
@@ -22,7 +32,7 @@ compose:=${compose_base} -f docker-compose.production.yml -f docker-compose.over
 .PHONY: deploy
 deploy:
 	@echo "Deploying application to Docker swarm..."
-	@${compose} config | docker stack deploy -c - %%REPOSITORY%%
+	@${compose} config | docker stack deploy -c - %%REPOSITORY%%_${env}
 
 .PHONY: stop
 stop:
