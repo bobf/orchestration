@@ -32,7 +32,7 @@ compose:=${compose_base} -f docker-compose.production.yml -f docker-compose.over
 .PHONY: deploy
 deploy:
 	@echo "Deploying application to Docker swarm..."
-	@${compose} config | docker stack deploy -c - %%REPOSITORY%%_${env}
+	@${compose} config | docker stack deploy --with-registry-auth -c - %%REPOSITORY%%_${env}
 
 .PHONY: stop
 stop:

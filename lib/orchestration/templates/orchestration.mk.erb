@@ -7,7 +7,7 @@ export
 
 ifneq (,$(env))
   env:=$(env)
-ifneq (,$(RAILS_ENV))
+else ifneq (,$(RAILS_ENV))
   env:=$(RAILS_ENV)
 else ifneq (,$(RACK_ENV))
   env:=$(RACK_ENV)
