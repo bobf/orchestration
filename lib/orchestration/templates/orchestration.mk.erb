@@ -5,11 +5,13 @@ SHELL:=/bin/bash
 -include .env
 export
 
+ifneq (,$(env))
+  env:=$(env)
 ifneq (,$(RAILS_ENV))
   env:=$(RAILS_ENV)
 else ifneq (,$(RACK_ENV))
   env:=$(RACK_ENV)
-else ifeq (,$(env))
+else
   env:=development
 endif
 
@@ -92,12 +94,14 @@ bundle:
 .PHONY: migrate
 migrate:
 	@echo "Running migrations..."
-ifeq (${env},$(filter ${env},test development))
 	@(${rake} db:create && ${rake} db:migrate) || ${rake} db:migrate
-else
-	@${compose} run --rm app bin/rake db:migrate RAILS_ENV=${env}
-endif
 	@echo "Migrations complete."
+
+.PHONY: migrate-container
+migrate-container:
+	@echo "[app] Running migrations..."
+	@${compose} run --rm app make migrate env=${env}
+	@echo "[app] Migrations complete."
 
 ### Service healthcheck commands ###
 
