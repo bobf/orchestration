@@ -17,10 +17,6 @@ module Orchestration
         Hash[services_enabled]
       end
 
-      def volumes
-        public_volume.merge(database_volume).merge(mongo_volume)
-      end
-
       private
 
       def services_available
@@ -29,7 +25,7 @@ module Orchestration
           database: DatabaseService,
           mongo: MongoService,
           rabbitmq: RabbitMQService,
-          nginx_proxy: NginxProxyService
+          haproxy: HAProxyService
         }
       end
 
@@ -40,22 +36,6 @@ module Orchestration
 
           [service.to_s, definition]
         end.compact
-      end
-
-      def public_volume
-        { @env.public_volume => {} }
-      end
-
-      def database_volume
-        return {} unless services.key?('database')
-
-        { @env.database_volume => {} }
-      end
-
-      def mongo_volume
-        return {} unless services.key?('mongo')
-
-        { @env.mongo_volume => {} }
       end
 
       def service_definition(service, config)

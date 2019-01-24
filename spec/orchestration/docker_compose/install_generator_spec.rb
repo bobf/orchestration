@@ -14,9 +14,6 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
       root: dummy_path,
       environment: 'test',
       database_url: nil,
-      database_volume: 'db_volume',
-      mongo_volume: 'mongo_volume',
-      public_volume: 'public_volume',
       docker_compose_config?: false
     )
   end
@@ -53,7 +50,7 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
       context 'production' do
         let(:env) { :production }
         it do
-          is_expected.to eql %i[nginx_proxy app database mongo rabbitmq]
+          is_expected.to eql %i[haproxy app database mongo rabbitmq]
         end
       end
     end
@@ -106,11 +103,6 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
             config['services']['app']['image']
           ).to eql '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}'
         end
-
-        it 'includes volumes' do
-          config = YAML.safe_load(File.read(path))
-          expect(config.fetch('volumes')).to_not be_empty
-        end
       end
 
       context 'test' do
@@ -142,11 +134,6 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
             config['services']['rabbitmq']['image']
           ).to eql 'library/rabbitmq'
         end
-
-        it 'does not include volumes' do
-          config = YAML.safe_load(File.read(path))
-          expect(config.fetch('volumes')).to be_empty
-        end
       end
 
       context 'development' do
@@ -177,11 +164,6 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
           expect(
             config['services']['rabbitmq']['image']
           ).to eql 'library/rabbitmq'
-        end
-
-        it 'includes volumes' do
-          config = YAML.safe_load(File.read(path))
-          expect(config.fetch('volumes')).to_not be_empty
         end
       end
 

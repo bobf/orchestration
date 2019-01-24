@@ -2,11 +2,11 @@
 
 module Orchestration
   module Services
-    module NginxProxy
+    module HAProxy
       class Configuration
         include ConfigurationBase
 
-        self.service_name = 'nginx_proxy'
+        self.service_name = 'haproxy'
 
         def initialize(env, service_name = nil)
           super
@@ -14,7 +14,7 @@ module Orchestration
         end
 
         def friendly_config
-          "[nginx_proxy] #{host}:#{local_port}"
+          "[haproxy] #{host}:#{local_port}"
         end
       end
     end

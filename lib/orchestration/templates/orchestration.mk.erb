@@ -136,10 +136,10 @@ endif
 
 ## Production wait commands
 
-.PHONY: wait-nginx_proxy
-wait-nginx_proxy:
+.PHONY: wait-haproxy
+wait-haproxy:
 ifneq (${env},$(filter ${env},test development))
-	@${rake} orchestration:nginx_proxy:wait LISTEN_PORT=${LISTEN_PORT}
+	@${rake} orchestration:haproxy:wait LISTEN_PORT=${LISTEN_PORT}
 endif
 
 .PHONY: wait-app

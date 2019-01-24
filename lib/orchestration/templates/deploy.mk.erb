@@ -58,7 +58,7 @@ logs:
 
 .PHONY: migrate
 migrate:
-	@${compose} run --rm app bundle exec rake db:migrate
+	@${compose} run --rm app make migrate env=${env}
 
 .PHONY: compose
 compose:

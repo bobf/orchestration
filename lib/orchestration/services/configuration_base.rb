@@ -32,9 +32,9 @@ module Orchestration
       end
 
       def local_port
-        key = @service_name == 'app' ? 'nginx_proxy' : @service_name
+        key = @service_name == 'app' ? 'haproxy' : @service_name
 
-        return ENV.fetch('LISTEN_PORT', '3000').to_i if key == 'nginx_proxy'
+        return ENV.fetch('LISTEN_PORT', '3000').to_i if key == 'haproxy'
 
         @env.docker_compose_config
             .fetch('services')

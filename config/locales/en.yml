@@ -18,9 +18,9 @@ en:
       ready: "Mongo is ready."
       bad_config: "Unable to parse Mongo config: %{path}. Expected section for one of: %{expected}"
 
-    nginx_proxy:
-      waiting: "Waiting for Nginx proxy: %{config}"
-      ready: "Nginx proxy is ready."
+    haproxy:
+      waiting: "Waiting for HAProxy: %{config}"
+      ready: "HAProxy is ready."
 
     rabbitmq:
       waiting: "Waiting for RabbitMQ: %{config}"
@@ -53,8 +53,8 @@ en:
       mongo:
         wait: "Wait for Mongo to become available"
 
-      nginx_proxy:
-        wait: "Wait for Nginx proxy to become available"
+      haproxy:
+        wait: "Wait for HAProxy to become available"
 
       rabbitmq:
         wait: "Wait for RabbitMQ to become available"

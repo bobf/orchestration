@@ -10,7 +10,7 @@ RSpec.describe Orchestration::Services::App::Healthcheck do
       app_name: 'test_app',
       docker_compose_path: fixture_path('docker-compose'),
       docker_compose_config: {
-        'services' => { 'nginx_proxy' => { 'ports' => ['3000:80'] } }
+        'services' => { 'haproxy' => { 'ports' => ['3000:80'] } }
       }
     )
   end
