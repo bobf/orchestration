@@ -24,7 +24,7 @@ RSpec.describe Orchestration::DockerCompose::HAProxyService do
     its(['image']) { is_expected.to eql 'dockercloud/haproxy' }
     its(['ports']) { is_expected.to eql ['${LISTEN_PORT}:80'] }
     its(['volumes']) do
-      is_expected.to eql ['/var/run/docker.sock:/tmp/docker.sock:bin']
+      is_expected.to eql ['/var/run/docker.sock:/var/run/docker.sock:ro']
     end
   end
 end

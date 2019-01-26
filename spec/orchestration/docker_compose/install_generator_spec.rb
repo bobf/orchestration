@@ -14,6 +14,8 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
       root: dummy_path,
       environment: 'test',
       database_url: nil,
+      database_volume: 'db_volume',
+      mongo_volume: 'mongo_volume',
       docker_compose_config?: false
     )
   end

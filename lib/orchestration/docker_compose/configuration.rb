@@ -17,6 +17,10 @@ module Orchestration
         Hash[services_enabled]
       end
 
+      def volumes
+        {}.merge(database_volume).merge(mongo_volume)
+      end
+
       private
 
       def services_available
@@ -36,6 +40,18 @@ module Orchestration
 
           [service.to_s, definition]
         end.compact
+      end
+
+      def database_volume
+        return {} unless services.key?('database')
+
+        { @env.database_volume => {} }
+      end
+
+      def mongo_volume
+        return {} unless services.key?('mongo')
+
+        { @env.mongo_volume => {} }
       end
 
       def service_definition(service, config)

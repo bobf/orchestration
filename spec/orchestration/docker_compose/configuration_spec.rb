@@ -6,7 +6,6 @@ RSpec.describe Orchestration::DockerCompose::Configuration do
   let(:env) do
     instance_double(
       Orchestration::Environment,
-      public_volume: 'myapp_public',
       docker_api_version: '3.7'
     )
   end
@@ -17,7 +16,6 @@ RSpec.describe Orchestration::DockerCompose::Configuration do
 
   its(:services) { is_expected.to eql({}) }
   its(:version) { is_expected.to eql('3.7') }
-  its(:volumes) { is_expected.to eql('myapp_public' => {}) }
 
   describe '#volumes' do
     subject { configuration.volumes }
