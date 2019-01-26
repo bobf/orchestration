@@ -11,12 +11,14 @@ module Orchestration
       def definition
         {
           'deploy' => {
-            'placement' => ['node.role == manager']
+            'placement' => {
+              'constraints' => ['node.role == manager']
+            }
           },
           'image' => 'dockercloud/haproxy',
           'ports' => %w[${LISTEN_PORT}:80],
           'volumes' => [
-            '/var/run/docker.sock:/tmp/docker.sock:bin'
+            '/var/run/docker.sock:/var/run/docker.sock:ro'
           ]
         }
       end
