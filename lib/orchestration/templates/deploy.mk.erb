@@ -58,10 +58,10 @@ pull:
 	@${compose} pull
 
 .PHONY: logs
-service := app
+logs: service := app
 logs:
 ifndef manager
-        @$(error Missing `manager` parameter: `make logs manager=swarm-manager.example.com`)
+	@$(error Missing `manager` parameter: `make logs manager=swarm-manager.example.com`)
 else
 	ssh ${manager} "docker service logs -f ${project_name}_${service}"
 endif

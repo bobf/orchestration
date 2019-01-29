@@ -43,7 +43,7 @@ start:
 	@echo "Starting containers..."
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up -d
-	@docker network connect ${docker_repository}_${env}_default $${hostname} 2>/dev/null || :
+	@docker network connect ${docker_repository}_${env}_default $(shell hostname) 2>/dev/null || :
 else
 	@${compose} up -d --scale app=$${instances:-1}
 endif
@@ -89,6 +89,33 @@ bundle:
             <%= env.orchestration_dir_name %>/.deploy/${docker_repository}/
 	@tar -C <%= env.orchestration_dir_name %>/.deploy -cf ./deploy.tar ./${docker_repository}
 	@echo 'Deployment bundle written to ./deploy.tar'
+
+.PHONY: deploy
+deploy:
+ifndef manager
+	@$(error Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`)
+else
+	@echo 'Deploying stack via ${manager}...'
+endif
+
+ifndef env_file
+	$(MAKE) bundle \
+     && workdir=$$(mktemp -d) \
+     && mv deploy.tar $${workdir}/ \
+     && cd $${workdir} \
+     && tar xf deploy.tar \
+     && cd ${docker_repository} \
+     && tar -cf - . | ssh ${manager} 'cd $$(mktemp -d) && chmod 0700 . && cat - | tar -x && make deploy-stack && rm -r $$(pwd)'
+else
+	$(MAKE) bundle \
+     && workdir=$$(mktemp -d) \
+     && mv deploy.tar $${workdir}/ \
+     && cd $${workdir} \
+     && tar xf deploy.tar \
+     && cd ${docker_repository} \
+     && cp "${env_file}" ./.env \
+     && tar -cf - . | ssh ${manager} 'cd $$(mktemp -d) && chmod 0700 . && cat - | tar -x && make deploy-stack && rm -r $$(pwd)'
+endif
 
 ### Database utility commands ###
 
