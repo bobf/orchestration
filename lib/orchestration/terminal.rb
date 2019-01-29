@@ -22,6 +22,7 @@ module Orchestration
     def write(desc, message, color_name = nil, newline = true)
       output = newline ? "#{message}\n" : message.to_s
       STDOUT.print colorize(desc, output, color_name)
+      STDOUT.flush
     end
 
     def read(message, default = nil)
