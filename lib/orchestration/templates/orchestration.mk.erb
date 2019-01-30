@@ -29,25 +29,28 @@ compose_base:=env HOST_UID=$(shell id -u) \
               DOCKER_REPOSITORY=${docker_repository} \
               docker-compose \
               -p ${docker_repository}_${env} \
-              -f <%= env.orchestration_dir_name %>/docker-compose.yml
+              -f <%= env.orchestration_dir_name %>/docker-compose.yml \
 
 git_branch:=$(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
 git_version:=$(shell git rev-parse --short --verify ${git_branch})
 
 compose:=${compose_base} -f <%= env.orchestration_dir_name %>/docker-compose.${env}.yml -f <%= env.orchestration_dir_name %>/docker-compose.override.yml
 
+ifneq (,$(wildcard <%= env.orchestration_dir_name %>/docker-compose.local.yml))
+  compose:=${compose} -f <%= env.orchestration_dir_name %>/docker-compose.local.yml
+endif
+
 ### Container management commands ###
 
 .PHONY: start
-.PHONY: start
 start:
-        @echo "Starting containers..."
+	@echo "Starting containers..."
 ifeq (${env},$(filter ${env},test development))
-        @(docker ps --format "{{.ID}}" | grep -q $(shell hostname) && ${compose} up -d && docker network connect ${docker_repository}_${env}_default $(shell hostname)) || ${compose} -f <%= env.orchestration_dir_name %>/docker-compose.local.yml up -d
+	@(docker ps --format "{{.ID}}" | grep -q $(shell hostname) && ${compose} up -d && docker network connect ${docker_repository}_${env}_default $(shell hostname)) || ${compose} up -d
 else
-        @${compose} up -d --scale app=$${instances:-1}
+	@${compose} up -d --scale app=$${instances:-1}
 endif
-        @$(MAKE) wait
+	@$(MAKE) wait
 
 .PHONY: stop
 stop:

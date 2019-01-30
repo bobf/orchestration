@@ -56,7 +56,7 @@ module Orchestration
 
     def gitignore
       path = @env.root.join('.gitignore')
-      globs = %w[.build/ .deploy/ Gemfile Gemfile.lock]
+      globs = %w[.build/ .deploy/ Gemfile Gemfile.lock docker-compose.local.yml]
       entries = %w[.env deploy.tar] + globs.map do |entry|
         "#{@env.orchestration_dir_name}/#{entry}"
       end
@@ -86,6 +86,7 @@ module Orchestration
       @docker_compose.docker_compose_yml
       @docker_compose.docker_compose_test_yml
       @docker_compose.docker_compose_development_yml
+      @docker_compose.docker_compose_local_yml
       @docker_compose.docker_compose_production_yml
       @docker_compose.docker_compose_override_yml
     end
