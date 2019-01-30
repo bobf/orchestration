@@ -34,6 +34,11 @@ module Orchestration
           @settings = merged_settings
           return if @adapter.name == 'sqlite3'
           return unless %w[test development].include?(@env.environment)
+
+          merge_port
+        end
+
+        def merge_port
           return if environment.key?('port') || url_config['port']
 
           @settings.merge!('port' => local_port) if @env.docker_compose_config?

@@ -70,7 +70,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
       let(:environment) { :test }
       let(:adapter) { 'postgresql' }
       it { is_expected.to_not include 'volumes' }
-      its(['ports']) { is_expected.to eql(['3354:3354']) }
+      its(['ports']) { is_expected.to eql(['5432:3354']) }
     end
 
     context 'development' do
