@@ -31,6 +31,17 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
     end
 
     it { is_expected.to eql(expected_settings) }
+
+    context 'MONGO_URL' do
+      before do
+        allow(ENV).to receive(:[]).with('MONGO_URL') { 'mongo:1234/db' }
+        allow(ENV).to receive(:key?).with('MONGO_URL') { true }
+      end
+
+      subject(:default) { settings['clients']['default'] }
+      its(['database']) { is_expected.to eql 'db' }
+      its(['hosts']) { is_expected.to eql ['mongo:1234'] }
+    end
   end
 
   its(:friendly_config) do
