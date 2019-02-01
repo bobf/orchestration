@@ -8,10 +8,6 @@ else ifneq (,$(RACK_ENV))
 endif
 
 verify-environment:
-ifndef VIRTUAL_HOST
-  @$(error `VIRTUAL_HOST` must be defined in environment)
-endif
-
 ifndef LISTEN_PORT
   @$(error `LISTEN_PORT` must be defined in environment)
 endif

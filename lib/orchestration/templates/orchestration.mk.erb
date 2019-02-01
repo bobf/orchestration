@@ -46,6 +46,9 @@ endif
 start:
 	@echo "Starting containers..."
 ifeq (${env},$(filter ${env},test development))
+	@# If our hostname is also known to Docker as a container ID then join
+	@# the same network as our dependencies. This allows us to run side-car
+	@# dependencies if we are running in a container (e.g. in Jenkins).
 	@(docker ps --format "{{.ID}}" | grep -q $(shell hostname) && ${compose} up -d && docker network connect ${docker_repository}_${env}_default $(shell hostname)) || ${compose} up -d
 else
 	@${compose} up -d --scale app=$${instances:-1}
@@ -55,6 +58,7 @@ endif
 .PHONY: stop
 stop:
 	@echo "Stopping containers..."
+	@(docker ps --format "{{.ID}}" | grep -q $(shell hostname) && docker network disconnect ${docker_repository}_${env}_default $(shell hostname))
 	@${compose} down
 	@echo "All containers stopped."
 
