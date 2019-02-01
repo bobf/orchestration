@@ -52,7 +52,7 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
       context 'production' do
         let(:env) { :production }
         it do
-          is_expected.to eql %i[haproxy app database mongo rabbitmq]
+          is_expected.to eql %i[app database mongo rabbitmq]
         end
       end
     end

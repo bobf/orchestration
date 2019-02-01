@@ -83,7 +83,7 @@ module Orchestration
         when :test, :development
           %i[database mongo rabbitmq]
         when :production
-          %i[haproxy app database mongo rabbitmq]
+          %i[app database mongo rabbitmq]
         when :local, nil
           []
         else
@@ -102,8 +102,7 @@ module Orchestration
           app: Orchestration::Services::App::Configuration,
           database: Orchestration::Services::Database::Configuration,
           mongo: Orchestration::Services::Mongo::Configuration,
-          rabbitmq: Orchestration::Services::RabbitMQ::Configuration,
-          haproxy: Orchestration::Services::HAProxy::Configuration
+          rabbitmq: Orchestration::Services::RabbitMQ::Configuration
         }.fetch(service).new(@env)
       end
 
