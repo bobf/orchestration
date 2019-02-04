@@ -17,9 +17,9 @@ module Orchestration
         end
 
         def connect
-          port = @configuration.local_port
-
-          connection = Bunny.new("amqp://localhost:#{port}", log_file: devnull)
+          host = @configuration.settings.fetch('host')
+          port = @configuration.settings.fetch('port')
+          connection = Bunny.new("amqp://#{host}:#{port}", log_file: devnull)
           connection.start
           connection.stop
         end
