@@ -17,6 +17,7 @@ module Orchestration
 
     def orchestration_configuration
       path = @env.orchestration_configuration_path
+      @terminal.ask_setting('docker.registry')
       @terminal.ask_setting('docker.organization')
       @terminal.ask_setting('docker.repository', @env.default_app_name)
       relpath = relative_path(path)
