@@ -21,11 +21,6 @@ else
   rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
 endif
 
-docker_registry:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_registry)
-ifneq (,$(docker_registry))
-  docker_registry:=${docker_registry}/
-endif
-
 docker_organization:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_organization)
 docker_repository:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository)
 
@@ -174,6 +169,10 @@ ifeq (${env},$(filter ${env},test development))
 	@${rake} orchestration:rabbitmq:wait
 endif
 
+.PHONY: wait-app
+wait-app:
+	@# no-op
+
 ### Docker build commands ###
 
 .PHONY: build
@@ -189,11 +188,11 @@ build:
 	@docker build \
 	             --build-arg BUNDLE_GITHUB__COM \
 	             --build-arg BUNDLE_BITBUCKET__ORG \
-		     -t ${docker_registry}${docker_organization}/${docker_repository} \
-		     -t ${docker_registry}${docker_organization}/${docker_repository}:${git_version} \
+		     -t ${docker_organization}/${docker_repository} \
+		     -t ${docker_organization}/${docker_repository}:${git_version} \
 		     ./<%= env.orchestration_dir_name %>/
 	@echo "Build complete."
 
 .PHONY: push
 push:
-	docker push ${docker_registry}${docker_organization}/${docker_repository}:${git_version}
+	docker push ${docker_organization}/${docker_repository}:${git_version}
