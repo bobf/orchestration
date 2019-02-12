@@ -128,14 +128,11 @@ endif
 
 .PHONY: migrate
 migrate:
-	@echo "Running migrations..."
-	@(${rake} db:create && ${rake} db:migrate) || ${rake} db:migrate
-	@echo "Migrations complete."
-
-.PHONY: migrate-container
-migrate-container:
 	@echo "[app] Running migrations..."
-	@${compose} run --rm app make migrate env=${env}
+ifdef env_file
+	@cp ${env_file} ./.env
+endif
+	${compose} run --rm app bundle exec rake db:migrate
 	@echo "[app] Migrations complete."
 
 ### Service healthcheck commands ###
