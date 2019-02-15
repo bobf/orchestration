@@ -128,6 +128,12 @@ endif
 
 .PHONY: migrate
 migrate:
+	@echo "Running migrations..."
+	@(${rake} db:create && ${rake} db:migrate) || ${rake} db:migrate
+	@echo "Migrations complete."
+
+.PHONY: migrate-container
+migrate-container:
 	@echo "[app] Running migrations..."
 ifdef env_file
 	@cp ${env_file} ./.env
