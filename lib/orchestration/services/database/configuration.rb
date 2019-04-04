@@ -65,6 +65,9 @@ module Orchestration
             'postgresql' => adapters::Postgresql,
             'sqlite3' => adapters::Sqlite3
           }.fetch(name).new
+        rescue KeyError
+          Orchestration.error('database.unknown_adapter', adapter: name.inspect)
+          raise
         end
 
         def environment
