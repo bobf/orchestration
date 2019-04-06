@@ -58,8 +58,13 @@ endif
 .PHONY: stop
 stop:
 	@echo "Stopping containers..."
-	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; then ${compose} up -d && docker network connect ${docker_repository}_${env}_default $(shell hostname) ; else ${compose} up -d ; fi
-	@${compose} down
+	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
+          then \
+            ${compose} down && \
+            docker network connect ${docker_repository}_${env}_default $(shell hostname) ; \
+          else \
+            ${compose} down ; \
+          fi
 	@echo "All containers stopped."
 
 .PHONY: logs
