@@ -73,6 +73,11 @@ RSpec.describe Orchestration::Services::Listener::Healthcheck do
         let(:error) { Errno::ECONNREFUSED }
         it_behaves_like 'an error handler'
       end
+
+      context 'address not available' do
+        let(:error) { Errno::EADDRNOTAVAIL }
+        it_behaves_like 'an error handler'
+      end
     end
   end
 end
