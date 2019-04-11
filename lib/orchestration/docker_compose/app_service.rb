@@ -12,7 +12,11 @@ module Orchestration
         {
           'image' => image,
           'environment' => environment,
-          'ports' => ports
+          'ports' => ports,
+          'deploy' => {
+            'mode' => 'replicated',
+            'replicas' => '${REPLICAS}'
+          }
         }
       end
 
