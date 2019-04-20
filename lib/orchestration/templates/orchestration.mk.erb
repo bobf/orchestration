@@ -79,6 +79,13 @@ config:
 compose:
 	@echo ${compose}
 
+.PHONY: verify
+verify: output := $(shell mktemp)
+verify:
+	@echo "Verifying compose file(s) ..."
+	@${compose} config > "${output}" 2>&1 || ( cat "${output}" ; exit 1 )
+	@echo "Verification successful."
+
 .PHONY: test-setup
 test-setup:
 	@$(MAKE) start migrate env=test
