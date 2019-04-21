@@ -23,7 +23,7 @@ module Orchestration
       private
 
       def image
-        '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}'
+        '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}:${DOCKER_TAG}'
       end
 
       def environment
