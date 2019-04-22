@@ -16,7 +16,8 @@ stdout=${pwd}/log/orchestration.stdout.log
 stderr=${pwd}/log/orchestration.stderr.log
 log_path_length=$(shell echo "${stdout}" | wc -c)
 log:= >>${stdout} 2>>${stderr}
-log_progress:= > >(tee -a ${stdout}) 2> >(tee -a ${stderr} >&1) | perl -e 'while( my $$line = <STDIN> ) { printf("."); select()->flush(); }'
+progress_point:=perl -e 'while( my $$line = <STDIN> ) { printf("."); select()->flush(); }'
+log_progress:= > >(tee -a ${stdout}) 2> >(tee -a ${stderr} >&2) > >(${progress_point}) 2> >(${progress_point})
 red:=$(shell tput setaf 1)
 green:=$(shell tput setaf 2)
 yellow:=$(shell tput setaf 3)
@@ -93,9 +94,9 @@ fail=( \
        echo "${yellow}${stderr}${reset}" ; \
        ${hr} ; \
        [ -f "${stderr}" ] && ( \
-         $(call print,'${red}') ; cat "${stderr}" ; $(call print,'${reset}') \
+         $(call printraw,'${red}') ; cat "${stderr}" ; $(call printraw,'${reset}') \
        ) ; \
-       echo ; echo "Failed. ${cross}" ; \
+       echo ; $(call println,'Failed. ${cross}') ; \
        exit 1 \
     )
 
