@@ -56,7 +56,8 @@ module Orchestration
       def structure(environment = nil)
         {
           'version' => compose_config(environment).version,
-          'services' => services(environment)
+          'services' => services(environment),
+          'volumes' => volumes(environment)
         }
       end
 

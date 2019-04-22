@@ -18,7 +18,8 @@ module Orchestration
 
         {
           'image' => @config.adapter.image,
-          'environment' => @config.adapter.environment
+          'environment' => @config.adapter.environment,
+          'volumes' => volumes
         }.merge(ports).merge(volumes)
       end
 
@@ -35,7 +36,7 @@ module Orchestration
       end
 
       def volumes
-        return {} unless @environment == :development
+        return {} if @environment == :test
 
         { 'volumes' => ["#{volume}:#{@config.adapter.data_dir}"] }
       end

@@ -44,13 +44,13 @@ module Orchestration
       def database_volume
         return {} unless services.key?('database')
 
-        { @env.database_volume => {} }
+        { @env.database_volume(@environment) => {} }
       end
 
       def mongo_volume
         return {} unless services.key?('mongo')
 
-        { @env.mongo_volume => {} }
+        { @env.mongo_volume(@environment) => {} }
       end
 
       def service_definition(service, config)
