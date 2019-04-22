@@ -27,7 +27,7 @@ module Orchestration
       def volumes
         return {} if @environment == :test
 
-        { 'volumes' => ["#{@config.env.mongo_volume}:/data/db"] }
+        { 'volumes' => ["#{@config.env.mongo_volume(@environment)}:/data/db"] }
       end
 
       def local_port
