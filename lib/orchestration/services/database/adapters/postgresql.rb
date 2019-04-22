@@ -31,7 +31,6 @@ module Orchestration
 
           def environment
             {
-              'PGPORT' => DockerCompose::DatabaseService::PORT.to_s,
               'POSTGRES_PASSWORD' => 'password',
               'PGDATA' => data_dir
             }

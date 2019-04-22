@@ -1,6 +1,6 @@
 FROM ruby:2.6.1-alpine
-RUN apk --update add --virtual __deps__ build-base mysql-dev postgresql-dev \
- && apk add make bash ncurses perl git \
+RUN apk --update add --virtual __deps__ build-base postgresql-dev \
+ && apk add make bash ncurses perl git mysql-dev libpq \
  && gem install 'rails' -v '5.2.3' \
  && mkdir -p /app/log \
  && rails new /app -q \
@@ -32,3 +32,4 @@ RUN gem cleanup \
           /tmp/* \
           /var/tmp/*
 ENV TERM=dumb
+RUN apk --update add mysql-dev libpq

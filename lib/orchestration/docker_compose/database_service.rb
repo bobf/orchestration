@@ -3,10 +3,6 @@
 module Orchestration
   module DockerCompose
     class DatabaseService
-      # We dictate which port all database services will run on in their
-      # container to simplify port mapping.
-      PORT = 3354
-
       def initialize(config, environment)
         @environment = environment
         @config = config
@@ -29,10 +25,14 @@ module Orchestration
         @config.env.database_volume(@environment)
       end
 
+      def remote_port
+        @config.adapter.default_port
+      end
+
       def ports
         return {} unless %i[development test].include?(@environment)
 
-        { 'ports' => ["#{@config.settings.fetch('port')}:#{PORT}"] }
+        { 'ports' => ["#{@config.settings.fetch('port')}:#{remote_port}"] }
       end
 
       def volumes

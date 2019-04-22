@@ -20,7 +20,7 @@ module Orchestration
       @terminal.ask_setting('docker.organization')
       @terminal.ask_setting('docker.repository', @env.default_app_name)
       relpath = relative_path(path)
-      return @terminal.write(:create, relpath) unless @settings.exist?
+      return @terminal.write(:create, relpath) unless @settings.exist? || force?
       return @terminal.write(:update, relpath) if @settings.dirty?
 
       @terminal.write(:skip, relpath)

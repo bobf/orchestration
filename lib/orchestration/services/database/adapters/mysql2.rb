@@ -10,6 +10,8 @@ module Orchestration
           end
 
           def image
+            return mysql5_7 if gem_version < Gem::Version.new('0.4')
+
             'library/mysql'
           end
 
@@ -31,13 +33,22 @@ module Orchestration
 
           def environment
             {
-              'MYSQL_ROOT_PASSWORD' => 'password',
-              'MYSQL_TCP_PORT' => DockerCompose::DatabaseService::PORT.to_s
+              'MYSQL_ROOT_PASSWORD' => 'password'
             }
           end
 
           def data_dir
             '/var/lib/mysql'
+          end
+
+          private
+
+          def mysql5_7
+            'library/mysql:5.7'
+          end
+
+          def gem_version
+            Gem::Version.new(Gem.loaded_specs["mysql2"].version)
           end
         end
       end
