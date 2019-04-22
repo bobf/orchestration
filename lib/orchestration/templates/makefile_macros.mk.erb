@@ -1,3 +1,4 @@
+TERM ?= 'dumb'
 pwd:=$(shell pwd)
 orchestration_dir:=${pwd}/<%= env.orchestration_dir_name %>
 is_container:=$(shell [ -f './.orchestration_container_flag' ] && echo -n '1' || echo -n '0')
@@ -8,11 +9,14 @@ else
   custom_env_file ?= 0
 endif
 
-TERM ?= 'dumb'
+print=printf '${blue}\#${reset} '$1
+println=$(call print,$1'\n')
+printraw=printf $1
 stdout=${pwd}/log/orchestration.stdout.log
 stderr=${pwd}/log/orchestration.stderr.log
 log_path_length=$(shell echo "${stdout}" | wc -c)
 log:= >>${stdout} 2>>${stderr}
+log_progress:= > >(tee -a ${stdout}) 2> >(tee -a ${stderr} >&1) | perl -e 'while( my $$line = <STDIN> ) { printf("."); select()->flush(); }'
 red:=$(shell tput setaf 1)
 green:=$(shell tput setaf 2)
 yellow:=$(shell tput setaf 3)
@@ -46,7 +50,7 @@ replace_env:=( \
                  [ "${custom_env_file}" == "1" ] \
                  && ${back_up_env} \
                  && cp ${env_file} '${standard_env_path}' \
-                 && printf '\n${managed_env_tag}' >> '${standard_env_path}' \
+                 && $(call print,'\n${managed_env_tag}' >> '${standard_env_path}') \
                ) \
              )
 
@@ -89,7 +93,7 @@ fail=( \
        echo "${yellow}${stderr}${reset}" ; \
        ${hr} ; \
        [ -f "${stderr}" ] && ( \
-         printf "${red}" ; cat "${stderr}" ; printf "${reset}" \
+         $(call print,'${red}') ; cat "${stderr}" ; $(call print,'${reset}') \
        ) ; \
        echo ; echo "Failed. ${cross}" ; \
        exit 1 \
