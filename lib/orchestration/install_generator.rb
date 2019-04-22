@@ -100,14 +100,12 @@ module Orchestration
     def makefile_environment
       macros = template('makefile_macros.mk', env: @env)
 
-      { env: @env, wait_commands: wait_commands, macros: macros }
+      { env: @env, services: enabled_services, macros: macros }
     end
 
-    def wait_commands
+    def enabled_services
       %i[test development production].map do |environment|
-        @docker_compose.enabled_services(environment).map do |service|
-          "wait-#{service}"
-        end
+        @docker_compose.enabled_services(environment)
       end.flatten.uniq
     end
   end

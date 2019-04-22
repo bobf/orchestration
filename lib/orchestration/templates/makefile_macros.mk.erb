@@ -1,7 +1,11 @@
+is_container:=$(shell [ -f './.orchestration_container_flag' ] && echo -n '1' || echo -n '0')
 TERM ?= 'dumb'
 pwd:=$(shell pwd)
-orchestration_dir:=${pwd}/<%= env.orchestration_dir_name %>
-is_container:=$(shell [ -f './.orchestration_container_flag' ] && echo -n '1' || echo -n '0')
+ifdef mounted_orchestration
+  orchestration_dir=$(mounted_orchestration)
+else
+  orchestration_dir=${pwd}/<%= env.orchestration_dir_name %>
+endif
 
 ifdef env_file
   custom_env_file ?= 1
@@ -9,15 +13,24 @@ else
   custom_env_file ?= 0
 endif
 
+ifneq (,$(wildcard ${pwd}/config/database.yml))
+  database_enabled = 1
+else
+  database_enabled = 0
+endif
+
+orchestration_config_filename:=.orchestration.yml
+orchestration_config:=${pwd}/${orchestration_config_filename}
 print=printf '${blue}\#${reset} '$1
 println=$(call print,$1'\n')
 printraw=printf $1
+printrawln=$(call printraw,$1'\n')
 stdout=${pwd}/log/orchestration.stdout.log
 stderr=${pwd}/log/orchestration.stderr.log
 log_path_length=$(shell echo "${stdout}" | wc -c)
 log:= >>${stdout} 2>>${stderr}
 progress_point:=perl -e 'while( my $$line = <STDIN> ) { printf("."); select()->flush(); }'
-log_progress:= > >(tee -a ${stdout} >&1 | ${progress_point}) 2> >(tee -a ${stderr} 2>&1 | ${progress_point})
+log_progress:= > >(tee -ai ${stdout} >&1 | ${progress_point}) 2> >(tee -ai ${stderr} 2>&1 | ${progress_point})
 red:=$(shell tput setaf 1)
 green:=$(shell tput setaf 2)
 yellow:=$(shell tput setaf 3)
@@ -83,6 +96,7 @@ format_env:=$(call censor,SECRET) | \
             sed 's/=\(.*\)$$/=${yellow}\1${reset}/'
 
 fail=( \
+       $(call printraw,' ${cross}') ; \
        ${restore_env} ; \
        echo ; \
        echo ; \
@@ -99,4 +113,3 @@ fail=( \
        echo ; $(call println,'Failed. ${cross}') ; \
        exit 1 \
     )
-

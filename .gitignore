@@ -27,3 +27,6 @@ orchestration-*.gem
 .byebug_history
 
 TODO
+
+docker/.build/
+docker/.context.tar

@@ -23,10 +23,14 @@ else
   env:=development
 endif
 
-ifeq (,$(wildcard ./bin/rake))
+DOCKER_TAG ?= latest
+
+ifneq (,$(wildcard ./bin/rake))
+  rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
+else ifneq (,$(wildcard ./Gemfile))
   rake:=RACK_ENV=${env} RAILS_ENV=${env} bundle exec rake
 else
-  rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
+  rake:=RACK_ENV=${env} RAILS_ENV=${env} rake
 endif
 
 docker_organization:=$(shell bash ${orchestration_dir}/yaml.bash docker_organization)
@@ -39,11 +43,41 @@ compose_base:=env HOST_UID=$(shell id -u) \
               -p "${docker_repository}_${env}" \
               -f "${orchestration_dir}/docker-compose.yml"
 
-git_branch:=$(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
-git_version:=$(shell git rev-parse --short --verify ${git_branch})
+git_branch ?= $(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
+git_version ?= $(shell git rev-parse --short --verify ${git_branch})
 docker_image:=${docker_organization}/${docker_repository}:${git_version}
 
-compose:=${compose_base} -f ${orchestration_dir}/docker-compose.${env}.yml -f ${orchestration_dir}/docker-compose.override.yml
+compose=${compose_base} -f ${orchestration_dir}/docker-compose.${env}.yml -f ${orchestration_dir}/docker-compose.override.yml
+random_str=cat /dev/urandom | LC_ALL=C tr -dc 'a-z' | head -c $1
+ifneq (,$(wildcard ./.env))
+  env_volume:=--volume '${orchestration_dir}/../.env:/app/.env:ro'
+endif
+
+ifneq (,$(wildcard config/database.yml))
+  env_volume:=--volume '${pwd}/.env:/app/.env:ro'
+endif
+
+ifeq (database_enabled,1)
+  database_config_volume:=--volume '${pwd}/config/database.yml:/app/config/database.yml:ro'
+  database_migrations_volume:=--volume '${pwd}/db/:/app/db/:ro'
+endif
+
+default_network:=${docker_repository}_${env}_default
+mount_path:=/app/orchestration.$(shell $(call random_str,16))
+toolkit_container_run:=docker run --rm \
+                                  --volume '${orchestration_dir}:${mount_path}:ro' \
+                                  --volume '${orchestration_config}:/app/${orchestration_config_filename}:ro' \
+                                  ${env_volume} \
+                                  ${database_config_volume} \
+                                  ${database_migrations_volume} \
+                                  --network '${default_network}' \
+                                  --env 'TERM' \
+                                  'rubyorchestration/toolkit'
+
+toolkit=${toolkit_container_run} 'make' '-f' '${mount_path}/Makefile' $1 mounted_orchestration='${mount_path}' git_branch='${git_branch}' git_version='${git_version}'
+
+app_container_run:=${compose} run --rm ${env_volume} --volume '${orchestration_dir}:${mount_path}:ro' app
+app_container_make:=${app_container_run} make -f '${mount_path}/Makefile' mounted_orchestration='${mount_path}'
 
 ifneq (,$(wildcard ${orchestration_dir}/docker-compose.local.yml))
   compose:=${compose} -f ${orchestration_dir}/docker-compose.local.yml
@@ -52,12 +86,11 @@ endif
 ### Container management commands ###
 
 .PHONY: start
-start: network := ${docker_repository}_${env}_default
 start:
-	@$(call println,'${yellow}Starting containers${reset} ...')
+	@$(call print,'${yellow}Starting containers${reset} ...')
 ifeq (${env},$(filter ${env},test development))
-	@${compose} up -d --force-recreate ${log} || ${fail}
-	@[ '${is_container}' == '1' ] && \
+	${compose} up -d --force-recreate ${services} ${log_progress} || ${fail}
+	[ '${is_container}' == '1' ] && \
          ( \
            docker network connect '${network}' '$(shell hostname)' ${log} \
            || \
@@ -65,22 +98,34 @@ ifeq (${env},$(filter ${env},test development))
          ) \
          || ( [ '${is_container}' == '0' ] || ${fail} )
 else
-	@${compose} up -d --scale app=$${instances:-1}
+	${compose} up -d --scale app=$${instances:-1} ${services} ${log_progress} || ${fail}
 endif
-	@$(MAKE) wait
+
+ifdef services
+	$(MAKE) wait services='${services}' post_hook=1 2>${stderr} || ${fail}
+else
+	$(MAKE) wait post_hook=1 2>${stderr} || ${fail}
+endif
+
+<% services.each do |service| %>
+.PHONY: start-<%= service %>
+start-<%= service %>:
+	@$(MAKE) start services='<%= service %>'
+
+<% end %>
 
 .PHONY: stop
 stop:
-	@$(call print,'${yellow}Stopping containers${reset} ... ')
+	@$(call print,'${yellow}Stopping containers${reset} ...')
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
           then \
-            ( ${compose} down ${log} || ${fail} ) \
+            ( ${compose} down ${log_progress} || ${fail} ) \
             && \
             ( docker network connect ${docker_repository}_${env}_default $(shell hostname) ${log} || : ) ; \
           else \
-            ${compose} down ${log} || ${fail} ; \
+            ${compose} down ${log_progress} || ${fail} ; \
           fi
-	@$(call printraw,'${green}stopped${reset}. ${tick}\n')
+	@$(call printraw,' ${green}stopped${reset}. ${tick}\n')
 
 .PHONY: logs
 logs:
@@ -98,7 +143,7 @@ compose:
 
 .PHONY: serve
 serve: env_file ?= ./.env
-serve: rails := bundle exec rails server
+serve: rails := RAILS_ENV='${env}' bundle exec rails server
 serve: _verify_env
 	@if [ "${custom_env_file}" == "1" ] && [ ! -f "${env_file}" ] ; \
          then \
@@ -144,9 +189,11 @@ endif
 ifndef manager
 	@$(error Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`)
 endif
+deploy: env := production
 deploy: project_name := ${docker_repository}_${env}
 deploy: path := $(shell mktemp -d)
-deploy: env ?= production
+deploy: RAILS_ENV = ${env}
+deploy: RACK_ENV = ${env}
 deploy:
 	@$(call println,'${yellow}Deploying stack via${reset} ${green}${manager}${reset} ...') && \
           ( \
@@ -174,24 +221,14 @@ deploy:
 
 .PHONY: migrate
 migrate: success := $(call printraw,'${green}complete${reset}. ${tick}\n')
-migrate:
+migrate: start-database
 ifeq (,$(wildcard config/database.yml))
 	@$(call println,'${yellow}No database configuration found${reset}: ${cyan}skipping migrations${reset} ... ${tick}')
-else ifeq (${env},$(filter ${env},test development))
-	@$(MAKE) _verify_env env=${env} env_file=${env_file} || ${fail}
-	@$(call print,'${yellow}Running migrations${reset} ... ')
-	@$(MAKE) _migrate env=${env} ${log} || ${fail}
-	@${success}
 else
 	@$(MAKE) _verify_compose env=${env} env_file=${env_file} || ${fail}
 	@$(call print,'[${green}app${reset}] ${yellow}Running migrations${reset} ... ')
 	@${replace_env}
-	@${compose} run \
-                    -v '${orchestration_dir}/Makefile:/tmp/orchestration.mk:ro' \
-                    --rm \
-                    app \
-                    make -f /tmp/orchestration.mk _migrate env=${env} \
-                    ${log} || ${fail}
+	@${toolkit} _migrate env=${env} ${log_progress} || ${fail}
 	@${restore_env}
 	@${success}
 endif
@@ -199,8 +236,20 @@ endif
 ### Service healthcheck commands ###
 
 .PHONY: wait
-wait: <%= wait_commands.join(' ') %>
-	@$(call println,'All containers ${green}started${reset}. ${tick}')
+<% services.each do |service| %>
+ifneq (,$(findstring <%= service %>,${services}))
+wait: wait-<%= service %>
+endif
+<% end %>
+ifndef services
+wait: <%= services.map { |command| "wait-#{command}" }.join(' ') %>
+endif
+
+ifdef post_hook
+	@$(call printrawln,' ${green}started${reset}. ${tick}')
+else
+	@$(call println,'${yellow}All containers${reset} ${green}ready${reset}. ${tick}')
+endif
 
 ## Generic Listener healthcheck for TCP services ##
 
@@ -209,23 +258,17 @@ wait-listener:
 
 ## Test/development wait commands
 
-.PHONY: wait-database
-wait-database:
-ifeq (${env},$(filter ${env},test development))
-	@${rake} orchestration:database:wait
+<% services.each do |service| %>
+<% next if service.to_sym == :app %>
+.PHONY: wait-<%= service %>
+wait-<%= service %>:
+ifdef toolkit
+	${rake} orchestration:<%= service %>:wait
+else
+	$(call toolkit,'wait-<%= service %>' 'toolkit=1')
 endif
 
-.PHONY: wait-mongo
-wait-mongo:
-ifeq (${env},$(filter ${env},test development))
-	@${rake} orchestration:mongo:wait
-endif
-
-.PHONY: wait-rabbitmq
-wait-rabbitmq:
-ifeq (${env},$(filter ${env},test development))
-	@${rake} orchestration:rabbitmq:wait
-endif
+<% end %>
 
 .PHONY: wait-app
 wait-app:
@@ -244,7 +287,7 @@ build:
 <% if defined?(Webpacker) %>	@git show ${git_branch}:./yarn.lock > ${orchestration_dir}/.build/yarn.lock 2>${stderr} || ${fail}<% end %>
 	@git archive --format 'tar' -o '${context}' '${git_branch}' ${log} || ${fail}
 	@temp=$$(mktemp -d) ; ( cd "$${temp}" && touch './.orchestration_container_flag' && tar -uvf '${context}' . ) ${log} || ${fail}
-	@$(call printraw,'${green}complete.${reset} ${tick}\n')
+	@$(call printrawln,'${green}complete.${reset} ${tick}')
 	@$(call print,'${yellow}Building image${reset} ...')
 	@docker build \
                         --build-arg BUNDLE_GITHUB__COM \
@@ -252,7 +295,7 @@ build:
                         -t ${docker_organization}/${docker_repository} \
                         -t ${docker_organization}/${docker_repository}:${git_version} \
                         ${orchestration_dir}/ ${log_progress} || ${fail}
-	@$(call printraw,' ${green}complete${reset}. ${tick}\n')
+	@$(call printrawln,' ${green}complete${reset}. ${tick}')
 	@$(call println,'[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}${reset}')
 	@$(call println,'[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset}')
 
@@ -260,7 +303,7 @@ build:
 push:
 	@$(call print,'${yellow}Pushing${reset} ${cyan}${docker_image}${reset} ...')
 	@docker push ${docker_image} ${log_progress} || ${fail}
-	@$(call printraw,' ${green}complete${reset}. ${tick}\n')
+	@$(call printrawln,' ${green}complete${reset}. ${tick}')
 
 ### Internal Commands ###
 
@@ -270,7 +313,7 @@ _verify_compose: _verify_env
 	@${replace_env}
 	@${compose} config ${log} || ${fail}
 	@${restore_env}
-	@$(call printraw,'${green}success${reset}. ${tick}\n')
+	@$(call printrawln,'${green}success${reset}. ${tick}')
 
 .PHONY: _verify_env
 _verify_env:
@@ -281,6 +324,15 @@ _verify_env:
          fi
 
 .PHONY: _migrate
+# User must choose either `structure.sql` or `schema.rb`, or deal with
+# `structure.sql` taking precedence:
+ifneq (,$(wildcard db/structure.sql))
+_migrate: _db_load := db:structure:load
+else ifneq (,$(wildcard db/schema.rb))
+_migrate: _db_load := db:schema:load
+endif
 _migrate:
-	@${rake} --trace db:create || :
+# Allow a failure to create (DB may already exist) but fail and output full logs
+# if migrations fail [as well].
+	@${rake} --trace db:create ${_db_load} || :
 	@${rake} --trace db:migrate
