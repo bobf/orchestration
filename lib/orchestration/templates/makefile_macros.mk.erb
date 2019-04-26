@@ -19,6 +19,7 @@ else
   database_enabled = 0
 endif
 
+make=$(MAKE) $1
 orchestration_config_filename:=.orchestration.yml
 orchestration_config:=${pwd}/${orchestration_config_filename}
 print=printf '${blue}\#${reset} '$1
@@ -42,7 +43,7 @@ reset:=$(shell tput sgr0)
 tick=[${green}✓${reset}]
 cross=[${red}✘${reset}]
 warn=[${yellow}!${reset}]
-hr=path=${stdout} ; echo "${gray}$(shell head -c ${log_path_length} < /dev/zero | tr '\0' '=')${reset}"
+hr=$(call println,"$1$(shell head -c ${log_path_length} < /dev/zero | tr '\0' '=')${reset}")
 managed_env_tag:=\# -|- ORCHESTRATION
 standard_env_path:=${pwd}/.env
 backup_env_path:=${pwd}/.env.orchestration.backup
@@ -98,18 +99,8 @@ format_env:=$(call censor,SECRET) | \
 fail=( \
        $(call printraw,' ${cross}') ; \
        ${restore_env} ; \
+       $(call make,dump) ; \
        echo ; \
-       echo ; \
-       echo ; \
-       echo "${yellow}${stdout}${reset}" ; \
-       ${hr} ; \
-       [ -f "${stdout}" ] && cat "${stdout}" ; \
-       echo ; \
-       echo "${yellow}${stderr}${reset}" ; \
-       ${hr} ; \
-       [ -f "${stderr}" ] && ( \
-         $(call printraw,'${red}') ; cat "${stderr}" ; $(call printraw,'${reset}') \
-       ) ; \
-       echo ; $(call println,'Failed. ${cross}') ; \
+       $(call println,'Failed. ${cross}') ; \
        exit 1 \
     )
