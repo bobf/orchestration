@@ -219,6 +219,24 @@ deploy:
 
 	@$(call println,'${yellow}Deployment${reset} ${green}complete${reset}. ${tick}')
 
+.PHONY: dump
+dump:
+	@test -f '${stdout}' && ( \
+          echo '${yellow}Captured${reset} ${green}stdout${reset} ${yellow}log data${reset}:' ; \
+          echo '${green}================================${reset}' ; \
+          cat '${stdout}' ; \
+          echo '${green}================================${reset}' ; \
+          echo ; \
+          echo \
+        )
+
+	@test -f '${stdout}' && ( \
+          echo '${yellow}Captured${reset} ${red}stderr${reset} ${yellow}log data${reset}:' ; \
+          echo '${red}================================${reset}' ; \
+          cat '${stdout}' ; \
+          echo '${red}================================${reset}' ; \
+        )
+
 ### Database utility commands ###
 
 .PHONY: migrate
