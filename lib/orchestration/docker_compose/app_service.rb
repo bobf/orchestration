@@ -16,6 +16,13 @@ module Orchestration
           'deploy' => {
             'mode' => 'replicated',
             'replicas' => '${REPLICAS}'
+          },
+          'healthcheck' => {
+            'test' => %w(CMD ruby /app/orchestration/healthcheck.rb),
+            'interval' => '30s',
+            'timeout' => '15s',
+            'start_period' => '15s',
+            'retries' => 3
           }
         }
       end

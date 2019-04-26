@@ -30,7 +30,8 @@ module Orchestration
       path.relative_path_from(@env.root).to_s
     end
 
-    def simple_copy(template_name, dest, options = {})
+    def simple_copy(template_name, dest = nil, options = {})
+      dest ||= @env.orchestration_root.join(template_name)
       update_file(
         dest,
         template(template_name, env: @env),
