@@ -32,7 +32,7 @@ module Orchestration
       end
 
       def local_port
-        return ENV.fetch('LISTEN_PORT', '3000').to_i if @service_name == 'app'
+        return ENV.fetch('CONTAINER_PORT', '3000').to_i if @service_name == 'app'
 
         @env.docker_compose_config
             .fetch('services')

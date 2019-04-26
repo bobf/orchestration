@@ -54,7 +54,7 @@ module Orchestration
       end
 
       def ports
-        ['${LISTEN_PORT}:8080']
+        ['${CONTAINER_PORT}:8080']
       end
     end
   end

@@ -8,8 +8,8 @@ else ifneq (,$(RACK_ENV))
 endif
 
 verify-environment:
-ifndef LISTEN_PORT
-  @$(error `LISTEN_PORT` must be defined in environment)
+ifndef CONTAINER_PORT
+  @$(error `CONTAINER_PORT` must be defined in environment)
 endif
 
 ifndef env

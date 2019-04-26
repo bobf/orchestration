@@ -39,6 +39,6 @@ RSpec.describe Orchestration::DockerCompose::AppService do
     its(%w[environment UNICORN_PRELOAD_APP]) { is_expected.to eql '1' }
     its(%w[environment UNICORN_TIMEOUT]) { is_expected.to eql '60' }
     its(%w[environment UNICORN_WORKER_PROCESSES]) { is_expected.to eql '8' }
-    its(['ports']) { is_expected.to eql ['${LISTEN_PORT}:8080'] }
+    its(['ports']) { is_expected.to eql ['${CONTAINER_PORT}:8080'] }
   end
 end

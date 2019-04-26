@@ -64,7 +64,7 @@ Add required config to `.env` file:
 ```
 # .env
 SECRET_KEY_BASE=<your-secure-token>
-LISTEN_PORT=8080
+CONTAINER_PORT=8080
 VIRTUAL_HOST=yourdomain.com
 ```
 
@@ -121,7 +121,7 @@ The following two variables _must_ be defined:
 
 ```bash
 VIRTUAL_HOST=localhost
-LISTEN_PORT=3000
+CONTAINER_PORT=3000
 ```
 
 When running in production mode your application will be load-balanced by _Nginx_ proxy and available at http://localhost:3000/
