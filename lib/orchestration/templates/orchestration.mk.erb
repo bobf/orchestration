@@ -165,7 +165,6 @@ test-setup:
 	@$(call make,start migrate env=test)
 
 .PHONY: dump
-dump: _preserve_logs = 1
 dump:
 	@$(call println)
 	@$(call println,'${yellow}Captured${reset} ${green}stdout${reset} ${yellow}and${reset} ${red}stderr${reset} ${yellow}log data${reset}:')
