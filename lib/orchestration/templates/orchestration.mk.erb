@@ -142,7 +142,7 @@ compose:
 
 .PHONY: serve
 serve: env_file ?= ./.env
-serve: rails := RAILS_ENV='${env}' bundle exec rails server
+serve: rails := RAILS_ENV='${env}' bundle exec rails server ${server}
 serve: _verify_env
 	@if [ "${custom_env_file}" == "1" ] && [ ! -f "${env_file}" ] ; \
          then \
