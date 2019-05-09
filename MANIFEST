@@ -61,8 +61,10 @@ lib/orchestration/templates/deploy.mk.erb
 lib/orchestration/templates/docker-compose.override.yml.erb
 lib/orchestration/templates/entrypoint.sh.erb
 lib/orchestration/templates/env.erb
+lib/orchestration/templates/healthcheck.rb.erb
 lib/orchestration/templates/makefile_macros.mk.erb
 lib/orchestration/templates/orchestration.mk.erb
+lib/orchestration/templates/puma.rb.erb
 lib/orchestration/templates/unicorn.rb.erb
 lib/orchestration/templates/yaml.bash.erb
 lib/orchestration/terminal.rb

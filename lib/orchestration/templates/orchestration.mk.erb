@@ -251,7 +251,7 @@ else
 	@$(call make,_verify_compose env=${env} env_file=${env_file}) || ${fail}
 	@$(call print,'[${green}toolkit${reset}] ${yellow}Running migrations${reset} ... ')
 	@${replace_env}
-	@${toolkit} _migrate env=${env} ${log_progress} || ${fail}
+        @${compose} run app make _migrate env=${env} ${log_progress} || ${fail}
 	@${restore_env}
 	@${success}
 endif
