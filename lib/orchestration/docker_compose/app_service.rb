@@ -44,14 +44,7 @@ module Orchestration
       end
 
       def command
-        %w(bundle exec) + case @config.env.web_server
-                          when 'puma'
-                            %w(puma -C config/puma.rb)
-                          when 'unicorn'
-                            %w(unicorn -c config/unicorn.rb)
-                          else
-                            unsupported_web_server
-                          end
+        @config.env.app_service_command
       end
 
       def entrypoint

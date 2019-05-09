@@ -42,7 +42,7 @@ module Orchestration
       content = template(
         'Dockerfile',
         ruby_version: RUBY_VERSION,
-        web_server: @env.web_server
+        command: @env.app_service_command
       )
       create_file(
         orchestration_dir.join('Dockerfile'),
@@ -69,7 +69,7 @@ module Orchestration
     end
 
     def puma
-      return nil unless web_server == 'puma'
+      return nil unless @env.web_server == 'puma'
 
       content = template('puma.rb')
       path = @env.root.join('config', 'puma.rb')
@@ -77,7 +77,7 @@ module Orchestration
     end
 
     def unicorn
-      return nil unless web_server == 'unicorn'
+      return nil unless @env.web_server == 'unicorn'
 
       content = template('unicorn.rb')
       path = @env.root.join('config', 'unicorn.rb')
@@ -125,10 +125,6 @@ module Orchestration
       %i[test development production].map do |environment|
         @docker_compose.enabled_services(environment)
       end.flatten.uniq
-    end
-
-    def web_server
-      ENV.fetch('WEB_SERVER', 'unicorn')
     end
   end
 end
