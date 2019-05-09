@@ -42,7 +42,9 @@ module Orchestration
       content = template(
         'Dockerfile',
         ruby_version: RUBY_VERSION,
-        command: @env.app_service_command
+        command: DockerCompose::AppService.command,
+        entrypoint: DockerCompose::AppService.entrypoint,
+        healthcheck: DockerCompose::AppService.healthcheck
       )
       create_file(
         orchestration_dir.join('Dockerfile'),

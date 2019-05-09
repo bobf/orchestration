@@ -8,6 +8,55 @@ module Orchestration
         @config = config
       end
 
+      class << self
+        def command
+          server = env.web_server
+          %w(bundle exec) + case env.web_server
+                            when 'puma'
+                              %w(puma -C config/puma.rb)
+                            when 'unicorn'
+                              %w(unicorn -c config/unicorn.rb)
+                            else
+                              unsupported_web_server(server)
+                            end
+        end
+
+        def entrypoint
+          ["/app/#{orchestration}/entrypoint.sh"]
+        end
+
+        def healthcheck
+          {
+            'test' => %w(CMD ruby) + ["/app/#{orchestration}/healthcheck.rb"],
+            # Defaults according to
+            # https://docs.docker.com/engine/reference/builder/#healthcheck
+            'interval' => '30s',
+            'timeout' => '30s',
+            'start_period' => '5s',
+            'retries' => 3
+          }
+        end
+
+        private
+
+        def orchestration
+          env.orchestration_dir_name
+        end
+
+        def env
+          @environment ||= Environment.new
+        end
+
+        def unsupported_web_server(server)
+          raise ArgumentError,
+                I18n.t(
+                  'orchestration.rake.app.unspported_web_server',
+                  server: server,
+                  expected: %w(puma unicorn)
+                )
+        end
+      end
+
       def definition
         {
           'image' => image,
@@ -16,15 +65,6 @@ module Orchestration
           'deploy' => {
             'mode' => 'replicated',
             'replicas' => '${REPLICAS}'
-          },
-          'command' => command,
-          'entrypoint' => entrypoint,
-          'healthcheck' => {
-            'test' => healthcheck_command,
-            'interval' => '30s',
-            'timeout' => '15s',
-            'start_period' => '15s',
-            'retries' => 3
           }
         }
       end
@@ -43,18 +83,6 @@ module Orchestration
         }.merge(Hash[inherited_environment.map { |key| [key, nil] }])
       end
 
-      def command
-        @config.env.app_service_command
-      end
-
-      def entrypoint
-        "/app/#{@config.env.orchestration_dir_name}/entrypoint.sh"
-      end
-
-      def healthcheck_command
-        %w(CMD ruby) + ["/app/#{@config.env.orchestration_dir_name}/healthcheck.rb"]
-      end
-
       def inherited_environment
         [
           'DATABASE_URL',
@@ -69,15 +97,6 @@ module Orchestration
 
       def ports
         ['${CONTAINER_PORT}:8080']
-      end
-
-      def unsupported_web_server
-        raise ArgumentError,
-              I18n.t(
-                'orchestration.rake.app.unspported_web_server',
-                server: @config.env.web_server,
-                expected: %w(puma unicorn)
-              )
       end
     end
   end

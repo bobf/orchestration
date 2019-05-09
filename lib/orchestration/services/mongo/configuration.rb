@@ -14,7 +14,6 @@ module Orchestration
           super
           @settings = nil
           return unless defined?(Mongoid)
-          return unless File.exist?(@env.mongoid_configuration_path)
 
           @settings = if clients_key.nil?
                         hosts_config # Host was configured at top level.
@@ -87,7 +86,24 @@ module Orchestration
         end
 
         def config
+          return default unless File.exist?(@env.mongoid_configuration_path)
+
           @config ||= yaml(File.read(@env.mongoid_configuration_path))
+        end
+
+        def default
+          {
+            @env.environment => {
+              'clients' => {
+                'default' => {
+                  'database' => "#{@env.app_name}_#{@env.environment}",
+                  'hosts' => [
+                    "localhost:#{DockerCompose::MongoService::PORT}"
+                  ]
+                }
+              }
+            }
+          }
         end
 
         def bad_config_error
