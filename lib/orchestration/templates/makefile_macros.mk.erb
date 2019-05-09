@@ -22,6 +22,8 @@ endif
 make=$(MAKE) $1
 orchestration_config_filename:=.orchestration.yml
 orchestration_config:=${pwd}/${orchestration_config_filename}
+print_error=printf '${red}\#${reset} '$1 | tee '${stderr}'
+println_error=$(call print_error,$1'\n')
 print=printf '${blue}\#${reset} '$1
 println=$(call print,$1'\n')
 printraw=printf $1
