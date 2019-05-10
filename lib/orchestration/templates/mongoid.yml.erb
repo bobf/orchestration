@@ -1,0 +1,19 @@
+development:
+  clients:
+    default:
+      hosts:
+        - 127.0.0.1:<%= compose.call('development').local_port('mongo') %>
+      database: development_db
+
+test:
+  clients:
+    default:
+      uri: <%%= ENV['MONGO_URL'] %>
+      hosts:
+        - 127.0.0.1:<%= compose.call('test').local_port('mongo') %>
+      database: test_db
+
+production:
+  clients:
+    default:
+      uri: <%%= ENV['MONGO_URL'] %>

@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require 'pathname'
+require 'socket'
+
 require 'colorize'
+require 'database_url'
 require 'erubis'
 require 'i18n'
-require 'pathname'
 begin
   require 'rails'
 rescue LoadError
@@ -40,5 +43,13 @@ module Orchestration
   def self.error(key, options = {})
     STDERR.puts('# Orchestration Error')
     STDERR.puts('# ' + I18n.t("orchestration.#{key}", options))
+  end
+
+  def self.random_local_port
+    socket = Socket.new(:INET, :STREAM, 0)
+    socket.bind(Addrinfo.tcp('127.0.0.1', 0))
+    port = socket.local_address.ip_port
+    socket.close
+    port
   end
 end

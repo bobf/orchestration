@@ -1,0 +1,28 @@
+default: &default
+  adapter: <%= config.adapter.name %>
+
+<% if compose.call('development').services.key?('database') %>
+development:
+  <<: *default
+  host: 127.0.0.1
+  port: <%= compose.call('development').local_port('database') %>
+  username: <%= config.adapter.credentials['username'] %>
+  password: <%= config.adapter.credentials['password'] %>
+  database: <%= config.adapter.credentials['database'] %>
+<% end %>
+
+<% if compose.call('test').services.key?('database') %>
+test:
+  <<: *default
+  host: 127.0.0.1
+  port: <%= compose.call('test').local_port('database') %>
+  username: <%= config.adapter.credentials['username'] %>
+  password: <%= config.adapter.credentials['password'] %>
+  database: <%= config.adapter.credentials['database'] %>
+  url: <%%= ENV['DATABASE_URL'] %>
+<% end %>
+
+
+production:
+  <<: *default
+  url: <%%= ENV['DATABASE_URL'] %>

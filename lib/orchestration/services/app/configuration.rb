@@ -8,6 +8,10 @@ module Orchestration
 
         self.service_name = 'app'
 
+        def enabled?
+          true
+        end
+
         def initialize(env, service_name = nil)
           super
           @settings = {}

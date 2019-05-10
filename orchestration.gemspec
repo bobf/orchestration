@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'erubis', '~> 2.7'
   spec.add_runtime_dependency 'i18n', '>= 0.5'
   spec.add_runtime_dependency 'thor', '~> 0.20.0'
-  # spec.add_runtime_dependency 'unicorn', '~> 5.4'
+  spec.add_runtime_dependency 'database_url', '~> 0.1.2'
 
   spec.add_development_dependency 'activerecord', '~> 5.2'
   spec.add_development_dependency 'betterp', '~> 0.1.3'

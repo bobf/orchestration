@@ -8,19 +8,8 @@ module Orchestration
 
         self.service_name = 'rabbitmq'
 
-        def initialize(env, service_name = nil)
-          super
-          @settings = nil
-          return unless defined?(RabbitMQ)
-          return unless File.exist?(@env.rabbitmq_configuration_path)
-
-          if ENV.key?('RABBITMQ_URL')
-            @settings = from_url
-            return
-          end
-
-          @settings = config.fetch(@env.environment)
-          @settings.merge!('port' => PORT) unless @settings.key?('port')
+        def enabled?
+          defined?(RabbitMQ)
         end
 
         def friendly_config
@@ -29,16 +18,16 @@ module Orchestration
 
         private
 
-        def config
-          yaml(File.read(@env.rabbitmq_configuration_path))
-        end
-
         def host
-          @settings.fetch('host')
+          return from_url['host'] if ENV.key?('RABBITMQ_URL')
+
+          '127.0.0.1'
         end
 
         def port
-          @settings.fetch('port')
+          return from_url['port'] if ENV.key?('RABBITMQ_URL')
+
+          DockerCompose::ComposeConfiguration.new(@env).local_port('rabbitmq')
         end
 
         def from_url

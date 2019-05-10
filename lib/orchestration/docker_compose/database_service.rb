@@ -9,7 +9,7 @@ module Orchestration
       end
 
       def definition
-        return nil if @config.settings.nil?
+        return nil unless @config.enabled?
         return nil if @config.adapter.name == 'sqlite3'
 
         {
@@ -32,7 +32,7 @@ module Orchestration
       def ports
         return {} unless %i[development test].include?(@environment)
 
-        { 'ports' => ["#{@config.settings.fetch('port')}:#{remote_port}"] }
+        { 'ports' => ["#{Orchestration.random_local_port}:#{remote_port}"] }
       end
 
       def volumes
