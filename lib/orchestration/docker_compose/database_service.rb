@@ -36,9 +36,9 @@ module Orchestration
       end
 
       def volumes
-        return {} if @environment == :test
+        return [] if @environment == :test
 
-        { 'volumes' => ["#{volume}:#{@config.adapter.data_dir}"] }
+        ["#{volume}:#{@config.adapter.data_dir}"]
       end
     end
   end
