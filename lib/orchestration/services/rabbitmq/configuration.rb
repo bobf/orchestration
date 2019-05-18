@@ -16,22 +16,22 @@ module Orchestration
           "[bunny] amqp://#{host}:#{port}"
         end
 
-        private
-
         def host
-          return from_url['host'] if ENV.key?('RABBITMQ_URL')
+          return from_url['host'] unless @env.rabbitmq_url.nil?
 
-          '127.0.0.1'
+          super
         end
 
         def port
-          return from_url['port'] if ENV.key?('RABBITMQ_URL')
+          return from_url['port'] unless @env.rabbitmq_url.nil?
 
-          DockerCompose::ComposeConfiguration.new(@env).local_port('rabbitmq')
+          super
         end
 
+        private
+
         def from_url
-          uri = URI.parse(ENV.fetch('RABBITMQ_URL'))
+          uri = URI.parse(@env.rabbitmq_url)
           { 'host' => uri.host, 'port' => uri.port || 5672 }
         end
       end

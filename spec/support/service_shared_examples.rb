@@ -7,17 +7,18 @@ RSpec.shared_examples 'a service' do |service|
   end
 
   describe 'healthcheck instance' do
-    subject(:healthcheck) { service::Healthcheck.new(env, 'name') }
+    subject(:healthcheck) { service::Healthcheck.new(env, 'myservice') }
 
+    let(:environment) { 'development' }
     let(:env) do
       double(
         'Environment',
-        environment: 'test',
+        environment: environment,
         database_url: nil,
-        database_configuration_path: fixture_path('sqlite3'),
-        mongoid_configuration_path: fixture_path('mongoid'),
-        rabbitmq_configuration_path: fixture_path('rabbitmq'),
-        docker_compose_config?: false
+        mongo_url: nil,
+        docker_compose_config: {
+          'services' => { 'myservice' => { 'ports' => ['1234:5678'] } }
+        }
       )
     end
 
@@ -28,7 +29,23 @@ RSpec.shared_examples 'a service' do |service|
     describe '#configuration' do
       subject(:configuration) { healthcheck.configuration }
 
-      it { is_expected.to respond_to :settings }
+      context 'test environment' do
+        let(:environment) { 'test' }
+        its(:port) { is_expected.to eql 1234 }
+        its(:host) { is_expected.to eql '127.0.0.1' }
+      end
+
+      context 'development environment' do
+        let(:environment) { 'development' }
+        its(:port) { is_expected.to eql 1234 }
+        its(:host) { is_expected.to eql '127.0.0.1' }
+      end
+
+      context 'production environment' do
+        let(:environment) { 'production' }
+        its(:port) { is_expected.to eql 5678 }
+        its(:host) { is_expected.to eql 'myservice' }
+      end
     end
   end
 end

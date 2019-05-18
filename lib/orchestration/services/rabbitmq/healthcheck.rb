@@ -17,8 +17,8 @@ module Orchestration
         end
 
         def connect
-          host = @configuration.settings.fetch('host')
-          port = @configuration.settings.fetch('port')
+          host = @configuration.host
+          port = @configuration.port
           connection = Bunny.new("amqp://#{host}:#{port}", log_file: devnull)
           connection.start
           connection.stop

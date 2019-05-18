@@ -3,12 +3,13 @@
 RSpec.describe Orchestration::Services::Mongo::Configuration do
   subject(:configuration) { described_class.new(env) }
 
-  let(:config) { fixture_path('mongoid') }
+  let(:environment) { 'development' }
   let(:env) do
     double(
       'Environment',
-      environment: 'test',
-      mongoid_configuration_path: config,
+      environment: environment,
+      mongoid_configuration_path: '/path/to/nowhere.yml',
+      mongo_url: nil,
       docker_compose_config: {
         'services' => { 'mongo' => { 'ports' => ['27018:27017'] } }
       }
@@ -17,34 +18,39 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
 
   it { is_expected.to be_a described_class }
 
-  describe '#settings' do
-    subject(:settings) { configuration.settings }
-
-    let(:expected_settings) do
-      {
-        'clients' => {
-          'default' => {
-            'database' => 'test_db', 'hosts' => ['127.0.0.1:27020']
-          }
-        }
-      }
-    end
-
-    it { is_expected.to eql(expected_settings) }
-
-    context 'MONGO_URL' do
-      before do
-        allow(ENV).to receive(:[]).with('MONGO_URL') { 'mongo:1234/db' }
-        allow(ENV).to receive(:key?).with('MONGO_URL') { true }
-      end
-
-      subject(:default) { settings['clients']['default'] }
-      its(['database']) { is_expected.to eql 'db' }
-      its(['hosts']) { is_expected.to eql ['mongo:1234'] }
-    end
+  context 'development environment' do
+    let(:environment) { 'development' }
+    its(:host) { is_expected.to eql '127.0.0.1' }
+    its(:port) { is_expected.to eql 27018 }
+    its(:friendly_config) { is_expected.to eql '[mongoid] mongodb://127.0.0.1:27018/developmentdb' }
   end
 
-  its(:friendly_config) do
-    is_expected.to eql '[mongoid] 127.0.0.1:27020/test_db'
+  context 'test environment' do
+    let(:environment) { 'test' }
+    its(:host) { is_expected.to eql '127.0.0.1' }
+    its(:port) { is_expected.to eql 27018 }
+    its(:friendly_config) { is_expected.to eql '[mongoid] mongodb://127.0.0.1:27018/testdb' }
+  end
+
+  context 'production environment' do
+    let(:environment) { 'production' }
+    its(:host) { is_expected.to eql 'mongo' }
+    its(:port) { is_expected.to eql 27017 }
+    its(:friendly_config) { is_expected.to eql '[mongoid] mongodb://mongo:27017/productiondb' }
+  end
+
+  context 'MONGO_URL' do
+    let(:environment) { 'production' }
+    before { allow(env).to receive(:mongo_url) { 'mongodb://my:1234/mydb' } }
+    its(:host) { is_expected.to eql 'my' }
+    its(:port) { is_expected.to eql 1234 }
+    its(:friendly_config) { is_expected.to eql '[mongoid] mongodb://my:1234/mydb' }
+  end
+
+  context 'config file' do
+    let(:environment) { 'test' }
+    let(:path) { fixture_path('mongoid') }
+    before { allow(env).to receive(:mongoid_configuration_path) { path } }
+    its(:database) { is_expected.to eql 'config_db' }
   end
 end

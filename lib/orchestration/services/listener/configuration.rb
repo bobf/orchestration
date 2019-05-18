@@ -11,7 +11,7 @@ module Orchestration
         end
 
         def friendly_config
-          "[#{@service_name}] #{host}:#{local_port}"
+          "[#{@service_name}] #{host}:#{port}"
         end
       end
     end

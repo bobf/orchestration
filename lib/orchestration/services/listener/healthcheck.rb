@@ -7,7 +7,7 @@ module Orchestration
         include HealthcheckBase
 
         def connect
-          Net::HTTP.start('localhost', @configuration.local_port)
+          Net::HTTP.start(@configuration.host, @configuration.port)
         end
 
         def connection_errors

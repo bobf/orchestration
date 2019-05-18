@@ -5,8 +5,9 @@ module Orchestration
   end
 end
 
-require 'orchestration/services/configuration_base'
-require 'orchestration/services/healthcheck_base'
+require 'orchestration/services/mixins/configuration_base'
+require 'orchestration/services/mixins/healthcheck_base'
+require 'orchestration/services/mixins/http_healthcheck'
 
 require 'orchestration/services/app'
 require 'orchestration/services/database'
