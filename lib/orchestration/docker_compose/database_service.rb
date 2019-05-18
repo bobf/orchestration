@@ -16,7 +16,7 @@ module Orchestration
           'image' => @config.adapter.image,
           'environment' => @config.adapter.environment,
           'volumes' => volumes
-        }.merge(ports).merge(volumes)
+        }.merge(ports)
       end
 
       private
