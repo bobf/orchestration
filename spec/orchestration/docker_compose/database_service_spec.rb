@@ -32,7 +32,6 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
       its(['image']) { is_expected.to eql 'library/postgres' }
       its(['environment']) do
         is_expected.to eql(
-          'PGPORT' => '3354',
           'POSTGRES_PASSWORD' => 'password',
           'PGDATA' => '/var/pgdata'
         )
@@ -47,8 +46,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
       its(['image']) { is_expected.to eql 'library/mysql' }
       its(['environment']) do
         is_expected.to eql(
-          'MYSQL_ROOT_PASSWORD' => 'password',
-          'MYSQL_TCP_PORT' => '3354'
+          'MYSQL_ROOT_PASSWORD' => 'password'
         )
       end
     end
@@ -62,22 +60,38 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
     context 'production' do
       let(:environment) { :production }
       let(:adapter) { 'postgresql' }
-      it { is_expected.to_not include 'volumes' }
+      it { is_expected.to include 'volumes' }
       it { is_expected.to_not include 'ports' }
     end
 
     context 'test' do
       let(:environment) { :test }
       let(:adapter) { 'postgresql' }
-      it { is_expected.to_not include 'volumes' }
-      its(['ports']) { is_expected.to eql(['5432:3354']) }
+      its(['volumes']) { is_expected.to be_empty }
+      describe 'local port' do
+        subject(:port) { definition['ports'].first.partition(':').first.to_i }
+        it { is_expected.to be_positive } # Randomly generated
+      end
+
+      describe 'remote port' do
+        subject(:port) { definition['ports'].first.partition(':').last.to_i }
+        it { is_expected.to eql 5432 }
+      end
     end
 
     context 'development' do
       let(:environment) { :development }
       let(:adapter) { 'mysql2' }
       it { is_expected.to include 'volumes' }
-      its(['ports']) { is_expected.to eql(['3354:3354']) }
+      describe 'local port' do
+        subject(:port) { definition['ports'].first.partition(':').first.to_i }
+        it { is_expected.to be_positive } # Randomly generated
+      end
+
+      describe 'remote port' do
+        subject(:port) { definition['ports'].first.partition(':').last.to_i }
+        it { is_expected.to eql 3306 }
+      end
     end
   end
 end

@@ -26,7 +26,7 @@ module Orchestration
         end
 
         def friendly_config
-          "[#{app_name}] #{host}:#{local_port}"
+          "[#{app_name}] #{host}:#{port}"
         end
 
         def database_settings
@@ -44,14 +44,14 @@ module Orchestration
         private
 
         def build_database_url(settings)
-          scheme = settings.fetch('scheme')
+          adapter = settings.fetch('adapter')
           database = settings.fetch('database')
           username = settings.fetch('username')
           password = settings.fetch('password')
-          port = DockerCompose::DatabaseService::PORT
-          host = Database::Configuration.service_name
+          port = settings.fetch('port')
+          host = settings['host'] || Database::Configuration.service_name
 
-          "#{scheme}://#{username}:#{password}@#{host}:#{port}/#{database}"
+          "#{adapter}://#{username}:#{password}@#{host}:#{port}/#{database}"
         end
       end
     end

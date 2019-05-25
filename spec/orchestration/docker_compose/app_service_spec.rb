@@ -12,7 +12,6 @@ RSpec.describe Orchestration::DockerCompose::AppService do
       Orchestration::Environment,
       environment: 'test',
       orchestration_root: Pathname.new('orchestration'),
-      public_volume: 'myapp_public',
       app_name: 'test_app',
       database_url: 'postgresql://hostname',
       settings: settings,
@@ -28,17 +27,19 @@ RSpec.describe Orchestration::DockerCompose::AppService do
 
     it { is_expected.to be_a Hash }
     its(['image']) do
-      is_expected.to eql '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}'
+      is_expected
+        .to eql '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}:${DOCKER_TAG}'
     end
 
-    its(['environment']) { is_expected.to have_key 'HOST_UID' }
-    its(['environment']) { is_expected.to have_key 'RAILS_ENV' }
-    its(['environment']) { is_expected.to have_key 'SECRET_KEY_BASE' }
-    its(['environment']) { is_expected.to have_key 'DATABASE_URL' }
+    its(['environment']) { is_expected.to include 'HOST_UID' }
+    its(['environment']) { is_expected.to include 'RAILS_ENV' }
+    its(['environment']) { is_expected.to include 'SECRET_KEY_BASE' }
+    its(['environment']) { is_expected.to include 'DATABASE_URL' }
+    its(['environment']) { is_expected.to include 'WEB_PRELOAD_APP' }
+    its(['environment']) { is_expected.to include 'WEB_TIMEOUT' }
+    its(['environment']) { is_expected.to include 'WEB_CONCURRENCY' }
+    its(['environment']) { is_expected.to include 'WEB_WORKER_PROCESSES' }
     its(%w[environment RAILS_LOG_TO_STDOUT]) { is_expected.to eql '1' }
-    its(%w[environment UNICORN_PRELOAD_APP]) { is_expected.to eql '1' }
-    its(%w[environment UNICORN_TIMEOUT]) { is_expected.to eql '60' }
-    its(%w[environment UNICORN_WORKER_PROCESSES]) { is_expected.to eql '8' }
     its(['ports']) { is_expected.to eql ['${CONTAINER_PORT}:8080'] }
   end
 end

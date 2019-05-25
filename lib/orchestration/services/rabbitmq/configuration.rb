@@ -9,7 +9,7 @@ module Orchestration
         self.service_name = 'rabbitmq'
 
         def enabled?
-          defined?(RabbitMQ)
+          defined?(::Bunny)
         end
 
         def friendly_config

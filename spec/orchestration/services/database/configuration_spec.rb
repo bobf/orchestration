@@ -48,22 +48,18 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       let(:config_path) { fixture_path('sqlite3') }
 
       its(['adapter']) { is_expected.to eql 'sqlite3' }
-      its(['scheme']) { is_expected.to eql 'sqlite3' }
-      its(['host']) { is_expected.to be_nil }
-      its(['database']) { is_expected.to eql 'healthcheck' }
+      its(['host']) { is_expected.to eql '127.0.0.1' }
+      its(['database']) { is_expected.to eql 'db/test.sqlite3' }
       its(['username']) { is_expected.to eql '' }
       its(['password']) { is_expected.to eql '' }
-      its(['pool']) { is_expected.to eql 5 }
-      its(['timeout']) { is_expected.to eql 5000 }
     end
 
     context 'postgresql' do
       let(:config_path) { fixture_path('postgresql') }
 
       its(['adapter']) { is_expected.to eql 'postgresql' }
-      its(['scheme']) { is_expected.to eql 'postgresql' }
       its(['host']) { is_expected.to eql 'localhost' }
-      its(['database']) { is_expected.to eql 'postgres' }
+      its(['database']) { is_expected.to eql 'test_db' }
       its(['username']) { is_expected.to eql 'postgres' }
       its(['password']) { is_expected.to eql 'password' }
       its(['port']) { is_expected.to eql 5432 }
@@ -73,12 +69,10 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       let(:config_path) { fixture_path('mysql2') }
 
       its(['adapter']) { is_expected.to eql 'mysql2' }
-      its(['scheme']) { is_expected.to eql 'mysql2' }
       its(['host']) { is_expected.to eql 'localhost' }
-      its(['database']) { is_expected.to eql 'mysql' }
+      its(['database']) { is_expected.to eql 'test_db' }
       its(['username']) { is_expected.to eql 'root' }
       its(['password']) { is_expected.to eql 'password' }
-      its(['pool']) { is_expected.to eql 5 }
     end
 
     context 'from DATABASE_URL environment variable' do
@@ -93,7 +87,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
 
         its(['adapter']) { is_expected.to eql 'postgresql' }
         its(['host']) { is_expected.to eql 'localhost' }
-        its(['database']) { is_expected.to eql 'postgres' }
+        its(['database']) { is_expected.to eql 'test_db' }
         its(['username']) { is_expected.to eql 'postgres' }
         its(['password']) { is_expected.to eql 'password' }
       end
@@ -103,7 +97,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
 
         its(['adapter']) { is_expected.to eql 'postgresql' }
         its(['host']) { is_expected.to eql 'localhost' }
-        its(['database']) { is_expected.to eql 'postgres' }
+        its(['database']) { is_expected.to eql 'test_db' }
         its(['username']) { is_expected.to eql 'postgres' }
         its(['password']) { is_expected.to eql 'password' }
         its(['port']) { is_expected.to eql 5678 }
@@ -119,18 +113,9 @@ RSpec.describe Orchestration::Services::Database::Configuration do
 
       its(['adapter']) { is_expected.to eql 'postgresql' }
       its(['host']) { is_expected.to eql 'database.company.org' }
-      its(['database']) { is_expected.to eql 'postgres' }
+      its(['database']) { is_expected.to eql 'production_db' }
       its(['username']) { is_expected.to eql 'postgres' }
       its(['password']) { is_expected.to eql 'password' }
     end
-  end
-
-  context 'unknown environment' do
-    before do
-      allow(env).to receive(:environment) { 'garbage' }
-    end
-
-    subject { proc { configuration } }
-    it { is_expected.to raise_error(Orchestration::UnknownEnvironmentError) }
   end
 end

@@ -22,12 +22,23 @@ RSpec.describe Orchestration::DockerCompose::Configuration do
 
     context 'with database' do
       let(:init_options) { { database: database_configuration } }
+      let(:adapter) do
+        double(
+          name: nil,
+          image: nil,
+          data_dir: nil,
+          default_port: 1234,
+          environment: {}
+        )
+      end
+
       let(:database_configuration) do
         instance_double(
           Orchestration::Services::Database::Configuration,
           env: env,
+          enabled?: true,
           settings: { 'port' => 1234 },
-          adapter: double(name: nil, image: nil, data_dir: nil, environment: {})
+          adapter: adapter
         )
       end
 

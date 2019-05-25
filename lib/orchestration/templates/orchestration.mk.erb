@@ -283,11 +283,7 @@ wait-listener:
 <% next if service.to_sym == :app %>
 .PHONY: wait-<%= service %>
 wait-<%= service %>:
-ifdef toolkit
 	@${rake} orchestration:<%= service %>:wait
-else
-	@$(call toolkit,'wait-<%= service %>' 'toolkit=1')
-endif
 
 <% end %>
 

@@ -6,7 +6,9 @@ RSpec.describe Orchestration::Services::App::Healthcheck do
   let(:env) do
     instance_double(
       Orchestration::Environment,
+      environment: 'test',
       settings: settings,
+      app_port: 3000,
       app_name: 'test_app',
       docker_compose_path: fixture_path('docker-compose'),
       docker_compose_config: {
@@ -34,7 +36,7 @@ RSpec.describe Orchestration::Services::App::Healthcheck do
 
     before do
       allow(terminal).to receive(:write)
-      @stub = stub_request(:get, 'http://localhost:3000')
+      @stub = stub_request(:get, 'http://127.0.0.1:3000')
     end
 
     it 'outputs a waiting message' do
@@ -63,7 +65,7 @@ RSpec.describe Orchestration::Services::App::Healthcheck do
         { retry_interval: 0, attempt_limit: 1, exit_on_error: false }
       end
 
-      before { @stub = stub_request(:get, 'http://localhost:3000') }
+      before { @stub = stub_request(:get, 'http://127.0.0.1:3000') }
 
       shared_examples 'an error handler' do
         it 'outputs a waiting message' do

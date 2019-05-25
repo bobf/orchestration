@@ -3,7 +3,7 @@
 RSpec.describe Orchestration::DockerCompose::RabbitMQService do
   subject(:rabbitmq_service) { described_class.new(config, environment) }
 
-  let(:config) { double('Configuration', settings: settings) }
+  let(:config) { double('Configuration', settings: settings, enabled?: true) }
   let(:settings) { { 'port' => 5674 } }
   let(:environment) { :test }
 
@@ -21,12 +21,28 @@ RSpec.describe Orchestration::DockerCompose::RabbitMQService do
 
     context 'test' do
       let(:environment) { :test }
-      its(['ports']) { is_expected.to eql(['5674:5672']) }
+      describe 'local port' do
+        subject(:port) { definition['ports'].first.partition(':').first.to_i }
+        it { is_expected.to be_positive } # Randomly generated
+      end
+
+      describe 'remote port' do
+        subject(:port) { definition['ports'].first.partition(':').last.to_i }
+        it { is_expected.to eql 5672 }
+      end
     end
 
     context 'development' do
       let(:environment) { :development }
-      its(['ports']) { is_expected.to eql(['5674:5672']) }
+      describe 'local port' do
+        subject(:port) { definition['ports'].first.partition(':').first.to_i }
+        it { is_expected.to be_positive } # Randomly generated
+      end
+
+      describe 'remote port' do
+        subject(:port) { definition['ports'].first.partition(':').last.to_i }
+        it { is_expected.to eql 5672 }
+      end
     end
 
     context 'production' do
@@ -36,12 +52,28 @@ RSpec.describe Orchestration::DockerCompose::RabbitMQService do
 
     context 'test' do
       let(:environment) { :test }
-      its(['ports']) { is_expected.to eql(['5674:5672']) }
+      describe 'local port' do
+        subject(:port) { definition['ports'].first.partition(':').first.to_i }
+        it { is_expected.to be_positive } # Randomly generated
+      end
+
+      describe 'remote port' do
+        subject(:port) { definition['ports'].first.partition(':').last.to_i }
+        it { is_expected.to eql 5672 }
+      end
     end
 
     context 'development' do
       let(:environment) { :development }
-      its(['ports']) { is_expected.to eql(['5674:5672']) }
+      describe 'local port' do
+        subject(:port) { definition['ports'].first.partition(':').first.to_i }
+        it { is_expected.to be_positive } # Randomly generated
+      end
+
+      describe 'remote port' do
+        subject(:port) { definition['ports'].first.partition(':').last.to_i }
+        it { is_expected.to eql 5672 }
+      end
     end
   end
 end
