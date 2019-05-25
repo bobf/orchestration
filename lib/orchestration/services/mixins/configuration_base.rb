@@ -28,7 +28,7 @@ module Orchestration
       end
 
       def host
-        return '127.0.0.1' if %w(test development).include?(@env.environment)
+        return '127.0.0.1' if %w[test development].include?(@env.environment)
 
         @service_name
       end
@@ -37,11 +37,11 @@ module Orchestration
         return @env.app_port if @service_name == 'app'
 
         local, _, remote = @env.docker_compose_config
-            .fetch('services')
-            .fetch(@service_name)
-            .fetch('ports')
-            .first
-            .partition(':')
+                               .fetch('services')
+                               .fetch(@service_name)
+                               .fetch('ports')
+                               .first
+                               .partition(':')
 
         (@env.environment == 'production' ? remote : local).to_i
       end

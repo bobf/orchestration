@@ -48,7 +48,7 @@ module Orchestration
           end
 
           def gem_version
-            Gem::Version.new(Gem.loaded_specs["mysql2"].version)
+            Gem::Version.new(Gem.loaded_specs['mysql2'].version)
           end
         end
       end

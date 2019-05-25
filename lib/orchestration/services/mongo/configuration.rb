@@ -46,6 +46,10 @@ module Orchestration
             raise ArgumentError, 'MONGO_URL protocol must be mongodb://'
           end
 
+          url_config_structure(uri)
+        end
+
+        def url_config_structure(uri)
           hosts = uri.host.split(',')
           database = uri.path.partition('/').last
 
@@ -60,6 +64,7 @@ module Orchestration
 
         def file_config
           return {} unless File.exist?(@env.mongoid_configuration_path)
+
           yaml = File.read(@env.mongoid_configuration_path)
           config = YAML.safe_load(yaml, [], [], true)
           env = config.fetch(@env.environment, nil)

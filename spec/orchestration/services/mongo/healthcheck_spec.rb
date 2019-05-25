@@ -33,7 +33,10 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
     it 'outputs a waiting message' do
       expect(terminal)
         .to receive(:write)
-        .with(:waiting, 'Waiting for Mongo: [mongoid] mongodb://127.0.0.1:27020/config_db')
+        .with(
+          :waiting,
+          'Waiting for Mongo: [mongoid] mongodb://127.0.0.1:27020/config_db'
+        )
 
       start
     end

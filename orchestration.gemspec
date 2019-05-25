@@ -23,10 +23,10 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'colorize', '~> 0.8.1'
+  spec.add_runtime_dependency 'database_url', '~> 0.1.2'
   spec.add_runtime_dependency 'erubis', '~> 2.7'
   spec.add_runtime_dependency 'i18n', '>= 0.5'
   spec.add_runtime_dependency 'thor', '~> 0.20.0'
-  spec.add_runtime_dependency 'database_url', '~> 0.1.2'
 
   spec.add_development_dependency 'activerecord', '~> 5.2'
   spec.add_development_dependency 'betterp', '~> 0.1.3'

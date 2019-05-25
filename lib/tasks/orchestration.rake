@@ -31,7 +31,7 @@ namespace :orchestration do
         require 'database_url'
         env = Orchestration::Environment.new
         config = Orchestration::DockerCompose::ComposeConfiguration.new(env)
-        STDOUT.puts(DatabaseUrl.to_active_record_url())
+        STDOUT.puts(DatabaseUrl.to_active_record_url(config.settings))
       end
     end
   end

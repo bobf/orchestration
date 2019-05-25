@@ -53,17 +53,27 @@ module Orchestration
       present = File.exist?(path)
       return create_file(path, content) unless present
 
-      overwrite = options.fetch(:overwrite, true)
       previous_content = File.read(path) if present
-      if present && ((!overwrite && !force?) || previous_content == content)
+      if skip?(present, content, previous_content, options)
         return @terminal.write(:skip, relative_path(path))
       end
 
       File.write(path, content)
       @terminal.write(:update, relative_path(path))
 
-      return unless options.fetch(:backup, false)
+      backup(path, previous_content) if options.fetch(:backup, false)
+    end
 
+    def skip?(present, content, previous_content, options)
+      overwrite = options.fetch(:overwrite, true)
+      return false unless present
+      return true unless overwrite || force?
+      return true if previous_content == content
+
+      false
+    end
+
+    def backup(path, previous_content)
       backup_path = Pathname.new("#{path}.bak")
       File.write(backup_path, previous_content)
       @terminal.write(:backup, relative_path(backup_path))
