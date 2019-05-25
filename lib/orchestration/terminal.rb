@@ -2,17 +2,17 @@
 
 module Orchestration
   COLOR_MAP = {
-    failure: :light_red,
-    error: :red,
-    waiting: :yellow,
-    ready: :green,
-    create: :green,
-    update: :yellow,
-    backup: :blue,
-    status: :blue,
-    setup: :blue,
-    input: :red,
-    skip: :light_yellow
+    failure: %i[red bright],
+    error: %i[red],
+    waiting: %i[yellow],
+    ready: %i[green],
+    create: %i[green],
+    update: %i[yellow],
+    backup: %i[blue],
+    status: %i[blue],
+    setup: %i[blue],
+    input: %i[red],
+    skip: %i[yellow bright]
   }.freeze
 
   class Terminal
@@ -56,11 +56,8 @@ module Orchestration
               else
                 COLOR_MAP.fetch(color_name)
               end
-      desc
-        .to_s
-        .rjust(15)
-        .colorize(mode: :default, color: color)
-        .concat(' ' + message)
+
+      Paint[desc.to_s.rjust(15), *color] + ' ' + message
     end
 
     def t(key)
