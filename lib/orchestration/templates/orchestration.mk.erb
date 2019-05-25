@@ -86,7 +86,7 @@ all: build
 ### Container management commands ###
 
 .PHONY: start
-start:
+start: _clean-logs
 	@$(call print,'${yellow}Starting containers${reset} ...')
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up -d --force-recreate ${services} ${log_progress} || ${fail}
@@ -116,7 +116,7 @@ start-<%= service %>:
 <% end %>
 
 .PHONY: stop
-stop:
+stop: _clean-logs
 	@$(call print,'${yellow}Stopping containers${reset} ...')
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
           then \
@@ -343,6 +343,11 @@ _verify_env:
            $(call print_error,'${red}Error${reset}: Environment file "${yellow}${env_file}${reset}" not found. ${cross}') ; \
            exit 1 ; \
          fi
+
+.PHONY: _clean-logs
+_clean-logs:
+	@rm -f '${stdout}' '${stderr}'
+	@touch '${stdout}' '${stderr}'
 
 .PHONY: _migrate
 # User must choose either `structure.sql` or `schema.rb`, or deal with
