@@ -1,14 +1,14 @@
 default: &default
-  adapter: <%= config.adapter.name %>
+  adapter: <%= compose.call(nil).database_adapter_name %>
 
-<% if compose.call('development').services.key?('database') %>
+<% if compose.call(nil).services.key?('database') %>
 development:
   <<: *default
   host: 127.0.0.1
   port: <%= compose.call('development').local_port('database') %>
-  username: <%= config.adapter.credentials['username'] %>
-  password: <%= config.adapter.credentials['password'] %>
-  database: <%= config.adapter.credentials['database'] %>
+  username: <%= compose.call(nil).database_adapter.credentials['username'] %>
+  password: <%= compose.call(nil).database_adapter.credentials['password'] %>
+  database: <%= compose.call(nil).database_adapter.credentials['database'] %>
 <% end %>
 
 <% if compose.call('test').services.key?('database') %>
@@ -16,9 +16,11 @@ test:
   <<: *default
   host: 127.0.0.1
   port: <%= compose.call('test').local_port('database') %>
-  username: <%= config.adapter.credentials['username'] %>
-  password: <%= config.adapter.credentials['password'] %>
-  database: <%= config.adapter.credentials['database'] %>
+  username: <%= compose.call(nil).database_adapter.credentials['username'] %>
+  password: <%= compose.call(nil).database_adapter.credentials['password'] %>
+  database: <%= compose.call(nil).database_adapter.credentials['database'] %>
+  # Useful for certain continuous integration environments (e.g. Jenkins in
+  # Docker) where the DB hostname may be a service name rather than `127.0.0.1`:
   url: <%%= ENV['DATABASE_URL'] %>
 <% end %>
 

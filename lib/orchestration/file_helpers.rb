@@ -68,9 +68,8 @@ module Orchestration
       overwrite = options.fetch(:overwrite, true)
       return false unless present
       return true unless overwrite || force?
-      return true if previous_content == content
 
-      false
+      previous_content == content
     end
 
     def backup(path, previous_content)

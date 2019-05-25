@@ -8,7 +8,6 @@ development:
 test:
   clients:
     default:
-      uri: <%%= ENV['MONGO_URL'] %>
       hosts:
         - 127.0.0.1:<%= compose.call('test').local_port('mongo') %>
       database: test_db

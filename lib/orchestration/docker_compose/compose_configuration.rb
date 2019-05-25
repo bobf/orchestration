@@ -11,7 +11,25 @@ module Orchestration
         config['services']
       end
 
-      private
+      def database_adapter_name
+        return nil unless defined?(ActiveRecord)
+        return 'postgresql' if defined?(::PG)
+        return 'mysql2' if defined?(::Mysql2)
+        return 'sqlite3' if defined?(::SQLite3)
+
+        nil
+      end
+
+      def database_adapter
+        return nil unless defined?(ActiveRecord)
+
+        base = Orchestration::Services::Database::Adapters
+        return base::Postegresql.new if defined?(::PG)
+        return base::Mysql2.new if defined?(::Mysql2)
+        return base::Sqlite3.new if defined?(::SQLite3)
+
+        nil
+      end
 
       def local_port(name, remote_port = nil)
         return nil if ports(name).empty?
@@ -21,19 +39,29 @@ module Orchestration
                    .fetch(:local)
       end
 
+      private
+
       def config
         @config ||= @env.docker_compose_config
       end
 
       def ports(name)
-        # TODO: Support both string and target/published hash formats
         services
           .fetch(name.to_s)
           .fetch('ports', [])
-          .map do |pair|
-            local, _, remote = pair.partition(':')
-            { local: local, remote: remote }
+          .map do |mapping|
+            next short_format_ports(mapping) if mapping.is_a?(String)
+
+            {
+              local: mapping.fetch('published'),
+              remote: mapping.fetch('target')
+            }
           end
+      end
+
+      def short_format_ports(mapping)
+        local, _, remote = mapping.partition(':')
+        { local: local, remote: remote }
       end
     end
   end

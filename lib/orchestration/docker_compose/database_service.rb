@@ -10,23 +10,29 @@ module Orchestration
 
       def definition
         return nil unless @config.enabled?
-        return nil if @config.adapter.name == 'sqlite3'
+        return nil if adapter.name == 'sqlite3'
 
         {
-          'image' => @config.adapter.image,
-          'environment' => @config.adapter.environment,
+          'image' => adapter.image,
+          'environment' => adapter.environment,
           'volumes' => volumes
         }.merge(ports)
       end
 
       private
 
+      def adapter
+        name = ComposeConfiguration.new(@environment).database_adapter_name
+        base = 'Orchestration::Services::Database::Adapters'
+        Object.const_get("#{base}::#{name.capitalize}").new
+      end
+
       def volume
         @config.env.database_volume(@environment)
       end
 
       def remote_port
-        @config.adapter.default_port
+        adapter.default_port
       end
 
       def ports
@@ -38,7 +44,7 @@ module Orchestration
       def volumes
         return [] if @environment == :test
 
-        ["#{volume}:#{@config.adapter.data_dir}"]
+        ["#{volume}:#{adapter.data_dir}"]
       end
     end
   end
