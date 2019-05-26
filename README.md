@@ -4,9 +4,9 @@
 
 _Orchestration_ aims to provide a convenient and consistent process for working with _Rails_ and _Docker_ without obscuring underlying components.
 
-At its core _Orchestration_ is just a `Makefile` and a set of `docker-compose.yml` files with sensible, general-purpose default settings. Users are encouraged to tailor the generated build-out to suit their application.
+At its core _Orchestration_ is just a `Makefile` and a set of `docker-compose.yml` files with sensible, general-purpose default settings. Users are encouraged to tailor the generated build-out to suit their application; once the build-out has been generated it belongs to the application.
 
-A typical _Rails_ application can be tested, built, pushed to _Docker Hub_ and deployed to _Docker Swarm_ with the following commands:
+A typical _Rails_ application can be tested, built, pushed to _Docker Hub_, and deployed to _Docker Swarm_ with the following commands:
 
 ```bash
 make test build push
@@ -41,15 +41,9 @@ Generate configuration files and select your deployment server:
 rake orchestration:install server=unicorn # (or 'puma' [default], etc.)
 ```
 
-You will be prompted to enter values for your _Docker_ organisation and repository name.
-
-For example, the respective organisation and repository for https://hub.docker.com/r/redislabs/redis/ are `redislabs` and `redis`.
-
-If you are unsure of these values, they can be modified later by editing `.orchestration.yml` in the root of your project directory.
-
-You are encouraged to modify this build-out to suit your application's needs. Once it has been generated, it belongs to the application.
-
 To rebuild all build-out at any time, pass `force=yes` to the above install command.
+
+You will be prompted to enter values for your _Docker_ organisation and repository name. For example, the _organisation_ and _repository_ for https://hub.docker.com/r/redislabs/redis/ are `redislabs` and `redis` respectively. If you are unsure of these values, they can be modified later by editing `.orchestration.yml` in the root of your project directory.
 
 #### Configuration files
 
@@ -61,7 +55,7 @@ _Orchestration_ generates the following files where appropriate. Backups are cre
 * `config/unicorn.rb`
 * `config/puma.rb`
 
-You may need to merge your previous configurations with the generated files.
+You may need to merge your previous configurations with the generated files. You will only need to do this once.
 
 Test and development dependency containers bind to a randomly-generated [at install time] local port to avoid collisions. You may compare e.g. `orchestration/docker-compose.test.yml` with the `test` section of the generated `config/database.yml` to see how things fit together.
 
@@ -74,7 +68,7 @@ git commit -m "Add Orchestration gem"
 
 ## Usage
 
-All `make` commands provided by _Orchestration_ recognise the `env` parameter. This is equivalent to setting the `RAILS_ENV` environment variable.
+All `make` commands provided by _Orchestration_ (with the exception of `test` and `deploy`) recognise the `env` parameter. This is equivalent to setting the `RAILS_ENV` environment variable.
 
 e.g.:
 ```
