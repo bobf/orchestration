@@ -1,6 +1,17 @@
 # Orchestration
 
-_Orchestration_ is a toolkit for testing, building, and deploying _Ruby_ (including _Rails_) applications in _Docker_.
+## Overview
+
+_Orchestration_ aims to provide a convenient and consistent process for working with _Rails_ and _Docker_ without obscuring underlying components.
+
+At its core _Orchestration_ is just a `Makefile` and a set of `docker-compose.yml` files with sensible, general-purpose default settings. Users are encouraged to tailor the generated build-out to suit their application.
+
+A typical _Rails_ application can be tested, built, pushed to _Docker Hub_ and deployed to _Docker Swarm_ with the following commands:
+
+```bash
+make test build push
+make deploy manager=user@swarm.example.com env_file=/var/configs/myapp.env
+```
 
 ## Getting Started
 
@@ -11,7 +22,7 @@ _Orchestration_ is a toolkit for testing, building, and deploying _Ruby_ (includ
 Add _Orchestration_ to your Gemfile:
 
 ```ruby
-gem 'orchestration', '~> 0.3.17'
+gem 'orchestration', '~> 0.4.0'
 ```
 
 Install:
@@ -24,11 +35,37 @@ bundle install
 
 Generate configuration files and select your deployment server:
 
+#### Generate build-out
+
 ```bash
-bin/rake orchestration:install server=unicorn # (or puma [default], etc.)
+rake orchestration:install server=unicorn # (or 'puma' [default], etc.)
 ```
 
-Commit changes:
+You will be prompted to enter values for your _Docker_ organisation and repository name.
+
+For example, the respective organisation and repository for https://hub.docker.com/r/redislabs/redis/ are `redislabs` and `redis`.
+
+If you are unsure of these values, they can be modified later by editing `.orchestration.yml` in the root of your project directory.
+
+You are encouraged to modify this build-out to suit your application's needs. Once it has been generated, it belongs to the application.
+
+To rebuild all build-out at any time, pass `force=yes` to the above install command.
+
+#### Configuration files
+
+_Orchestration_ generates the following files where appropriate. Backups are created if a file is replaced.
+
+* `config/database.yml`
+* `config/mongoid.yml`
+* `config/rabbitmq.yml` (see [RabbitMQ Configuration](#markdown-header-rabbitmq-configuration) for more details)
+* `config/unicorn.rb`
+* `config/puma.rb`
+
+You may need to merge your previous configurations with the generated files.
+
+Test and development dependency containers bind to a randomly-generated [at install time] local port to avoid collisions. You may compare e.g. `orchestration/docker-compose.test.yml` with the `test` section of the generated `config/database.yml` to see how things fit together.
+
+When setup is complete, add the generated build-out to _Git_:
 
 ```bash
 git add .
@@ -37,201 +74,195 @@ git commit -m "Add Orchestration gem"
 
 ## Usage
 
-Start your dependencies:
+All `make` commands provided by _Orchestration_ recognise the `env` parameter. This is equivalent to setting the `RAILS_ENV` environment variable.
+
+e.g.:
+```
+# Stop all test containers
+make stop env=test
+```
+
+The default value for `env` is `development`.
+
+As with any `Makefile` targets can be chained together, e.g.:
+```
+# Run tests, build, and push image
+make test build push
+```
+
+### Containers
+
+All auto-detected services will be added to the relevant `docker-compose.<environment>.yml` files at installation time.
+
+#### Start services
 
 ```bash
 make start
 ```
 
-Log in to your _Docker_ registry, then build and push your image:
-```bash
-docker login
-make build push
-```
-
-Make a compact, portable, production-ready tarball:
-```
-make bundle
-```
-
-Copy tarball to your server and unpack:
-```bash
-tar xf deploy.tar
-cd <your-app-name>/
-```
-
-Add required config to `.env` file:
-```
-# .env
-SECRET_KEY_BASE=<your-secure-token>
-CONTAINER_PORT=8080
-VIRTUAL_HOST=yourdomain.com
-```
-
-Load three instances of your container, load-balanced by _Nginx_, with dependecies:
-```
-make start instances=3
-```
-
-Or deploy to _Docker Swarm_:
-```
-make deploy
-```
-
-## Table of Contents
-
-<!-- toc -->
-
-- [Configuration Files](#configuration-files)
-  * [Makefile](#makefile)
-  * [.orchestration.yml](#orchestrationyml)
-  * [.env](#env)
-  * [orchestration/Dockerfile](#orchestrationdockerfile)
-  * [orchestration/entrypoint.sh](#orchestrationentrypointsh)
-  * [orchestration/docker-compose.yml](#orchestrationdocker-composeyml)
-  * [config/unicorn.rb](#configunicornrb)
-- [Building](#building)
-- [Build Environment](#build-environment)
-- [Commands](#commands)
-- [Dependencies](#dependencies)
-
-<!-- tocstop -->
-
-## Configuration Files
-
-_Orchestration_ autogenerates boilerplate configuration based on your application's requirements and configuration.
-
-When supported dependencies are detected they will be created as services in your _Docker Compose_ configurations ready for use in testing, development, and production.
-
-The following files are created on setup:
-
-### Makefile
-
-Contains an `include` for the main _Orchestration_ `Makefile`. If this file already exists then the `include` will be added to the top of the file.
-
-### .orchestration.yml
-
-_Orchestration_-specific configuration such as your _Docker_ registry and username.
-
-### .env
-
-Specify any environment variables (e.g. `SECRET_KEY_BASE`) your application will need to run in production mode.
-
-The following two variables _must_ be defined:
+#### Stop services
 
 ```bash
-VIRTUAL_HOST=localhost
-CONTAINER_PORT=3000
+make stop
 ```
 
-When running in production mode your application will be load-balanced by _Nginx_ proxy and available at http://localhost:3000/
-
-Take a look at `orchestration/docker-compose.production.yml` to see what variables will be exposed to various containers.
-
-### orchestration/Dockerfile
-
-The basic requirements of a typical _Rails_ application. It is optimised for build speed and will automatically build assets (with our without `Webpacker`).
-
-### orchestration/entrypoint.sh
-
-Entrypoint script to handle user switching, permissions, stale pidfiles, etc.
-
-### orchestration/docker-compose.yml
-
-Along with the base `docker-compose.yml` a separate configuration is created for each environment. An override file is also generated.
-
-See related documentation:
-
-https://docs.docker.com/compose/extends/
-
-* `orchestration/docker-compose.yml`
-* `orchestration/docker-compose.test.yml`
-* `orchestration/docker-compose.development.yml`
-* `orchestration/docker-compose.production.yml`
-* `orchestration/docker-compose.override.yml`
-
-You can modify these files to suit your requirements.
-
-The famous [`jwilder/nginx-proxy`](https://github.com/jwilder/nginx-proxy) is used to load-balance replicas of your application when running in production.
-
-### config/unicorn.rb
-
-If not already present, a [Unicorn](https://bogomips.org/unicorn/) configuration will be created. This is the default server when running in production.
-
-## Building
-
-_Orchestration_ provides tools for building your application as a _Docker_ image.
+#### Interface directly with `docker-compose`
 
 ```bash
+$(make compose env=test) logs -f database
+```
+
+### Images
+
+Image tags are generated using the following convention:
+
+```
+# See .orchestration.yml for `organization` and `repository` values.
+<organization>/<repository>:<git-commit-hash>
+
+# e.g.
+acme/anvil:abcd1234
+```
+
+#### Build an application image
+
+Note that `git archive` is used to generate the build context. Any uncommitted changes will _not_ be included in the image.
+```
 make build
 ```
 
-Running `make build` does the following:
+See [build environment](#markdown-header-build-environment) for more details.
 
-* Takes a snapshot of your application from current _Git_ `HEAD`. Only committed files are included.
-* Copies your `Gemfile` and installs your bundle (optimised for _Docker_ image caching).
-* Tags your image with your configured username/organisation, repository, and the current commit hash (abbreviated) of `HEAD`, e.g. `myorg/myapp:abc123`
+#### Push latest image
 
-Your image can then be pushed to your configured registry (use `docker login` before running):
+You must be logged in to a _Docker_ registry. Use the `docker login` command (see [Docker documentation](https://docs.docker.com/engine/reference/commandline/login/) for further reference).
 
 ```
 make push
 ```
 
+### Development
+
+An [`.env`](https://docs.docker.com/compose/env-file/) is created automatically in your project root. This file is _not_ stored in version control. Set all application environment variables in this file.
+
+#### Launching a development server
+
+To load all variables from `.env` and launch a development server, run the following command:
+
+```bash
+make serve
+```
+
+The application environment will be output on launch for convenience.
+
+To pass extra commands to the _Rails_ server:
+```bash
+# Custom server, custom port
+make serve server='webrick -p 3001'
+
+# Default server, custom port, custom bind address
+make serve server='-p 3001 -b 192.168.0.1'
+```
+
+### Testing
+
+A default `test` target is provided in your application's main `Makefile`. You are encouraged to modify this target to suit your application's requirements.
+
+To launch all dependency containers, run database migrations, and run tests:
+```
+make test
+```
+
+Note that _Orchestration_ will wait for all services to become fully available (i.e. running and providing valid responses) before attempting to run tests. This is specifically intended to facilitate testing in continuous integration environments.
+
+### Deployment to Docker Swarm
+
+To deploy your application to _Docker Swarm_:
+```
+make deploy manager=user@manager.swarm.example.com
+```
+
+To use a custom `.env` file:
+```
+make deploy env_file=/path/to/.env manager=user@manager.swarm.example.com
+```
+
+Note that the following two variables _must_ be set in the relevant `.env` file (will look in the current working directory if no path provided):
+
+```
+# Published port for your application service:
+CONTAINER_PORT=3000
+
+# Number of replicas of your application service:
+REPLICAS=5
+```
+
+It is also recommended to set `SECRET_KEY_BASE` etc. in this file.
+
 ## Build Environment
 
-The following environment variables will be passed as `ARG` variables when building your image:
+The following environment variables will be passed as `ARG` variables when building images:
 
 ```
 BUNDLE_BITBUCKET__ORG
 BUNDLE_GITHUB__COM
 ```
 
+Set these variables in your shell if your `Gemfile` references privately-hosted gems on either _Bitbucket_ or _GitHub_.
+
 See related documentation:
 
 * https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/
 * https://confluence.atlassian.com/bitbucket/app-passwords-828781300.html
 
-## Commands
+## Healthchecks
 
-_Orchestration_ provides a number of `make` commands to help you work with your application in _Docker_.
+[Healthchecks](https://docs.docker.com/engine/reference/builder/#healthcheck) are automatically configured for your application. A healthcheck utility is provided in `orchestration/healthcheck.rb`. The following environment variables can be configured (in the `app` service of `orchestration/docker-compose.production.yml`):
 
-All commands respect `RAILS_ENV` or `RACK_ENV`. Alternatively you can pass `env` to any command:
-```bash
-make config env=production
+| Variable | Meaning | Default Value |
+|-|-|-|
+| `WEB_HOST` | Host to reach application (relevant to application container) | `localhost` |
+| `WEB_PORT` | Port to reach application (relevant to application container) | `8080` |
+| `WEB_HEALTHCHECK_PATH` | Path of expected successful response | `/` |
+| `WEB_HEALTHCHECK_READ_TIMEOUT` | Number of seconds to wait for data before failing healthcheck | `10` |
+| `WEB_HEALTHCHECK_OPEN_TIMEOUT` | Number of seconds to wait for connection before failing healthcheck | `10` |
+| `WEB_HEALTHCHECK_SUCCESS_CODES` | Comma-separated list of HTTP status codes that will be deemed a success | `200,202,204` |
+
+If your application does not have a suitable always-available route to use as a healthcheck, the following one-liner may be useful:
+
+```ruby
+# config/routes.rb
+get '/healthcheck', to: proc { [200, { 'Content-Type' => 'text/html' }, ['']] }
 ```
 
-The following commands are implemented:
+In this case, `WEB_HEALTHCHECK_PATH` must be set to `/healthcheck`.
 
-| Command | Description |
-|---|---|
-| `start` | Start all containers and wait for their services to become available. In production mode, pass `instances=N` to start `N` replicas of your app. |
-| `stop` | Stop all containers. |
-| `logs` | Tail logs for all containers. |
-| `config` | Output the full configuration for the current environment with all variables substituted. |
-| `compose` | Output full `docker-compose` command. Run arbitrary commands for your environment, e.g. `$(make compose env=test) ps --services` |
-| `test-setup` | Launch test dependency containers, wait for them to become ready, run database migrations. Call before running tests in a CI environment. |
-| `wait` | Wait for all dependencies to be ready (i.e. verify that database is up and accepting connections, etc.). |
-| `wait-database` | Wait for database container (supported: _PostgreSQL_ and _MySQL_) to become available. |
-| `wait-mongo` | Wait for _Mongo_ container to become available.
-| `wait-rabbitmq` | Wait for _RabbitMQ_ container to become available. |
-| `wait-nginx_proxy` | Wait for _Nginx_ container to become available (`production` only). |
-| `wait-app` | Wait for main application container to become available (`production` only). |
-| `build` | Build your application as a _Docker_ image. |
-| `push` | Push the current version of your application image to a _Docker_ registry. |
-| `bundle` | Create `deploy.tar` which contains pre-cooked production configurations and `Makefile` ready to deploy your application on any machine with _Docker_ and _Docker Compose_ installed.
+## Entrypoint
 
-## Dependencies
+An [entrypoint](https://docs.docker.com/engine/reference/builder/#entrypoint) script for your application is provided which does the following:
 
-Dependencies are automatically detected. The following services are currently supported:
+* Runs the `CMD` process as the same system user that launched the container (rather than the default `root` user);
+* Creates various required temporary directories and removes stale `pid` files;
+* Adds a route `host.docker.internal` to the host machine running the container (mimicking the same route provided by _Docker_ itself on _Windows_ and _OS
+  X_).
 
-| Service | Configuration File |
-|---|---|
-| _PostrgeSQL_ | `config/database.yml` |
-| _MySQL_ | `config/database.yml` |
-| _RabbitMQ_ | `config/rabbitmq.yml` |
-| _Mongo_ | `config/mongoid.yml` |
+## RabbitMQ Configuration
 
-Running `bin/rake orchestration:install` will automatically add services to your _Compose_ configurations that reflect your configuration files.
+The [Bunny](https://github.com/ruby-amqp/bunny) _RabbitMQ_ gem does not recognise `config/rabbitmq.yml`. If your application uses _RabbitMQ_ then you must manually update your code to reference this file, e.g.:
 
-For _RabbitMQ_, `config/rabbitmq.yml` should contain `host` and `port` fields for each environment.
+```ruby
+connection = Bunny.new(config_for(:rabbit_mq)['url'])
+connection.start
+```
+
+The environment variable `RABBITMQ_URL` can be used to configure _Bunny_ in production (similar to `DATABASE_URL` and `MONGO_URL`).
+
+This is a convention of the _Orchestration_ gem intended to make _RabbitMQ_ configuration consistent with other services.
+
+## License
+
+[MIT License](LICENSE)
+
+## Contributing
+
+Feel free to make a pull request. Use `make test` to ensure that all tests, _Rubocop_ checks, and dependency validations pass correctly.

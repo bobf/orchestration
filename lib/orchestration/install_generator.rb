@@ -78,7 +78,7 @@ module Orchestration
 
       content = template('puma.rb')
       path = @env.root.join('config', 'puma.rb')
-      create_file(path, content, overwrite: false)
+      create_file(path, content, backup: true)
     end
 
     def unicorn
@@ -86,7 +86,7 @@ module Orchestration
 
       content = template('unicorn.rb')
       path = @env.root.join('config', 'unicorn.rb')
-      create_file(path, content, overwrite: false)
+      create_file(path, content, backup: true)
     end
 
     def database_yml
