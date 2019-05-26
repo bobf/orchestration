@@ -237,9 +237,9 @@ See related documentation:
 
 | Variable | Meaning | Default Value |
 |-|-|-|
-| `WEB_HOST` | Host to reach application (relevant to application container) | `localhost` |
-| `WEB_PORT` | Port to reach application (relevant to application container) | `8080` |
-| `WEB_HEALTHCHECK_PATH` | Path of expected successful response | `/` |
+| `WEB_HOST` | Host to reach application (from inside application container) | `localhost` |
+| `WEB_PORT` | Port to reach application (from inside application container) | `8080` |
+| `WEB_HEALTHCHECK_PATH` | Path expected to return a successful response | `/` |
 | `WEB_HEALTHCHECK_READ_TIMEOUT` | Number of seconds to wait for data before failing healthcheck | `10` |
 | `WEB_HEALTHCHECK_OPEN_TIMEOUT` | Number of seconds to wait for connection before failing healthcheck | `10` |
 | `WEB_HEALTHCHECK_SUCCESS_CODES` | Comma-separated list of HTTP status codes that will be deemed a success | `200,202,204` |
@@ -271,14 +271,27 @@ An [entrypoint](https://docs.docker.com/engine/reference/builder/#entrypoint) sc
 <a name="rabbitmq-configuration"></a>
 ## RabbitMQ Configuration
 
-The [Bunny](https://github.com/ruby-amqp/bunny) _RabbitMQ_ gem does not recognise `config/rabbitmq.yml`. If your application uses _RabbitMQ_ then you must manually update your code to reference this file, e.g.:
+The [Bunny](https://github.com/ruby-amqp/bunny) _RabbitMQ_ gem does not recognise `config/rabbitmq.yml` or `RABBITMQ_URL`. If your application uses _RabbitMQ_ then you must manually update your code to reference this file, e.g.:
 
 ```ruby
 connection = Bunny.new(config_for(:rabbit_mq)['url'])
 connection.start
 ```
 
-The environment variable `RABBITMQ_URL` can be used to configure _Bunny_ in production (similar to `DATABASE_URL` and `MONGO_URL`).
+_Orchestration_ generates the following `config/rabbitmq.yml`:
+
+```
+development:
+  url: amqp://127.0.0.1:51070
+
+test:
+  url: amqp://127.0.0.1:51068
+
+production:
+  url: <%= ENV['RABBITMQ_URL'] %>
+```
+
+Using this approach, the environment variable `RABBITMQ_URL` can be used to configure _Bunny_ in production (similar to `DATABASE_URL` and `MONGO_URL`).
 
 This is a convention of the _Orchestration_ gem intended to make _RabbitMQ_ configuration consistent with other services.
 
