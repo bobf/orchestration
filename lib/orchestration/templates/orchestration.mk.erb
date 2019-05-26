@@ -64,7 +64,7 @@ all: build
 start: _clean-logs
 	@$(call print,'${yellow}Starting containers${reset} ...')
 ifeq (${env},$(filter ${env},test development))
-	@${compose} up -d --force-recreate ${services} ${log_progress} || ${fail}
+	@${compose} up -d --force-recreate ${services} ${log} || ${fail}
 	@[ '${is_container}' == '1' ] && \
          ( \
            docker network connect '${network}' '$(shell hostname)' ${log} \
@@ -73,7 +73,7 @@ ifeq (${env},$(filter ${env},test development))
          ) \
          || ( [ '${is_container}' == '0' ] || ${fail} )
 else
-	@${compose} up -d --scale app=$${instances:-1} ${services} ${log_progress} || ${fail}
+	@${compose} up -d --scale app=$${instances:-1} ${services} ${log} || ${fail}
 endif
 	@$(call printrawln,' ${green}started${reset} ${tick}')
 	@$(call println,'${yellow}Waiting for services to become available${reset} ...')
@@ -95,11 +95,11 @@ stop: _clean-logs
 	@$(call print,'${yellow}Stopping containers${reset} ...')
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
           then \
-            ( ${compose} down ${log_progress} || ${fail} ) \
+            ( ${compose} down ${log} || ${fail} ) \
             && \
             ( docker network connect ${docker_repository}_${env}_default $(shell hostname) ${log} || : ) ; \
           else \
-            ${compose} down ${log_progress} || ${fail} ; \
+            ${compose} down ${log} || ${fail} ; \
           fi
 	@$(call printrawln,' ${green}stopped${reset}. ${tick}')
 

@@ -4,7 +4,7 @@
 
 _Orchestration_ aims to provide a convenient and consistent process for working with _Rails_ and _Docker_ without obscuring underlying components.
 
-At its core _Orchestration_ is just a `Makefile` and a set of `docker-compose.yml` files with sensible, general-purpose default settings. Users are encouraged to tailor the generated build-out to suit their application; once the build-out has been generated it belongs to the application.
+At its core _Orchestration_ is simply a `Makefile` and a set of `docker-compose.yml` files with sensible, general-purpose default settings. Users are encouraged to tailor the generated build-out to suit their application; once the build-out has been generated it belongs to the application.
 
 A typical _Rails_ application can be tested, built, pushed to _Docker Hub_, and deployed to _Docker Swarm_ with the following commands:
 
@@ -12,6 +12,13 @@ A typical _Rails_ application can be tested, built, pushed to _Docker Hub_, and 
 make test build push
 make deploy manager=user@swarm.example.com env_file=/var/configs/myapp.env
 ```
+
+_Orchestration_ has been successfully used to build continuous delivery pipelines for numerous production applications with a wide range or requirements.
+
+## Example
+
+The below screenshot demonstrates _Orchestration_ being installed in a brand new _Rails_ application with support for _PostgreSQL_ (via the _PG_ gem) and _RabbitMQ_ (via the _Bunny_ gem):
+![example](doc/images/example.png "https://hub.docker.com/r/rubyorchestration/sampleapp/tags")
 
 ## Getting Started
 
@@ -43,7 +50,7 @@ rake orchestration:install server=unicorn # (or 'puma' [default], etc.)
 
 To rebuild all build-out at any time, pass `force=yes` to the above install command.
 
-You will be prompted to enter values for your _Docker_ organisation and repository name. For example, the _organisation_ and _repository_ for https://hub.docker.com/r/redislabs/redis/ are `redislabs` and `redis` respectively. If you are unsure of these values, they can be modified later by editing `.orchestration.yml` in the root of your project directory.
+You will be prompted to enter values for your _Docker_ organisation and repository name. For example, the _organisation_ and _repository_ for https://hub.docker.com/r/rubyorchestration/sampleapp are `rubyorchestration` and `sampleapp` respectively. If you are unsure of these values, they can be modified later by editing `.orchestration.yml` in the root of your project directory.
 
 #### Configuration files
 
@@ -51,7 +58,7 @@ _Orchestration_ generates the following files where appropriate. Backups are cre
 
 * `config/database.yml`
 * `config/mongoid.yml`
-* `config/rabbitmq.yml` (see [RabbitMQ Configuration](#markdown-header-rabbitmq-configuration) for more details)
+* `config/rabbitmq.yml` (see [RabbitMQ Configuration](#rabbitmq-configuration) for more details)
 * `config/unicorn.rb`
 * `config/puma.rb`
 
@@ -125,7 +132,7 @@ Note that `git archive` is used to generate the build context. Any uncommitted c
 make build
 ```
 
-See [build environment](#markdown-header-build-environment) for more details.
+See [build environment](#build-environment) for more details.
 
 #### Push latest image
 
@@ -191,8 +198,23 @@ CONTAINER_PORT=3000
 REPLICAS=5
 ```
 
-It is also recommended to set `SECRET_KEY_BASE` etc. in this file.
+It is also recommended to set `SECRET_KEY_BASE`, `DATABASE_URL` etc. in this file.
 
+## Logs
+
+The output from most underlying components is hidden in an effort to make continuous integration pipelines clear and concise. All output is retained in `log/orchestration.stdout.log` and `log/orchestration.stderr.log`. i.e. to view all output during a build:
+
+```bash
+tail -f log/orchestration*.log
+```
+
+A convenience `Makefile` target `dump` is provided which will output all consumed _stdout_ and _stderr_:
+
+```bash
+make dump
+```
+
+<a name="build-environment"></a>
 ## Build Environment
 
 The following environment variables will be passed as `ARG` variables when building images:
@@ -231,6 +253,12 @@ get '/healthcheck', to: proc { [200, { 'Content-Type' => 'text/html' }, ['']] }
 
 In this case, `WEB_HEALTHCHECK_PATH` must be set to `/healthcheck`.
 
+## Dockerfile
+
+A `Dockerfile` is automatically generated based on detected dependencies, required build steps, _Ruby_ version, etc.
+
+Real-world applications will inevitably need to make changes to this file. As with all _Orchestration_ build-out, the provided `Dockerfile` should be treated as a starting point and customisations should be applied as needed.
+
 ## Entrypoint
 
 An [entrypoint](https://docs.docker.com/engine/reference/builder/#entrypoint) script for your application is provided which does the following:
@@ -240,6 +268,7 @@ An [entrypoint](https://docs.docker.com/engine/reference/builder/#entrypoint) sc
 * Adds a route `host.docker.internal` to the host machine running the container (mimicking the same route provided by _Docker_ itself on _Windows_ and _OS
   X_).
 
+<a name="rabbitmq-configuration"></a>
 ## RabbitMQ Configuration
 
 The [Bunny](https://github.com/ruby-amqp/bunny) _RabbitMQ_ gem does not recognise `config/rabbitmq.yml`. If your application uses _RabbitMQ_ then you must manually update your code to reference this file, e.g.:
