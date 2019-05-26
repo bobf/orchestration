@@ -40,6 +40,10 @@ RSpec.describe Orchestration::DockerCompose::AppService do
     its(['environment']) { is_expected.to include 'WEB_CONCURRENCY' }
     its(['environment']) { is_expected.to include 'WEB_WORKER_PROCESSES' }
     its(%w[environment RAILS_LOG_TO_STDOUT]) { is_expected.to eql '1' }
-    its(['ports']) { is_expected.to eql ['${CONTAINER_PORT}:8080'] }
+    its(['ports']) do
+      is_expected.to eql [
+        '${CONTAINER_PORT:?CONTAINER_PORT must be provided}:8080'
+      ]
+    end
   end
 end
