@@ -24,7 +24,7 @@ module Orchestration
         return nil unless defined?(ActiveRecord)
 
         base = Orchestration::Services::Database::Adapters
-        return base::Postegresql.new if defined?(::PG)
+        return base::Postgresql.new if defined?(::PG)
         return base::Mysql2.new if defined?(::Mysql2)
         return base::Sqlite3.new if defined?(::SQLite3)
 
@@ -33,10 +33,11 @@ module Orchestration
 
       def local_port(name, remote_port = nil)
         return nil if ports(name).empty?
-        return ports(name).first[:local] if remote_port.nil?
+        return ports(name).first[:local].to_i if remote_port.nil?
 
         ports(name).find { |mapping| mapping[:remote] == remote_port }
                    .fetch(:local)
+                   .to_i
       end
 
       private
