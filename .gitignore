@@ -21,6 +21,7 @@ spec/dummy/.gitignore
 spec/dummy/Makefile
 spec/dummy/orchestration/*
 spec/dummy/config/unicorn.rb
+spec/dummy/config/*.bak
 
 orchestration-*.gem
 

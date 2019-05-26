@@ -11,16 +11,24 @@ RSpec.describe Orchestration::InstallGenerator do
     let(:unicorn_path) { dummy_path.join('config', 'unicorn.rb') }
 
     before { FileUtils.rm_f(unicorn_path) }
+    before { FileUtils.rm_f("#{unicorn_path}.bak") }
 
     it 'creates unicorn.rb when not present' do
       unicorn
       expect(File.exist?(unicorn_path)).to be true
     end
 
-    it 'does not replace existing unicorn.sh' do
+    it 'replaces existing unicorn.rb' do
       File.write(unicorn_path, 'some unicorn configuration')
       unicorn
       content = File.read(unicorn_path)
+      expect(content).to_not include 'some unicorn configuration'
+    end
+
+    it 'backs up existing unicorn.rb' do
+      File.write(unicorn_path, 'some unicorn configuration')
+      unicorn
+      content = File.read("#{unicorn_path}.bak")
       expect(content).to eql 'some unicorn configuration'
     end
   end
