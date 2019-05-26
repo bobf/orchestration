@@ -14,9 +14,8 @@ module Orchestration
 
         {
           'image' => adapter.image,
-          'environment' => adapter.environment,
-          'volumes' => volumes
-        }.merge(ports)
+          'environment' => adapter.environment
+        }.merge(ports).merge(volumes)
       end
 
       private
@@ -25,10 +24,6 @@ module Orchestration
         name = ComposeConfiguration.new(@environment).database_adapter_name
         base = 'Orchestration::Services::Database::Adapters'
         Object.const_get("#{base}::#{name.capitalize}").new
-      end
-
-      def volume
-        @config.env.database_volume
       end
 
       def remote_port
@@ -42,9 +37,9 @@ module Orchestration
       end
 
       def volumes
-        return [] if @environment == :test
+        return {} if @environment == :test
 
-        ["#{volume}:#{adapter.data_dir}"]
+        { 'volumes' => ["#{@config.env.database_volume}:#{adapter.data_dir}"] }
       end
     end
   end
