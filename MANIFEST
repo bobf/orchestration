@@ -15,6 +15,7 @@ bin/rubocop
 bin/setup
 bin/strong_versions
 config/locales/en.yml
+doc/images/example.png
 lib/Rakefile
 lib/orchestration.rb
 lib/orchestration/docker_compose.rb
