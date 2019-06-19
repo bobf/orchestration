@@ -178,14 +178,32 @@ Note that _Orchestration_ will wait for all services to become fully available (
 
 ### Deployment to Docker Swarm
 
-To deploy your application to _Docker Swarm_:
+To deploy your application to a local _Docker Swarm_ use:
+```
+make deploy
+```
+
+#### Deploy to a remote swarm
+
+To connect via _SSH_ to a remote swarm and deploy, pass the `manager` parameter:
 ```
 make deploy manager=user@manager.swarm.example.com
 ```
 
-To use a custom `.env` file:
+#### Use a custom stack name
+
+The [_Docker_ stack](https://docs.docker.com/engine/reference/commandline/stack/) name defaults to the name of your repository (as defined in `.orchesration.yml`) and the _Rails_ environment, e.g. `anvil_production`.
+
+To override this default, pass the `project_name` parameter:
 ```
-make deploy env_file=/path/to/.env manager=user@manager.swarm.example.com
+make deploy project_name=acme_anvil_production
+```
+
+#### Use a custom `.env` file
+
+Specify a path to a local `.env` file (see [Docker Compose documentation](https://docs.docker.com/compose/environment-variables/#the-env-file)):
+```
+make deploy env_file=/path/to/.env
 ```
 
 Note that the following two variables _must_ be set in the relevant `.env` file (will look in the current working directory if no path provided):
