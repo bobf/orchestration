@@ -204,11 +204,12 @@ endif
 ifndef manager
 	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`')
 endif
-deploy: env := production
+ifeq (,${project_name})
 deploy: project_name = ${docker_repository}_${env}
+endif
 deploy: path := $(shell mktemp -d)
-deploy: RAILS_ENV = ${env}
-deploy: RACK_ENV = ${env}
+deploy: RAILS_ENV := ${env}
+deploy: RACK_ENV := ${env}
 deploy: DOCKER_TAG = ${git_version}
 deploy:
 	@$(call println,'${yellow}Deploying stack via${reset} ${green}${manager}${reset} ...') && \
