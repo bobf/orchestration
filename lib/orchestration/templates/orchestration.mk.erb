@@ -62,17 +62,20 @@ all: build
 ### Container management commands ###
 
 .PHONY: start
+ifndef network
+start: network := ${docker_repository}_${env}_default
+endif
 start: _clean-logs
 	@$(call print,'${yellow}Starting containers${reset} ...')
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up -d --force-recreate ${services} ${log} || ${fail}
-	@[ '${is_container}' == '1' ] && \
+	@[ -n '${sidecar}' ] && \
          ( \
            docker network connect '${network}' '$(shell hostname)' ${log} \
            || \
            $(call println,'${yellow}Warning${reset}: Unable to join network: "${yellow}${network}${reset}". Container will not be able to connect to dependency services.') \
          ) \
-         || ( [ '${is_container}' == '0' ] || ${fail} )
+         || ( [ -z '${sidecar}' ] || ${fail} )
 else
 	@${compose} up -d --scale app=$${instances:-1} ${services} ${log} || ${fail}
 endif
@@ -278,7 +281,7 @@ build:
 <% if defined?(Webpacker) %>	@git show ${git_branch}:./package.json > ${orchestration_dir}/.build/package.json 2>${stderr} || ${fail}<% end %>
 <% if defined?(Webpacker) %>	@git show ${git_branch}:./yarn.lock > ${orchestration_dir}/.build/yarn.lock 2>${stderr} || ${fail}<% end %>
 	@git archive --format 'tar' -o '${context}' '${git_branch}' ${log} || ${fail}
-	@temp=$$(mktemp -d) ; ( cd "$${temp}" && touch './.orchestration_container_flag' && tar -uvf '${context}' . ) ${log} || ${fail}
+	@temp=$$(mktemp -d) ; ( cd "$${temp}" && tar -uvf '${context}' . ) ${log} || ${fail}
 	@$(call printrawln,'${green}complete.${reset} ${tick}')
 	@$(call print,'${yellow}Building image${reset} ...')
 	@docker build \
