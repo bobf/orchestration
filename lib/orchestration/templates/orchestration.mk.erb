@@ -39,11 +39,15 @@ endif
 docker_organization=$(shell bash ${orchestration_dir}/yaml.bash docker_organization)
 docker_repository=$(shell bash ${orchestration_dir}/yaml.bash docker_repository)
 
+ifeq (,$(project_name))
+  project_name = ${docker_repository}_${env}
+endif
+
 compose_base=env HOST_UID=$(shell id -u) \
              DOCKER_ORGANIZATION="${docker_organization}" \
              DOCKER_REPOSITORY="${docker_repository}" \
+             COMPOSE_PROJECT_NAME="${project_name}" \
              docker-compose \
-             -p "${docker_repository}_${env}" \
              -f "${orchestration_dir}/docker-compose.yml"
 
 git_branch ?= $(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
@@ -206,9 +210,6 @@ endif
 .PHONY: deploy
 ifndef manager
 	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`')
-endif
-ifeq (,${project_name})
-deploy: project_name = ${docker_repository}_${env}
 endif
 deploy: path := $(shell mktemp -d)
 deploy: RAILS_ENV := ${env}
