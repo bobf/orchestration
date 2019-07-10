@@ -184,6 +184,14 @@ Note that _Orchestration_ will wait for all services to become fully available (
 
 _(See [sidecar containers](#sidecar-containers) if you are running your test/development server inside _Docker_)_.
 
+### (Local) Production
+
+Run a production environment locally to simulate your deployment platform:
+
+```
+make start env=production
+```
+
 ### Deployment to Docker Swarm
 
 To deploy your application to a local _Docker Swarm_ use:
