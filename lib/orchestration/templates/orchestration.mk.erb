@@ -288,6 +288,7 @@ build:
 	@docker build \
                         --build-arg BUNDLE_GITHUB__COM \
                         --build-arg BUNDLE_BITBUCKET__ORG \
+                        --build-arg GIT_COMMIT='${git_version}' \
                         -t ${docker_organization}/${docker_repository} \
                         -t ${docker_organization}/${docker_repository}:${git_version} \
                         ${orchestration_dir}/ ${log_progress} || ${fail}
