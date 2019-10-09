@@ -21,8 +21,8 @@ test:
   database: <%= compose.call(nil).database_adapter.credentials['database'] %>
   # Useful for certain continuous integration environments (e.g. Jenkins in
   # Docker) where the DB hostname may be a service name rather than `127.0.0.1`:
-  <%% if ENV.key?('DATABASE_URL') %>
-  url: <%%= ENV['DATABASE_URL'] %>
+  <%% if ENV.key?('TEST_DATABASE_URL') %>
+  url: <%%= ENV['TEST_DATABASE_URL'] %>
   <%% end %>
 <% end %>
 
