@@ -18,7 +18,14 @@ module Orchestration
     end
 
     def database_url
-      ENV['DATABASE_URL']
+      case environment
+      when 'development'
+        ENV['DEVELOPMENT_DATABASE_URL'] || ENV['DATABASE_URL']
+      when 'test'
+        ENV['TEST_DATABASE_URL'] || ENV['DATABASE_URL']
+      else
+        ENV['DATABASE_URL']
+      end
     end
 
     def mongo_url
