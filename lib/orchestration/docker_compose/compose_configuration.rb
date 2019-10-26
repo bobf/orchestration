@@ -32,7 +32,7 @@ module Orchestration
       end
 
       def local_port(name, remote_port = nil)
-        return nil if ports(name).empty?
+        return nil if !services.key?(name.to_s) || ports(name).empty?
         return ports(name).first[:local].to_i if remote_port.nil?
 
         ports(name).find { |mapping| mapping[:remote] == remote_port }
