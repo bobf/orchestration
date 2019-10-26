@@ -199,19 +199,27 @@ Run a production environment locally to simulate your deployment platform:
 make start env=production
 ```
 
-### Deployment to Docker Swarm
-
-To deploy your application to a local _Docker Swarm_ use:
-```
-make deploy
-```
-
 #### Deploy to a remote swarm
 
 To connect via _SSH_ to a remote swarm and deploy, pass the `manager` parameter:
 ```
 make deploy manager=user@manager.swarm.example.com
 ```
+
+#### Roll back a deployment
+
+Roll back the `app` service of your stack:
+```
+make rollback manager=user@manager.swarm.example.com
+```
+
+Roll back a specific service:
+```
+make rollback manager=user@manager.swarm.example.com service=database
+```
+
+The `project_name` parameter is also supported.
+
 
 #### Use a custom stack name
 
