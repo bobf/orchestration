@@ -273,8 +273,14 @@ wait-listener:
 <% services.each do |service| %>
 <% next if service.to_sym == :app %>
 .PHONY: wait-<%= service %>
+ifdef config
+wait-<%= service %>: configvar := config=$(config)
+endif
+ifdef service
+wait-<%= service %>: servicevar := service=$(service)
+endif
 wait-<%= service %>:
-	@${rake} orchestration:<%= service %>:wait
+	@${rake} orchestration:<%= service %>:wait $(configvar) $(servicevar)
 
 <% end %>
 

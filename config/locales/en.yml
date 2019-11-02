@@ -62,3 +62,4 @@ en:
         wait: "Wait for RabbitMQ to become available"
 
       install: "Install Orchestration tools"
+      install_makefile: "(Re)create orchestration/Makefile"

@@ -22,8 +22,9 @@ module Orchestration
         end
       end
 
-      def initialize(env, service_name = nil)
+      def initialize(env, service_name = nil, options = {})
         @env = env
+        @options = options
         @service_name = service_name || self.class.service_name
       end
 

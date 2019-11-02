@@ -3,6 +3,15 @@
 module Orchestration
   module DockerCompose
     class ComposeConfiguration
+      def self.database_adapter_name
+        return nil unless defined?(ActiveRecord)
+        return 'postgresql' if defined?(::PG)
+        return 'mysql2' if defined?(::Mysql2)
+        return 'sqlite3' if defined?(::SQLite3)
+
+        nil
+      end
+
       def initialize(env)
         @env = env
       end
@@ -12,12 +21,7 @@ module Orchestration
       end
 
       def database_adapter_name
-        return nil unless defined?(ActiveRecord)
-        return 'postgresql' if defined?(::PG)
-        return 'mysql2' if defined?(::Mysql2)
-        return 'sqlite3' if defined?(::SQLite3)
-
-        nil
+        self.class.database_adapter_name
       end
 
       def database_adapter
@@ -32,7 +36,7 @@ module Orchestration
       end
 
       def local_port(name, remote_port = nil)
-        return nil if !services.key?(name.to_s) || ports(name).empty?
+        return nil unless listener?(name)
         return ports(name).first[:local].to_i if remote_port.nil?
 
         ports(name).find { |mapping| mapping[:remote] == remote_port }
@@ -44,6 +48,10 @@ module Orchestration
 
       def config
         @config ||= @env.docker_compose_config
+      end
+
+      def listener?(name)
+        services.key?(name.to_s) && !ports(name).empty?
       end
 
       def ports(name)

@@ -92,6 +92,9 @@ module Orchestration
     def database_yml
       return unless defined?(ActiveRecord)
 
+      adapter = DockerCompose::ComposeConfiguration.database_adapter_name
+      return if adapter == 'sqlite3'
+
       service_config('database.yml', Services::Database::Configuration)
     end
 

@@ -12,7 +12,7 @@ module Orchestration
           true
         end
 
-        def initialize(env, service_name = nil)
+        def initialize(env, service_name = nil, options = {})
           super
           @settings = {}
         end

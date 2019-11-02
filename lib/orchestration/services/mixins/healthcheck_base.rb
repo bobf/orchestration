@@ -37,7 +37,7 @@ module Orchestration
 
       def initialize(env, service_name = nil, options = {})
         @options = options
-        @configuration = configuration_class.new(env, service_name)
+        @configuration = configuration_class.new(env, service_name, options)
       end
 
       def service_name

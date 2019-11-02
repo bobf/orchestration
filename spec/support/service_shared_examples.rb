@@ -16,7 +16,7 @@ RSpec.shared_examples 'a service' do |service|
         'Environment',
         environment: environment,
         database_configuration_path: '/non/existent/path/i/hope',
-        database_url: nil,
+        database_url: 'postgresql://',
         mongo_url: nil,
         docker_compose_config: {
           'services' => { 'myservice' => { 'ports' => ['1234:5678'] } }
