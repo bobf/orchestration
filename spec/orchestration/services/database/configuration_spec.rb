@@ -4,16 +4,21 @@ RSpec.describe Orchestration::Services::Database::Configuration do
   subject(:configuration) { described_class.new(env, 'database', options) }
 
   let(:options) { {} }
+  let(:database_url) { nil }
 
   let(:config_path) do
     Orchestration.root.join('spec', 'dummy', 'config', 'database.yml')
   end
 
+  before do
+    stub_const('ENV', ENV.to_h.merge('TEST_DATABASE_URL' => database_url))
+  end
+
   let(:env) do
     instance_double(
       Orchestration::Environment,
-      environment: 'test',
       database_url: nil,
+      environment: 'test',
       database_configuration_path: config_path,
       docker_compose_config?: true,
       docker_compose_config: {

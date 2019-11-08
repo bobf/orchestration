@@ -11,6 +11,7 @@ RSpec.shared_examples 'a service' do |service|
 
     let(:environment) { 'test' }
     let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
+
     let(:env) do
       double(
         'Environment',

@@ -6,13 +6,18 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
     double(
       'Environment',
       environment: 'test',
-      database_url: database_url,
+      database_url: nil,
       database_configuration_path: database_config_path,
       docker_compose_config?: true,
       docker_compose_config: {
         'services' => { 'database' => { 'ports' => ['5499:5499'] } }
       }
     )
+  end
+
+  before do
+    stub_const('ENV', ENV.to_h.merge('DATABASE_URL' => database_url))
+    stub_const('ENV', ENV.to_h.merge('TEST_DATABASE_URL' => database_url))
   end
 
   let(:database_url) { nil }
@@ -24,13 +29,10 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
     subject(:start) { described_class.start(env, terminal) }
 
     let(:terminal) { double('Terminal') }
+    let(:database_url) { 'sqlite3://database.db' }
 
     before do
-      database_url = 'sqlite3://database.db'
-      allow(env).to receive(:database_url) { database_url }
       allow(env).to receive(:environment) { 'test' }
-      allow(ENV).to receive(:[]).and_call_original
-      allow(ENV).to receive(:[]).with('DATABASE_URL') { database_url }
       allow(ActiveRecord::Base).to receive(:establish_connection)
       allow(ActiveRecord::Base).to receive(:connection)
       allow(terminal).to receive(:write)
