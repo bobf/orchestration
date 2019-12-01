@@ -46,7 +46,7 @@ module Orchestration
       return @terminal.write(:skip, relpath) if present && !overwrite && !force?
 
       previous_content = File.read(path) if present
-      backup(path, previous_content) if options.fetch(:backup, false) && present
+      backup(path, previous_content) if options.fetch(:backup, false)
       write_file(path, content)
       @terminal.write(:create, relative_path(path))
     end
@@ -74,6 +74,8 @@ module Orchestration
     end
 
     def backup(path, previous_content)
+      return if previous_content.nil?
+
       backup_path = Pathname.new("#{path}.bak")
       File.write(backup_path, previous_content)
       @terminal.write(:backup, relative_path(backup_path))

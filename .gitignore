@@ -30,3 +30,5 @@ TODO
 
 docker/.build/
 docker/.context.tar
+
+.DS_Store

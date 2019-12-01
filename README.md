@@ -29,7 +29,7 @@ The below screenshot demonstrates _Orchestration_ being installed in a brand new
 Add _Orchestration_ to your Gemfile:
 
 ```ruby
-gem 'orchestration', '~> 0.4.0'
+gem 'orchestration', '~> 0.4.2'
 ```
 
 Install:
