@@ -195,6 +195,7 @@ deploy: project_name := ${docker_repository}_${env}
 deploy: path := $(shell mktemp -d)
 deploy: RAILS_ENV = ${env}
 deploy: RACK_ENV = ${env}
+deploy: DOCKER_TAG = ${git_version}
 deploy:
 	@$(call println,'${yellow}Deploying stack via${reset} ${green}${manager}${reset} ...') && \
           ( \
