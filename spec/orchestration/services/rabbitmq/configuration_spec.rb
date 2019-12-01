@@ -27,11 +27,14 @@ RSpec.describe Orchestration::Services::RabbitMQ::Configuration do
   describe '#friendly_config' do
     subject(:friendly_config) { configuration.friendly_config }
 
-    it { is_expected.to eql '[bunny] amqp://127.0.0.1:5673' }
-
     context 'development environment (default port)' do
       let(:environment) { 'development' }
-      it { is_expected.to eql '[bunny] amqp://127.0.0.1:5673' }
+      it { is_expected.to eql '[bunny] amqp://example.com:5672' }
+    end
+
+    context 'test environment (custom port)' do
+      let(:environment) { 'test' }
+      it { is_expected.to eql '[bunny] amqp://localhost:5673' }
     end
   end
 end

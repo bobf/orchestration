@@ -83,7 +83,7 @@ module Orchestration
         when :test, :development
           %i[database mongo rabbitmq]
         when :production
-          %i[database mongo rabbitmq]
+          %i[app database mongo rabbitmq]
         when :local, nil
           []
         else
