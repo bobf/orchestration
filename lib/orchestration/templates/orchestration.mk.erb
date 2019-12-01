@@ -39,15 +39,15 @@ compose:=${compose_base} -f <%= env.orchestration_dir_name %>/docker-compose.${e
 ### Container management commands ###
 
 .PHONY: start
+.PHONY: start
 start:
-	@echo "Starting containers..."
+        @echo "Starting containers..."
 ifeq (${env},$(filter ${env},test development))
-	@${compose} up -d
-	@docker network connect ${docker_repository}_${env}_default $(shell hostname) 2>/dev/null || :
+        @(docker ps --format "{{.ID}}" | grep -q $(shell hostname) && ${compose} up -d && docker network connect ${docker_repository}_${env}_default $(shell hostname)) || ${compose} -f <%= env.orchestration_dir_name %>/docker-compose.local.yml up -d
 else
-	@${compose} up -d --scale app=$${instances:-1}
+        @${compose} up -d --scale app=$${instances:-1}
 endif
-	@$(MAKE) wait
+        @$(MAKE) wait
 
 .PHONY: stop
 stop:

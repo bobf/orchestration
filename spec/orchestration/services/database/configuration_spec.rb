@@ -32,7 +32,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
 
     context 'postgresql' do
       let(:config_path) { fixture_path('postgresql') }
-      it { is_expected.to eql '[postgresql] localhost:3354' }
+      it { is_expected.to eql '[postgresql] localhost:5432' }
     end
 
     context 'mysql' do
@@ -66,7 +66,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       its(['database']) { is_expected.to eql 'postgres' }
       its(['username']) { is_expected.to eql 'postgres' }
       its(['password']) { is_expected.to eql 'password' }
-      its(['port']) { is_expected.to eql 3354 }
+      its(['port']) { is_expected.to eql 5432 }
     end
 
     context 'mysql2' do
@@ -106,7 +106,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
         its(['database']) { is_expected.to eql 'postgres' }
         its(['username']) { is_expected.to eql 'postgres' }
         its(['password']) { is_expected.to eql 'password' }
-        its(['port']) { is_expected.to eql 3354 }
+        its(['port']) { is_expected.to eql 5678 }
       end
     end
 
