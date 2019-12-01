@@ -46,7 +46,7 @@ module Orchestration
       return @terminal.write(:skip, relpath) if present && !overwrite && !force?
 
       previous_content = File.read(path) if present
-      backup(path, previous_content) if options.fetch(:backup, false)
+      backup(path, previous_content) if options.fetch(:backup, false) && present
       write_file(path, content)
       @terminal.write(:create, relative_path(path))
     end
@@ -60,10 +60,9 @@ module Orchestration
         return @terminal.write(:skip, relative_path(path))
       end
 
+      backup(path, previous_content) if options.fetch(:backup, false)
       File.write(path, content)
       @terminal.write(:update, relative_path(path))
-
-      backup(path, previous_content) if options.fetch(:backup, false)
     end
 
     def skip?(present, content, previous_content, options)
