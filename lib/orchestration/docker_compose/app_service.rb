@@ -10,13 +10,17 @@ module Orchestration
 
       def definition
         {
-          'image' => '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}',
+          'image' => image,
           'environment' => environment,
           'ports' => ports
         }
       end
 
       private
+
+      def image
+        '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}'
+      end
 
       def environment
         {

@@ -32,10 +32,6 @@ en:
 
     settings:
       docker:
-        registry:
-          description: "Docker registry (leave blank to use Docker Hub)"
-          prompt: "organization"
-
         organization:
           description: "Registry organization/username"
           prompt: "organization"
