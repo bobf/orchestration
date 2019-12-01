@@ -50,6 +50,10 @@ module Orchestration
         # class we happen to be included in.
         self.class.parent.const_get(:Configuration)
       end
+
+      def devnull
+        File.open(File::NULL, 'w')
+      end
     end
   end
 end

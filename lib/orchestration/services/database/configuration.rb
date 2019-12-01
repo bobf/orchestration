@@ -34,7 +34,7 @@ module Orchestration
           @adapter = adapter_object(base['adapter'])
           @settings = base.merge(@adapter.credentials)
                           .merge(
-                            'scheme' => scheme_name(base['adapter']),
+                            'scheme' => base['adapter'],
                             'port' => DockerCompose::DatabaseService::PORT
                           )
         end
@@ -90,36 +90,15 @@ module Orchestration
 
           {
             'host' => uri.hostname,
-            'adapter' => adapter_name(uri.scheme),
+            'adapter' => uri.scheme,
             'port' => uri.port
           }.merge(query_params(uri))
-        end
-
-        def scheme_name(adapter_name)
-          adapter_mapping.invert.fetch(adapter_name)
-        end
-
-        def adapter_name(scheme)
-          name = adapter_mapping.fetch(scheme, nil)
-
-          return name unless name.nil?
-
-          raise ArgumentError,
-                I18n.t('orchestration.unknown_scheme', scheme: scheme)
         end
 
         def query_params(uri)
           return {} if uri.query.nil?
 
           Hash[URI.decode_www_form(uri.query)]
-        end
-
-        def adapter_mapping
-          {
-            'mysql' => 'mysql2',
-            'postgres' => 'postgresql',
-            'sqlite3' => 'sqlite3'
-          }
         end
       end
     end

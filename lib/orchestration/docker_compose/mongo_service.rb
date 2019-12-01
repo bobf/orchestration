@@ -3,6 +3,8 @@
 module Orchestration
   module DockerCompose
     class MongoService
+      PORT = 27_020
+
       def initialize(config)
         @config = config
       end

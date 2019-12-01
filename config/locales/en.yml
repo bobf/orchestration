@@ -1,6 +1,5 @@
 en:
   orchestration:
-    unknown_scheme: "Unrecognised database adapter for URL scheme: %{scheme}"
     attempt_limit: "Unable to reconnect after %{limit} attempts. Aborting."
 
     application:

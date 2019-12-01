@@ -1,6 +1,7 @@
 #!/bin/sh
 set -u
-useradd -u ${HOST_UID} -m -o owner
+id owner >/dev/null 2>&1 || useradd -u ${HOST_UID} -m -o owner
 mkdir -p /application/tmp/pids
 chown -R owner:owner /application/tmp /application/log /application/db
+rm -f /application/tmp/pids/unicorn.pid
 exec gosu owner "$@"
