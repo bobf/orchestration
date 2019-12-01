@@ -146,7 +146,7 @@ serve: rails := RAILS_ENV='${env}' bundle exec rails server ${server}
 serve: _verify_env
 	@if [ "${custom_env_file}" == "1" ] && [ ! -f "${env_file}" ] ; \
          then \
-           $(call println,'${red}Error${reset}: Environment file "${yellow}${env_file}${reset}" not found. ${cross}') ; \
+           $(call println_error,'${red}Error${reset}: Environment file "${yellow}${env_file}${reset}" not found. ${cross}') ; \
            ${fail} ; \
          fi
 	@if [ -f "${env_file}" ] ; \
@@ -209,7 +209,7 @@ endif
 
 .PHONY: deploy
 ifndef manager
-	@$(error Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`)
+	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.cor`')
 endif
 deploy: env := production
 deploy: project_name := ${docker_repository}_${env}
@@ -227,7 +227,7 @@ deploy:
             cd '${docker_repository}' ${log} && \
                ( [ -z '${env_file}' ] || cp '${env_file}' './.env' ${log} ) && \
                $(call println,'${yellow}Deployment environment${reset}:') && \
-               cat '.env' | ${format_env} && \
+               ( test -f '.env' && cat '.env' | ${format_env} || : ) && \
                echo 'DOCKER_ORGANIZATION=${docker_organization}' >> './.env' && \
                echo 'DOCKER_REPOSITORY=${docker_repository}' >> './.env' && \
                echo 'DOCKER_TAG=${git_version}' >> ./.env && \
@@ -337,7 +337,7 @@ _verify_compose: _verify_env
 _verify_env:
 	@if [ "${custom_env_file}" == "1" ] && [ ! -f "${env_file}" ] ; \
          then \
-           $(call print,'${red}Error${reset}: Environment file "${yellow}${env_file}${reset}" not found. ${cross}') ; \
+           $(call print_error,'${red}Error${reset}: Environment file "${yellow}${env_file}${reset}" not found. ${cross}') ; \
            exit 1 ; \
          fi
 
