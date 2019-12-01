@@ -10,10 +10,6 @@ module Orchestration
       def definition
         {
           'image' => image,
-          'entrypoint' => '/entrypoint.sh',
-          'command' => %w[
-            bundle exec unicorn -c /application/config/unicorn.rb
-          ],
           'environment' => environment,
           'expose' => [8080]
         }

@@ -16,3 +16,5 @@ RUN bundle install --without development test --deployment
 COPY entrypoint.sh /
 ADD .build/context.tar.gz .
 <% if defined?(Webpacker) %>RUN . /root/.bashrc && yarn install && bundle exec rake assets:precompile<% else %>RUN bundle exec rake assets:precompile<% end %>
+ENTRYPOINT "/entrypoint.sh"
+CMD ["bundle", "exec", "unicorn", "-c", "/application/config/unicorn.rb"]
