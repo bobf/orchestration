@@ -26,7 +26,7 @@ module Orchestration
       private
 
       def volume
-        @config.env.database_volume
+        @config.env.database_volume(@environment)
       end
 
       def ports
