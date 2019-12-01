@@ -5,6 +5,9 @@ require 'bundler/setup'
 require 'active_record'
 require 'bunny'
 require 'mongoid'
+require 'mysql2'
+require 'pg'
+require 'sqlite3'
 
 require 'orchestration'
 require File.join(__dir__, 'dummy/config/environment.rb')

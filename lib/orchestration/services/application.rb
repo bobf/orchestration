@@ -7,4 +7,7 @@ module Orchestration
   end
 end
 
+require 'net/http'
+
 require 'orchestration/services/application/configuration'
+require 'orchestration/services/application/healthcheck'

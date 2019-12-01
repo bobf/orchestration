@@ -64,7 +64,7 @@ module Orchestration
     def echo_failure
       @terminal.write(
         :failure,
-        I18n.t('orchestration.attempt_limit', limit: ATTEMPT_LIMIT)
+        I18n.t('orchestration.attempt_limit', limit: @attempt_limit)
       )
     end
 

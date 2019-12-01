@@ -34,6 +34,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bunny', '~> 2.12'
   spec.add_development_dependency 'byebug', '~> 10.0'
   spec.add_development_dependency 'mongoid', '~> 7.0'
+  spec.add_development_dependency 'mysql2', '~> 0.5.2'
+  spec.add_development_dependency 'pg', '~> 1.1'
   spec.add_development_dependency 'rails', '~> 5.2'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
