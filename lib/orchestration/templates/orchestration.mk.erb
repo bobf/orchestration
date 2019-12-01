@@ -98,11 +98,12 @@ ifeq (${env},$(filter ${env},test development))
 	@${compose} up --detach --force-recreate --renew-anon-volumes ${services} ${log} || ${fail}
 	@[ -n '${sidecar}' ] && \
          ( \
+           $(call printrawln,' ${yellow}(joining dependency network ${green}${network}${yellow})${reset} ... ') ; \
            docker network connect '${network}' '$(shell hostname)' ${log} \
            || ( \
            $(call println,'') ; \
            $(call println,'${yellow}Warning${reset}: Unable to join network: "${yellow}${network}${reset}". Container will not be able to connect to dependency services.') ; \
-           $(call println,'You may need to delete "${yellow}orchestration/.sidecar_suffix${reset}" to disable sidecar mode if this file was added by mistake.') ; \
+           $(call print,'You may need to delete "${yellow}orchestration/.sidecar_suffix${reset}" to disable sidecar mode if this file was added by mistake.\n... ') ; \
            ) \
          ) \
          || ( [ -z '${sidecar}' ] || ${fail} )
