@@ -126,11 +126,12 @@ start-<%= service %>:
 <% end %>
 
 .PHONY: stop
+stop: network := ${compose_project_name}_default
 stop: _clean-logs
 	@$(call print,'${yellow}Stopping containers${reset} ...')
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
           then \
-            ( docker network disconnect ${docker_repository}_${env}_default $(shell hostname) ${log} || : ) \
+            ( docker network disconnect ${network} $(shell hostname) ${log} || : ) \
             && \
             ( ${compose} down ${log} || ${fail} ) ; \
           else \
