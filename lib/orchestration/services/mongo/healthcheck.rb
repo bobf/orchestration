@@ -8,10 +8,6 @@ module Orchestration
 
         dependencies 'mongoid'
 
-        def initialize(env)
-          @configuration = Configuration.new(env)
-        end
-
         def connection_errors
           [::Mongo::Error::NoServerAvailable]
         end

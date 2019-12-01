@@ -2,14 +2,16 @@
 
 module Orchestration
   module Services
-    module NginxProxy
+    module Listener
       class Configuration
         include ConfigurationBase
 
-        self.service_name = 'nginx-proxy'
+        def self.service_name
+          raise ArgumentError
+        end
 
         def friendly_config
-          "[nginx-proxy] #{host}:#{local_port}"
+          "[#{@service_name}] #{host}:#{local_port}"
         end
       end
     end

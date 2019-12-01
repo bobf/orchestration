@@ -7,7 +7,7 @@ RSpec.shared_examples 'a service' do |service|
   end
 
   describe 'healthcheck instance' do
-    subject(:healthcheck) { service::Healthcheck.new(env) }
+    subject(:healthcheck) { service::Healthcheck.new(env, 'name') }
 
     let(:env) do
       double(

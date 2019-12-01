@@ -6,10 +6,6 @@ module Orchestration
       class Healthcheck
         include HealthcheckBase
 
-        def initialize(env)
-          @configuration = Configuration.new(env)
-        end
-
         def connect
           response = Net::HTTP.get_response(
             URI("http://localhost:#{@configuration.local_port}")

@@ -3,7 +3,7 @@
 module Orchestration
   module Services
     module ConfigurationBase
-      attr_reader :settings
+      attr_reader :settings, :service_name
 
       def self.included(base)
         base.extend(ClassMethods)
@@ -22,13 +22,17 @@ module Orchestration
         end
       end
 
+      def initialize(env, service_name = nil)
+        @env = env
+        @service_name = service_name || self.class.service_name
+      end
+
       def host
         'localhost'
       end
 
       def local_port
-        name = self.class.service_name
-        key = name == 'application' ? 'nginx-proxy' : name
+        key = @service_name == 'application' ? 'nginx-proxy' : @service_name
 
         @env.docker_compose_config
             .fetch('services')

@@ -7,7 +7,7 @@ module Orchestration
 
     def initialize(service, terminal, options = {})
       @service = service
-      @service_name = service_name(service)
+      @service_name = service.service_name
       @terminal = terminal
       @attempt_limit = options.fetch(:attempt_limit, ATTEMPT_LIMIT)
       @retry_interval = options.fetch(:retry_interval, RETRY_INTERVAL)
@@ -42,22 +42,42 @@ module Orchestration
     end
 
     def echo_waiting
-      @terminal.write(
-        :waiting,
-        I18n.t(
-          "orchestration.#{@service_name}.waiting",
-          config: @service.configuration.friendly_config
-        )
+      @terminal.write(:waiting, service_waiting)
+    end
+
+    def service_waiting
+      I18n.t(
+        "orchestration.#{@service_name}.waiting",
+        config: friendly_config,
+        default: default_waiting
+      )
+    end
+
+    def default_waiting
+      I18n.t(
+        'orchestration.custom_service.waiting',
+        config: friendly_config,
+        service: @service_name
       )
     end
 
     def echo_ready
-      @terminal.write(
-        :ready,
-        I18n.t(
-          "orchestration.#{@service_name}.ready",
-          config: @service.configuration.friendly_config
-        )
+      @terminal.write(:ready, service_ready)
+    end
+
+    def service_ready
+      I18n.t(
+        "orchestration.#{@service_name}.ready",
+        config: friendly_config,
+        default: default_ready
+      )
+    end
+
+    def default_ready
+      I18n.t(
+        'orchestration.custom_service.ready',
+        config: friendly_config,
+        service: @service_name
       )
     end
 
@@ -72,10 +92,8 @@ module Orchestration
       @terminal.write(:error, "[#{error.class.name}] #{error.message}")
     end
 
-    def service_name(service)
-      # e.g.:
-      # Orchestration::Services::RabbitMQ::Healthcheck => 'rabbitmq'
-      service.class.name.split('::')[-2].downcase
+    def friendly_config
+      @service.configuration.friendly_config
     end
   end
 end
