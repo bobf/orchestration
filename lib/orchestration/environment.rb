@@ -17,17 +17,6 @@ module Orchestration
       ENV.fetch('server', 'puma')
     end
 
-    def app_service_command
-      %w(bundle exec) + case web_server
-                        when 'puma'
-                          %w(puma -C config/puma.rb)
-                        when 'unicorn'
-                          %w(unicorn -c config/unicorn.rb)
-                        else
-                          unsupported_web_server
-                        end
-    end
-
     def database_url
       ENV['DATABASE_URL']
     end
