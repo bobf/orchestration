@@ -72,7 +72,7 @@ module Orchestration
     end
 
     def env
-      simple_copy('env', @env.root.join('.env'))
+      simple_copy('env', @env.root.join('.env'), overwrite: false)
     end
 
     def docker_compose
