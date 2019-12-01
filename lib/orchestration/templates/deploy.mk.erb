@@ -10,7 +10,7 @@ ifndef LISTEN_PORT
         @$(error LISTEN_PORT must be defined in environment)
 endif
 
-compose_base:=HOST_UID=$(shell id -u) \
+compose_base:=env HOST_UID=$(shell id -u) \
               DOCKER_ORGANIZATION=%%ORGANIZATION%% \
               DOCKER_REPOSITORY=%%REPOSITORY%%:%%VERSION%% \
               docker-compose \
