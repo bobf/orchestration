@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'unicorn', '~> 5.4'
 
   spec.add_development_dependency 'activerecord', '~> 5.2'
+  spec.add_development_dependency 'betterp', '~> 0.1.3'
   spec.add_development_dependency 'bundler', '~> 1.16'
   spec.add_development_dependency 'bunny', '~> 2.12'
   spec.add_development_dependency 'byebug', '~> 10.0'

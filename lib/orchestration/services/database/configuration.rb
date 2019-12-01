@@ -52,13 +52,10 @@ module Orchestration
           ERB.new(content).result
         end
 
-        def yaml(content)
-          YAML.safe_load(content, [], [], true) # true: Allow aliases
-        end
-
         def adapter_for(name)
           {
             'mysql2' => adapters::Mysql2,
+            'mysql' => adapters::Mysql2,
             'postgresql' => adapters::Postgresql,
             'sqlite3' => adapters::Sqlite3
           }.fetch(name).new
@@ -79,7 +76,7 @@ module Orchestration
         end
 
         def host
-          return nil if @adapter&.name == 'sqlite3'
+          return nil if @adapter && @adapter.name == 'sqlite3'
 
           super
         end

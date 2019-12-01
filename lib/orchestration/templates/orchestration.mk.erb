@@ -13,7 +13,11 @@ else ifeq (,$(env))
   env:=development
 endif
 
-rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
+ifeq (,$(wildcard ./bin/rake))
+  rake:=RACK_ENV=${env} RAILS_ENV=${env} bundle exec rake
+else
+  rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
+endif
 
 docker_organization:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_organization)
 docker_repository:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository)

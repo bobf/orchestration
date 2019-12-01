@@ -25,9 +25,7 @@ module Orchestration
         private
 
         def config
-          YAML.safe_load(
-            File.read(@env.rabbitmq_configuration_path), [], [], true
-          )
+          yaml(File.read(@env.rabbitmq_configuration_path))
         end
       end
     end
