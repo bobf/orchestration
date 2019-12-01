@@ -26,14 +26,16 @@ module Orchestration
       @terminal.write(:skip, relpath)
     end
 
-    def makefile
+    def orchestration_makefile
       content = template('Makefile', makefile_environment)
       path = @env.orchestration_root.join('Makefile')
       path.exist? ? update_file(path, content) : create_file(path, content)
-      inject_if_missing(
-        @env.root.join('Makefile'),
-        'include orchestration/Makefile'
-      )
+    end
+
+    def application_makefile
+      path = @env.root.join('Makefile')
+      simple_copy('application.mk', path) unless File.exist?(path)
+      inject_if_missing(path, 'include orchestration/Makefile')
     end
 
     def dockerfile
@@ -54,7 +56,8 @@ module Orchestration
 
     def gitignore
       path = @env.root.join('.gitignore')
-      entries = %w[.build/ .deploy/ Gemfile Gemfile.lock].map do |entry|
+      globs = %w[.build/ .deploy/ Gemfile Gemfile.lock]
+      entries = ['deploy.tar'] + globs.map do |entry|
         "#{@env.orchestration_dir_name}/#{entry}"
       end
 

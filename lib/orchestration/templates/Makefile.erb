@@ -1,85 +1,88 @@
-.PHONY: start stop migrate bundle docker build push start logs compose config <%= wait_commands.join(' ') %>
+.PHONY: start stop migrate bundle docker build push start logs compose config test-setup <%= wait_commands.join(' ') %>
 
 ### Environment setup ###
 
-DOCKER_USERNAME:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_username)
-DOCKER_REPOSITORY:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository)
+docker_username:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_username)
+docker_repository:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository)
 
-COMPOSE_BASE:=HOST_UID=$(shell id -u) \
-              DOCKER_USERNAME=${DOCKER_USERNAME} \
-              DOCKER_REPOSITORY=${DOCKER_REPOSITORY} \
+compose_base:=HOST_UID=$(shell id -u) \
+              DOCKER_USERNAME=${docker_username} \
+              DOCKER_REPOSITORY=${docker_repository} \
               docker-compose \
-              -p ${DOCKER_REPOSITORY} \
+              -p ${docker_repository} \
               -f <%= env.orchestration_dir_name %>/docker-compose.yml
 
-GIT_BRANCH:=$(if $(BRANCH),$(BRANCH),$(shell git rev-parse --abbrev-ref HEAD))
-GIT_VERSION:=$(shell git rev-parse --short --verify ${GIT_BRANCH})
+git_branch:=$(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
+git_version:=$(shell git rev-parse --short --verify ${git_branch})
 
 -include .env
 export
 
 ifneq (,$(RAILS_ENV))
-  ENV:=$(RAILS_ENV)
+  env:=$(RAILS_ENV)
 else ifneq (,$(RACK_ENV))
-  ENV:=$(RACK_ENV)
-else
-  ENV:=development
+  env:=$(RACK_ENV)
+else ifeq (,$(env))
+  env:=development
 endif
 
-COMPOSE:=${COMPOSE_BASE} -f <%= env.orchestration_dir_name %>/docker-compose.${ENV}.yml -f <%= env.orchestration_dir_name %>/docker-compose.override.yml
-RAKE:=RACK_ENV=${ENV} RAILS_ENV=${ENV} bin/rake
+compose:=${compose_base} -f <%= env.orchestration_dir_name %>/docker-compose.${env}.yml -f <%= env.orchestration_dir_name %>/docker-compose.override.yml
+rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
 
 ### Container management commands ###
 
 start:
 	@echo "Starting containers..."
-ifeq (${ENV},$(filter ${ENV},test development))
-	@${COMPOSE} up -d
+ifeq (${env},$(filter ${env},test development))
+	@${compose} up -d
 else
-	@${COMPOSE} up -d --scale app=$${INSTANCES:-1}
+	@${compose} up -d --scale app=$${INSTANCES:-1}
 endif
-	@make wait
+	@$(MAKE) wait
 
 stop:
 	@echo "Stopping containers..."
-	@${COMPOSE} down
+	@${compose} down
 	@echo "All containers stopped."
 
 logs:
-	@${COMPOSE} logs
+	@${compose} logs -f
 
 config:
-	@${COMPOSE} config
+	@${compose} config
 
 compose:
-	@${COMPOSE} $$cmd
+	@${compose} $$cmd
+
+test-setup:
+	@$(MAKE) start wait migrate env=test
 
 ### Deployment utility commands ###
 
 bundle:
 	@echo 'Building deployment bundle...'
 	@rm -rf <%= env.orchestration_dir_name %>/.deploy/
-	@mkdir -p <%= env.orchestration_dir_name %>/.deploy/${DOCKER_REPOSITORY}/
-	@sed -e "s/%%VERSION%%/${GIT_VERSION}/g" \
-             -e "s/%%REPOSITORY%%/${DOCKER_REPOSITORY}/g" \
-             -e "s/%%USERNAME%%/${DOCKER_USERNAME}/g" \
+	@mkdir -p <%= env.orchestration_dir_name %>/.deploy/${docker_repository}/
+	@sed -e "s/%%VERSION%%/${git_version}/g" \
+             -e "s/%%REPOSITORY%%/${docker_repository}/g" \
+             -e "s/%%USERNAME%%/${docker_username}/g" \
              <%= env.orchestration_dir_name %>/deploy.mk > \
-             <%= env.orchestration_dir_name %>/.deploy/${DOCKER_REPOSITORY}/Makefile
+             <%= env.orchestration_dir_name %>/.deploy/${docker_repository}/Makefile
 	@cp <%= env.orchestration_dir_name %>/docker-compose.yml \
             <%= env.orchestration_dir_name %>/docker-compose.production.yml \
             <%= env.orchestration_dir_name %>/docker-compose.override.yml \
-            <%= env.orchestration_dir_name %>/.deploy/${DOCKER_REPOSITORY}/
-	@tar -C <%= env.orchestration_dir_name %>/.deploy -cf ./orchestration.tar ./${DOCKER_REPOSITORY}
-	@echo 'Deployment bundle written to ./orchestration.tar'
+            <%= env.orchestration_dir_name %>/.deploy/${docker_repository}/
+	@tar -C <%= env.orchestration_dir_name %>/.deploy -cf ./deploy.tar ./${docker_repository}
+	@echo 'Deployment bundle written to ./deploy.tar'
 
 ### Database utility commands ###
 
 migrate:
 	@echo "Running migrations..."
-ifeq (${ENV},$(filter ${ENV},test development))
-	@${RAKE} db:migrate
+ifeq (${env},$(filter ${env},test development))
+	@${rake} db:migrate
 else
-	@${COMPOSE} run --rm app bin/rake db:migrate RAILS_ENV=${ENV}
+	@${compose} run --rm app bin/rake db:migrate RAILS_ENV=${env}
 endif
 	@echo "Migrations complete."
 
@@ -91,30 +94,30 @@ wait: <%= wait_commands.join(' ') %>
 ## Test/development wait commands
 
 wait-database:
-ifeq (${ENV},$(filter ${ENV},test development))
-	@${RAKE} orchestration:database:wait
+ifeq (${env},$(filter ${env},test development))
+	@${rake} orchestration:database:wait
 endif
 
 wait-mongo:
-ifeq (${ENV},$(filter ${ENV},test development))
-	@${RAKE} orchestration:mongo:wait
+ifeq (${env},$(filter ${env},test development))
+	@${rake} orchestration:mongo:wait
 endif
 
 wait-rabbitmq:
-ifeq (${ENV},$(filter ${ENV},test development))
-	@${RAKE} orchestration:rabbitmq:wait
+ifeq (${env},$(filter ${env},test development))
+	@${rake} orchestration:rabbitmq:wait
 endif
 
 ## Production wait commands
 
 wait-nginx_proxy:
-ifneq (${ENV},$(filter ${ENV},test development))
-	@${RAKE} orchestration:nginx_proxy:wait LISTEN_PORT=${LISTEN_PORT}
+ifneq (${env},$(filter ${env},test development))
+	@${rake} orchestration:nginx_proxy:wait LISTEN_PORT=${LISTEN_PORT}
 endif
 
 wait-app:
-ifneq (${ENV},$(filter ${ENV},test development))
-	@${RAKE} orchestration:app:wait LISTEN_PORT=${LISTEN_PORT}
+ifneq (${env},$(filter ${env},test development))
+	@${rake} orchestration:app:wait LISTEN_PORT=${LISTEN_PORT}
 endif
 
 ### Docker build commands ###
@@ -122,21 +125,21 @@ endif
 docker: build push
 
 build:
-	@echo "Preparing build from ${GIT_BRANCH}"
+	@echo "Preparing build from ${git_branch}"
 	@mkdir -p ./<%= env.orchestration_dir_name %>/.build
-	@git show ${GIT_BRANCH}:./Gemfile > ./<%= env.orchestration_dir_name %>/.build/Gemfile
-	@git show ${GIT_BRANCH}:./Gemfile.lock > ./<%= env.orchestration_dir_name %>/.build/Gemfile.lock
-	<% if defined?(Webpacker) %>@git show ${GIT_BRANCH}:./package.json > ./<%= env.orchestration_dir_name %>/.build/package.json<% end %>
-	<% if defined?(Webpacker) %>@git show ${GIT_BRANCH}:./yarn.lock > ./<%= env.orchestration_dir_name %>/.build/yarn.lock<% end %>
+	@git show ${git_branch}:./Gemfile > ./<%= env.orchestration_dir_name %>/.build/Gemfile
+	@git show ${git_branch}:./Gemfile.lock > ./<%= env.orchestration_dir_name %>/.build/Gemfile.lock
+	<% if defined?(Webpacker) %>@git show ${git_branch}:./package.json > ./<%= env.orchestration_dir_name %>/.build/package.json<% end %>
+	<% if defined?(Webpacker) %>@git show ${git_branch}:./yarn.lock > ./<%= env.orchestration_dir_name %>/.build/yarn.lock<% end %>
 	@echo "Building..."
-	@git archive --format tar.gz -o ./<%= env.orchestration_dir_name %>/.build/context.tar.gz ${GIT_BRANCH}
+	@git archive --format tar.gz -o ./<%= env.orchestration_dir_name %>/.build/context.tar.gz ${git_branch}
 	@docker build \
 	             --build-arg BUNDLE_GITHUB__COM \
 	             --build-arg BUNDLE_BITBUCKET__ORG \
-		     -t ${DOCKER_USERNAME}/${DOCKER_REPOSITORY} \
-		     -t ${DOCKER_USERNAME}/${DOCKER_REPOSITORY}:${GIT_VERSION} \
+		     -t ${docker_username}/${docker_repository} \
+		     -t ${docker_username}/${docker_repository}:${git_version} \
 		     ./<%= env.orchestration_dir_name %>/
 	@echo "Build complete."
 
 push:
-	docker push ${DOCKER_USERNAME}/${DOCKER_REPOSITORY}:${GIT_VERSION}
+	docker push ${docker_username}/${docker_repository}:${git_version}
