@@ -336,12 +336,17 @@ To do this automatically, pass the `sidecar` parameter to the `start` or `test` 
 make test sidecar=1
 ```
 
-When running in sidecar mode, dependencies will bind to an ephemeral host port (chosen by _Docker_) since the host port will not be used in container-to-container communication. The _Docker Compose_ project name (and derived network name) will also be suffixed with a random token. This permits running multiple builds on the same host.
+When running in sidecar mode container-to-container networking is used so there is no benefit to binding dependency containers to a specific port on the host machine (only the target port will be used). For this reason a random, ephemeral port (chosen by _Docker_) will be used to allow multiple instances of each dependency to run alongside one another.
 
-Note that a temporary file `orchestration/.sidecar` will be created when sidecar mode is used. If this file exists, sidecar mode is always assumed to be on. This is to allow (e.g.) stopping services that have been started with `make test sidecar=1`:
+The _Docker Compose_ project name (and derived network name) is also suffixed with a random token to avoid container/network name conflicts.
 
-```
-# Will stop services in sidecar mode
+Note that a temporary file `orchestration/.sidecar` containing the random project name suffix will be created when sidecar mode is used. If this file exists then sidecar mode is always assumed to be _on_. This is to allow (e.g.) stopping services that have been started separately with another command, for example:
+
+```bash
+# Start dependencies and run tests in sidecar mode
+make test sidecar=1
+
+# Stop test dependencies in sidecar mode
 make stop env=test
 ```
 
