@@ -49,7 +49,7 @@ managed_env_tag:=\# -|- ORCHESTRATION
 standard_env_path:=${pwd}/.env
 backup_env_path:=${pwd}/.env.orchestration.backup
 is_managed_env:=$$(test -f '${standard_env_path}' && tail -n 1 '${standard_env_path}') == "${managed_env_tag}"*
-
+token:=$(shell cat /dev/urandom | LC_CTYPE=C tr -dc 'a-z0-9' | fold -w8 | head -n1)
 back_up_env:=( \
                [ ! -f '${standard_env_path}' ] \
              || \

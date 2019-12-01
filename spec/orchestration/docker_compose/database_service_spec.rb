@@ -82,7 +82,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
       let(:adapter) { 'mysql2' }
       before { hide_const('PG') }
       it { is_expected.to include 'volumes' }
-      its(['ports']) { is_expected.to eql ['${12345:-sidecar}3306'] }
+      its(['ports']) { is_expected.to eql ['12345:3306'] }
     end
   end
 end

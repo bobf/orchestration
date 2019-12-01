@@ -3,6 +3,8 @@
 module Orchestration
   module DockerCompose
     class MongoService
+      include ComposeHelpers
+
       PORT = 27_020
 
       def initialize(config, environment)
@@ -21,7 +23,7 @@ module Orchestration
       def ports
         return {} unless %i[development test].include?(@environment)
 
-        { 'ports' => ["#{local_port}:#{remote_port}"] }
+        { 'ports' => ["#{sidecar_port(@environment)}#{remote_port}"] }
       end
 
       def volumes

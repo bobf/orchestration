@@ -23,17 +23,9 @@ RSpec.describe Orchestration::DockerCompose::MongoService do
   describe '#definition' do
     subject(:definition) { mongo_service.definition }
 
+    before { allow(Orchestration).to receive(:random_local_port) { 12_345 } }
+
     its(['image']) { is_expected.to eql 'library/mongo' }
-
-    describe 'local port' do
-      subject(:port) { definition['ports'].first.partition(':').first.to_i }
-      it { is_expected.to be_positive } # Randomly generated
-    end
-
-    describe 'remote port' do
-      subject(:port) { definition['ports'].first.partition(':').last.to_i }
-      it { is_expected.to eql 27_017 }
-    end
 
     context 'mongoid not configured' do
       before { hide_const('Mongoid') }
@@ -49,29 +41,13 @@ RSpec.describe Orchestration::DockerCompose::MongoService do
     context 'test' do
       let(:environment) { :test }
       it { is_expected.to_not include 'volumes' }
-      describe 'local port' do
-        subject(:port) { definition['ports'].first.partition(':').first.to_i }
-        it { is_expected.to be_positive } # Randomly generated
-      end
-
-      describe 'remote port' do
-        subject(:port) { definition['ports'].first.partition(':').last.to_i }
-        it { is_expected.to eql 27_017 }
-      end
+      its(['ports']) { is_expected.to eql ['${12345:-sidecar}27017'] }
     end
 
     context 'development' do
       let(:environment) { :development }
       its(['volumes']) { is_expected.to eql ['mongo_data_volume:/data/db'] }
-      describe 'local port' do
-        subject(:port) { definition['ports'].first.partition(':').first.to_i }
-        it { is_expected.to be_positive } # Randomly generated
-      end
-
-      describe 'remote port' do
-        subject(:port) { definition['ports'].first.partition(':').last.to_i }
-        it { is_expected.to eql 27_017 }
-      end
+      its(['ports']) { is_expected.to eql ['12345:27017'] }
     end
   end
 end

@@ -40,11 +40,20 @@ docker_organization=$(shell bash ${orchestration_dir}/yaml.bash docker_organizat
 docker_repository=$(shell bash ${orchestration_dir}/yaml.bash docker_repository)
 
 ifeq (,$(project_name))
-  project_name = ${docker_repository}_${env}
+  project_base := ${docker_repository}_${env}
+else
+  project_base := $(project_name)
 endif
 
 ifdef sidecar
   sidecar_compose := sidecar=1
+  suffix := $(call token)
+  ifeq (,${suffix})
+    $(warning Unable to generate project suffix; project name collisions may occur.)
+  endif
+  project_name := ${project_base}_${suffix}
+else
+  project_name := ${project_base}
 endif
 
 compose_base=env HOST_UID=$(shell id -u) \
@@ -72,7 +81,7 @@ all: build
 
 .PHONY: start
 ifndef network
-start: network := ${docker_repository}_${env}_default
+start: network := ${project_name}_default
 endif
 start: _clean-logs
 	@$(call print,'${yellow}Starting containers${reset} ...')

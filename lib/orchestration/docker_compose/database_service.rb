@@ -35,7 +35,7 @@ module Orchestration
       def ports
         return {} unless %i[development test].include?(@environment)
 
-        { 'ports' => ["#{sidecar_port}#{remote_port}"] }
+        { 'ports' => ["#{sidecar_port(@environment)}#{remote_port}"] }
       end
 
       def volumes

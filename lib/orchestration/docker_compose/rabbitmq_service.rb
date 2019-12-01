@@ -3,6 +3,8 @@
 module Orchestration
   module DockerCompose
     class RabbitMQService
+      include ComposeHelpers
+
       def initialize(config, environment)
         @config = config
         @environment = environment
@@ -19,7 +21,7 @@ module Orchestration
 
         container_port = Orchestration::Services::RabbitMQ::PORT
 
-        { 'ports' => ["#{Orchestration.random_local_port}:#{container_port}"] }
+        { 'ports' => ["#{sidecar_port(@environment)}#{container_port}"] }
       end
     end
   end
