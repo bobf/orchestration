@@ -45,7 +45,7 @@ module Orchestration
       present = File.exist?(path)
       return @terminal.write(:skip, relpath) if present && !overwrite && !force?
 
-      previous_content = File.read(path)
+      previous_content = File.read(path) if present
       backup(path, previous_content) if options.fetch(:backup, false)
       write_file(path, content)
       @terminal.write(:create, relative_path(path))
