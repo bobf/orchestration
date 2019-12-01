@@ -103,6 +103,11 @@ wait: <%= wait_commands.join(' ') %>
 
 .PHONY: <%= wait_commands.join(' ') %>
 
+## Generic Listener healthcheck for TCP services ##
+
+wait-listener:
+	@${rake} orchestration:listener:wait service=${service}
+
 ## Test/development wait commands
 
 .PHONY: wait-database
