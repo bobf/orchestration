@@ -28,4 +28,12 @@ namespace :orchestration do
       Orchestration::Services::RabbitMQ::Healthcheck.start
     end
   end
+
+  namespace :docker do
+    desc 'Output configured Docker username'
+    task :username do
+      STDOUT.write(Orchestration::Environment.new.settings('docker.username'))
+      STDOUT.flush
+    end
+  end
 end

@@ -9,12 +9,21 @@ module Orchestration
     create: :green,
     update: :yellow,
     identical: :blue,
-    status: :blue
+    status: :blue,
+    setup: :blue,
+    input: :red,
+    skip: :light_yellow
   }.freeze
 
   class Terminal
-    def write(desc, message, color_name = nil)
-      STDOUT.puts colorize(desc, message, color_name)
+    def write(desc, message, color_name = nil, newline = true)
+      output = newline ? "#{message}\n" : message.to_s
+      STDOUT.print colorize(desc, output, color_name)
+    end
+
+    def read(message)
+      write(:input, message + ' ', nil, false)
+      STDIN.gets.chomp
     end
 
     private

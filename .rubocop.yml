@@ -5,6 +5,7 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/*'
     - '*.gemspec'
+    - 'lib/tasks/orchestration.rake'
 
 AllCops:
   Exclude:

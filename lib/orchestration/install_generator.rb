@@ -5,33 +5,41 @@ require 'tempfile'
 
 module Orchestration
   class InstallGenerator < Thor::Group
-    include Thor::Actions
     include FileHelpers
 
-    def self.source_root
-      Orchestration.root.join(
-        'lib', 'orchestration', 'templates'
-      )
+    def initialize(*_args)
+      super
+      @env = Environment.new(environment: 'test')
+      @terminal ||= Terminal.new
+    end
+
+    def orchestration_configuration
+      path = @env.orchestration_configuration_path
+      settings = Settings.new(path)
+      docker_username(settings)
+      relpath = relative_path(path)
+      return @terminal.write(:create, relpath) unless settings.exist?
+      return @terminal.write(:update, relpath) if settings.dirty?
+
+      @terminal.write(:skip, relpath)
     end
 
     def makefile
       environment = {
-        app_id: Rails.application.class.parent.name.underscore,
+        app_id: @env.application_name,
         wait_commands: wait_commands
       }
-      content = template_content('Makefile', environment)
-      path = Rails.root.join('Makefile')
+      content = template('Makefile', environment)
+      path = @env.root.join('Makefile')
       delete_and_inject_after(path, "\n#!!orchestration\n", content)
     end
 
     def dockerfile
       docker_dir = Rails.root.join('docker')
       path = docker_dir.join('Dockerfile')
-      return if File.exist?(path)
-
-      content = template_content('Dockerfile', ruby_version: RUBY_VERSION)
+      content = template('Dockerfile', ruby_version: RUBY_VERSION)
       FileUtils.mkdir(docker_dir) unless Dir.exist?(docker_dir)
-      write_file(path, content)
+      write_file(path, content, overwrite: false)
     end
 
     def gitignore
@@ -62,12 +70,11 @@ module Orchestration
     def configuration(service)
       # REVIEW: At the moment we only handle test dependencies - it would be
       # nice to also handle development dependencies.
-      env = Environment.new(environment: 'test')
       {
         database: Services::Database::Configuration,
         mongo: Services::Mongo::Configuration,
         rabbitmq: Services::RabbitMQ::Configuration
-      }.fetch(service).new(env)
+      }.fetch(service).new(@env)
     end
 
     def wait_commands
@@ -76,6 +83,13 @@ module Orchestration
         configuration(:mongo).settings.nil? ? nil : 'wait-mongo',
         configuration(:rabbitmq).settings.nil? ? nil : 'wait-rabbitmq'
       ].compact.join(' ')
+    end
+
+    def docker_username(settings)
+      return unless settings.get('docker.username').nil?
+
+      @terminal.write(:setup, I18n.t('orchestration.docker.username_request'))
+      settings.set('docker.username', @terminal.read('[username]:'))
     end
   end
 end

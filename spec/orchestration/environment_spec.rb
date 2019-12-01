@@ -31,4 +31,15 @@ RSpec.describe Orchestration::Environment do
       it { is_expected.to eql 'myenv' }
     end
   end
+
+  its(:database_configuration_path) { is_expected.to be_a Pathname }
+  its(:mongoid_configuration_path) { is_expected.to be_a Pathname }
+  its(:rabbitmq_configuration_path) { is_expected.to be_a Pathname }
+
+  its(:application_name) { is_expected.to eql 'dummy' }
+
+  describe '#settings' do
+    subject(:settings) { environment.settings }
+    it { is_expected.to be_a Orchestration::Settings }
+  end
 end

@@ -4,17 +4,9 @@ module Orchestration
   module FileHelpers
     private
 
-    def terminal
-      @terminal ||= Terminal.new
-    end
-
-    def template_content(template, environment = {})
-      file = Tempfile.new
-      path = "#{file.path}.tt"
-      file.close
-      file.unlink
-      template(template, path, environment.merge(verbose: false))
-      File.read(path)
+    def template(template_name, environment = {})
+      Erubis::Eruby.new(read_template(template_name))
+                   .result(environment)
     end
 
     def delete_and_inject_after(path, pattern, replacement)
@@ -24,7 +16,7 @@ module Orchestration
       index = append_index(pattern, input)
       output = input[0...index] + pattern + replacement
 
-      return terminal.write(:identical, relative_path(path)) if input == output
+      return @terminal.write(:identical, relative_path(path)) if input == output
 
       update_file(path, output)
     end
@@ -40,29 +32,36 @@ module Orchestration
       path.relative_path_from(Rails.root).to_s
     end
 
-    def write_file(path, content)
+    def write_file(path, content, options = {})
+      relpath = relative_path(path)
+      overwrite = options.fetch(:overwrite, true)
+      return @terminal.write(:skip, relpath) if File.exist?(path) && !overwrite
+
       File.write(path, content)
-      terminal.write(:create, relative_path(path))
+      @terminal.write(:create, relative_path(path))
     end
 
     def update_file(path, content)
       File.write(path, content)
-      terminal.write(:update, relative_path(path))
+      @terminal.write(:update, relative_path(path))
     end
 
     def append_file(path, content, echo: true)
       return write_file(path, content) unless File.exist?(path)
 
       File.write(path, content, File.size(path), mode: 'a')
-      terminal.write(:update, relative_path(path)) if echo
+      @terminal.write(:update, relative_path(path)) if echo
     end
 
     def ensure_lines_in_file(path, lines)
       updated = lines.map do |line|
         ensure_line_in_file(path, line, echo: false)
       end.compact
+      relpath = relative_path(path)
 
-      terminal.write(:update, relative_path(path)) if updated.any?
+      return @terminal.write(:update, relpath) if updated.any?
+
+      @terminal.write(:skip, relpath)
     end
 
     def ensure_line_in_file(path, line, echo: true)
@@ -76,6 +75,14 @@ module Orchestration
       return false unless File.exist?(path)
 
       File.readlines(path).map(&:chomp).include?(line.chomp)
+    end
+
+    def templates_path
+      Orchestration.root.join('lib', 'orchestration', 'templates')
+    end
+
+    def read_template(template)
+      File.read(templates_path.join("#{template}.tt"))
     end
   end
 end

@@ -12,3 +12,5 @@ en:
     rabbitmq:
       waiting: "Waiting for RabbitMQ: %{config}"
       ready: "RabbitMQ is ready."
+    docker:
+      username_request: "Enter your Docker registry username (used for tagging images)"
