@@ -31,8 +31,15 @@ module Orchestration
 
         def database_url
           settings = database_settings
+          return nil if settings.nil?
           return nil if settings.fetch('adapter') == 'sqlite3'
 
+          build_database_url(settings)
+        end
+
+        private
+
+        def build_database_url(settings)
           scheme = settings.fetch('scheme')
           database = settings.fetch('database')
           username = settings.fetch('username')
