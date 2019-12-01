@@ -5,7 +5,6 @@ en:
     database:
       waiting: "Waiting for database: %{config}"
       ready: "Database is ready."
-      missing_default: "database.yml must define a `default` section."
     mongo:
       waiting: "Waiting for Mongo: %{config}"
       ready: "Mongo is ready."

@@ -8,6 +8,15 @@ namespace :orchestration do
     Orchestration::InstallGenerator.start
   end
 
+  namespace :application do
+    desc 'Wait for application to become available'
+    task :wait do
+      if Rails.env.development?
+        Orchestration::Services::Application::Healthcheck.start
+      end
+    end
+  end
+
   namespace :db do
     desc 'Wait for database to become available'
     task :wait do

@@ -4,9 +4,9 @@ module Orchestration
   module FileHelpers
     private
 
-    def template(template_name, environment = {})
+    def template(template_name, context = {})
       Erubis::Eruby.new(read_template(template_name))
-                   .result(environment)
+                   .result(context)
     end
 
     def delete_and_inject_after(path, pattern, replacement)

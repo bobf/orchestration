@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'colorize', '~> 0.8.1'
   spec.add_runtime_dependency 'erubis', '~> 2.7'
   spec.add_runtime_dependency 'i18n', '>= 0.5'
+  spec.add_runtime_dependency 'unicorn'
 
   spec.add_development_dependency 'activerecord', '~> 5.2'
   spec.add_development_dependency 'bundler', '~> 1.16'

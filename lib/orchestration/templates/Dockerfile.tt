@@ -1,11 +1,14 @@
 FROM ruby:<%= ruby_version %>
 ARG BUNDLE_BITBUCKET__ORG
+ARG BUNDLE_GITHUB__COM
 RUN apt-get update \
- && apt-get install -y node.js \
+ && apt-get install -y node.js gosu \
+ && rm -rf /var/lib/apt/lists/* \
  && gem install bundler \
+ && gem install unicorn \
  && mkdir /application
 WORKDIR /application
 COPY Gemfile Gemfile.lock ./
 RUN bundle install --deployment
+COPY entrypoint.sh /
 ADD .build/context.tar.gz .
-CMD ["bundle", "exec", "rails", "server", "-p", "3000", "-b", "0.0.0.0"]

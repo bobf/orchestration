@@ -28,12 +28,19 @@ RSpec.describe Orchestration::DockerCompose::ApplicationService do
     end
 
     it { is_expected.to be_a Hash }
+    its(['command']) { is_expected.to eql %w[bundle exec unicorn] }
+    its(['entrypoint']) { is_expected.to eql '/entrypoint.sh' }
     its(['image']) { is_expected.to eql 'dockeruser/test_app' }
-    its(%w[environment RAILS_ENV]) { is_expected.to be_nil }
-    its(%w[environment SECRET_KEY_BASE]) { is_expected.to be_nil }
+    its(['environment']) { is_expected.to have_key 'HOST_UID' }
+    its(['environment']) { is_expected.to have_key 'RAILS_ENV' }
+    its(['environment']) { is_expected.to have_key 'SECRET_KEY_BASE' }
     its(%w[environment RAILS_LOG_TO_STDOUT]) { is_expected.to eql '1' }
     its(%w[environment DATABASE_URL]) do
       is_expected.to eql 'postgres://postgres:password@database:3354/postgres'
+    end
+
+    its(%w[environment UNICORN_SOCKET_DIR]) do
+      is_expected.to eql '/tmp/unicorn'
     end
   end
 end

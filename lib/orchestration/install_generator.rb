@@ -35,15 +35,19 @@ module Orchestration
     end
 
     def dockerfile
-      docker_dir = Rails.root.join('docker')
-      path = docker_dir.join('Dockerfile')
       content = template('Dockerfile', ruby_version: RUBY_VERSION)
-      FileUtils.mkdir(docker_dir) unless Dir.exist?(docker_dir)
+      write_file(docker_dir.join('Dockerfile'), content, overwrite: false)
+    end
+
+    def entrypoint
+      content = template('entrypoint.sh')
+      path = docker_dir.join('entrypoint.sh')
       write_file(path, content, overwrite: false)
+      FileUtils.chmod('a+x', path)
     end
 
     def gitignore
-      path = Rails.root.join('.gitignore')
+      path = @env.root.join('.gitignore')
       entries = [
         'docker/.build',
         'docker/Gemfile',
@@ -54,7 +58,7 @@ module Orchestration
     end
 
     def docker_compose
-      path = Rails.root.join('docker-compose.yml')
+      path = @env.root.join('docker-compose.yml')
       return if File.exist?(path)
 
       docker_compose = DockerCompose::Services.new(
@@ -90,6 +94,13 @@ module Orchestration
 
       @terminal.write(:setup, I18n.t('orchestration.docker.username_request'))
       settings.set('docker.username', @terminal.read('[username]:'))
+    end
+
+    def docker_dir
+      path = @env.root.join('docker')
+      FileUtils.mkdir(path) unless Dir.exist?(path)
+
+      path
     end
   end
 end

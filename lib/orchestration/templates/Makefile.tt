@@ -10,21 +10,25 @@
 # 	bundle exec rubocop
 # 	yarn run eslint app/javascript
 #
-.PHONY: docker docker-build docker-push wait-database start
+.PHONY: start stop migrate docker build push start <%= wait_commands %>
 
 ### Container management commands ###
 
+COMPOSE:=HOST_UID=$${UID} docker-compose
 start:
-	docker-compose up -d
+	@echo "Starting containers..."
+	@${COMPOSE} up -d
+	@make wait
 
 stop:
-	docker-compose down
+	@echo "Stopping containers..."
+	@${COMPOSE} down
 
 ### Database utility commands ###
 
 migrate: wait-database
 	@echo "Running migrations..."
-	@docker-compose run application bundle exec rake db:migrate
+	@${COMPOSE} run application bundle exec rake db:migrate
 	@echo "Migrations complete."
 
 ### Service healthcheck commands ###
@@ -43,19 +47,23 @@ wait-rabbitmq:
 
 ### Docker build commands ###
 
-docker: docker-build docker-push
+docker: build push
 
-docker-build:
-	mkdir -p ./docker/.build
-	git show master:./Gemfile > ./docker/Gemfile
-	git show master:./Gemfile.lock > ./docker/Gemfile.lock
-	git archive --format tar.gz -o docker/.build/context.tar.gz master
-	docker build --build-arg BUNDLE_GITHUB__COM \
+build:
+	@echo "Preparing build."
+	@mkdir -p ./docker/.build
+	@git show master:./Gemfile > ./docker/Gemfile
+	@git show master:./Gemfile.lock > ./docker/Gemfile.lock
+	@echo "Building..."
+	@git archive --format tar.gz -o docker/.build/context.tar.gz master
+	@docker build \
+	             --build-arg BUNDLE_GITHUB__COM \
 	             --build-arg BUNDLE_BITBUCKET__ORG \
 		     -t $(shell bin/rake orchestration:docker:username)/<%= app_id %> \
 		     -t $(shell bin/rake orchestration:docker:username)/<%= app_id %>:$(shell git rev-parse --short --verify master) \
 		     ./docker/
+	@echo "Build complete."
 
-docker-push: VERSION := $(shell git rev-parse --short --verify master)
-docker-push:
+push: VERSION := $(shell git rev-parse --short --verify master)
+push:
 	docker push $(shell bin/rake orchestration:docker:username)/<%= app_id %>:${VERSION}
