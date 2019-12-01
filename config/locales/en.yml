@@ -32,12 +32,16 @@ en:
 
     settings:
       docker:
+        registry:
+          description: "Docker registry (leave blank to use Docker Hub)"
+          prompt: "organization"
+
         organization:
-          description: "Docker registry organization/username"
+          description: "Registry organization/username"
           prompt: "organization"
 
         repository:
-          description: "Project name (will be used as Docker registry repository)"
+          description: "Project name/Docker repository name"
           prompt: "project name"
 
     rake:
