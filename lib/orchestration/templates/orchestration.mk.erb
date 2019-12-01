@@ -247,11 +247,11 @@ build:
 	@$(call printraw,'${green}complete.${reset} ${tick}\n')
 	@$(call print,'${yellow}Building image${reset} ...')
 	@docker build \
-	             --build-arg BUNDLE_GITHUB__COM \
-	             --build-arg BUNDLE_BITBUCKET__ORG \
-		     -t ${docker_organization}/${docker_repository} \
-		     -t ${docker_organization}/${docker_repository}:${git_version} \
-		     ${orchestration_dir}/ ${log_progress} || ${fail}
+                        --build-arg BUNDLE_GITHUB__COM \
+                        --build-arg BUNDLE_BITBUCKET__ORG \
+                        -t ${docker_organization}/${docker_repository} \
+                        -t ${docker_organization}/${docker_repository}:${git_version} \
+                        ${orchestration_dir}/ ${log_progress} || ${fail}
 	@$(call printraw,' ${green}complete${reset}. ${tick}\n')
 	@$(call println,'[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}${reset}')
 	@$(call println,'[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset}')
