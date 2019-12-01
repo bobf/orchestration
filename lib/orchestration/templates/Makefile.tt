@@ -20,19 +20,26 @@ start:
 stop:
 	docker-compose down
 
+### Database utility commands ###
+
+migrate: wait-database
+	@echo "Running migrations..."
+	@docker-compose run application bundle exec rake db:migrate
+	@echo "Migrations complete."
+
 ### Service healthcheck commands ###
 
 wait: <%= wait_commands %>
 	@echo "All Containers ready."
 
 wait-database:
-	@RAILS_ENV=test bundle exec rake orchestration:db:wait
+	@bin/rake orchestration:db:wait
 
 wait-mongo:
-	@RAILS_ENV=test bundle exec rake orchestration:mongo:wait
+	@bin/rake orchestration:mongo:wait
 
 wait-rabbitmq:
-	@RAILS_ENV=test bundle exec rake orchestration:rabbitmq:wait
+	@bin/rake orchestration:rabbitmq:wait
 
 ### Docker build commands ###
 
@@ -45,10 +52,10 @@ docker-build:
 	git archive --format tar.gz -o docker/.build/context.tar.gz master
 	docker build --build-arg BUNDLE_GITHUB__COM \
 	             --build-arg BUNDLE_BITBUCKET__ORG \
-		     -t $(shell bundle exec rake orchestration:docker:username)/<%= app_id %> \
-		     -t $(shell bundle exec rake orchestration:docker:username)/<%= app_id %>:$(shell git rev-parse --short --verify master) \
+		     -t $(shell bin/rake orchestration:docker:username)/<%= app_id %> \
+		     -t $(shell bin/rake orchestration:docker:username)/<%= app_id %>:$(shell git rev-parse --short --verify master) \
 		     ./docker/
 
 docker-push: VERSION := $(shell git rev-parse --short --verify master)
 docker-push:
-	docker push $(shell bundle exec rake orchestration:docker:username)/<%= app_id %>:${VERSION}
+	docker push $(shell bin/rake orchestration:docker:username)/<%= app_id %>:${VERSION}

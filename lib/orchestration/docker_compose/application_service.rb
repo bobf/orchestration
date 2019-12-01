@@ -26,8 +26,10 @@ module Orchestration
 
       def environment
         {
-          'DATABASE_URL' => database_url,
+          # `nil` values will inherit from environment or `.env` file.
+          'RAILS_ENV' => nil,
           'SECRET_KEY_BASE' => nil,
+          'DATABASE_URL' => database_url,
           'RAILS_LOG_TO_STDOUT' => '1'
         }
       end
