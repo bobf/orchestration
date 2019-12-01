@@ -34,7 +34,7 @@ en:
     settings:
       docker:
         organization:
-          description: "Registry organization/username"
+          description: "Docker registry organization/username"
           prompt: "organization"
 
         repository:
