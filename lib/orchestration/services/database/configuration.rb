@@ -77,6 +77,7 @@ module Orchestration
 
         def host
           return nil if @adapter && @adapter.name == 'sqlite3'
+          return environment['host'] if environment.key?('host')
 
           super
         end
