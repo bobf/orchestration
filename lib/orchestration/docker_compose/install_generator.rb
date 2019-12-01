@@ -22,6 +22,10 @@ module Orchestration
         create_compose_file(:development)
       end
 
+      def docker_compose_local_yml
+        create_compose_file(:local)
+      end
+
       def docker_compose_production_yml
         create_compose_file(:production)
       end
@@ -80,7 +84,7 @@ module Orchestration
           %i[database mongo rabbitmq]
         when :production
           %i[haproxy app database mongo rabbitmq]
-        when nil
+        when :local, nil
           []
         else
           raise ArgumentError, environment.inspect
