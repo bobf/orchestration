@@ -101,8 +101,6 @@ endif
 wait: <%= wait_commands.join(' ') %>
 	@echo "All Containers ready."
 
-.PHONY: <%= wait_commands.join(' ') %>
-
 ## Generic Listener healthcheck for TCP services ##
 
 wait-listener:
