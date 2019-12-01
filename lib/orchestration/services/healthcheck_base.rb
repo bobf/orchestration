@@ -17,7 +17,7 @@ module Orchestration
           env ||= Environment.new
           terminal ||= Terminal.new(env.settings)
           name = options.delete(:service_name)
-          check = ServiceCheck.new(new(env, name), terminal, options)
+          check = ServiceCheck.new(new(env, name, options), terminal, options)
 
           exit 1 if !check.run && exit_on_error
         end
@@ -35,7 +35,8 @@ module Orchestration
         end
       end
 
-      def initialize(env, service_name = nil)
+      def initialize(env, service_name = nil, options = {})
+        @options = options
         @configuration = configuration_class.new(env, service_name)
       end
 

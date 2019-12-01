@@ -16,9 +16,7 @@ Gem::Specification.new do |spec|
   spec.homepage = url
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    `git ls-files -z`.split("\x0").reject do |f|
-      f.match(%r{^(test|spec|features)/})
-    end
+    File.readlines('MANIFEST').map(&:chomp)
   end
   spec.bindir = 'bin'
   spec.executables = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
@@ -28,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'erubis', '~> 2.7'
   spec.add_runtime_dependency 'i18n', '>= 0.5'
   spec.add_runtime_dependency 'thor', '~> 0.20.0'
-  spec.add_runtime_dependency 'unicorn', '~> 5.4'
+  # spec.add_runtime_dependency 'unicorn', '~> 5.4'
 
   spec.add_development_dependency 'activerecord', '~> 5.2'
   spec.add_development_dependency 'betterp', '~> 0.1.3'

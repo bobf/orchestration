@@ -18,7 +18,9 @@ namespace :orchestration do
   namespace :database do
     desc I18n.t('orchestration.rake.database.wait')
     task :wait do
-      Orchestration::Services::Database::Healthcheck.start
+      Orchestration::Services::Database::Healthcheck.start(
+        nil, nil, init: ENV.key?('init')
+      )
     end
   end
 

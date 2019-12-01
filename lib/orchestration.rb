@@ -3,10 +3,13 @@
 require 'colorize'
 require 'erubis'
 require 'i18n'
+require 'pathname'
 begin
   require 'rails'
 rescue LoadError
-  STDERR.puts('Rails not detected; continuing without Rails support.')
+  unless ENV.key?('ORCHESTRATION_TOOLKIT_ONLY')
+    STDERR.puts('Rails not detected; continuing without Rails support.')
+  end
 end
 
 I18n.load_path += Dir[File.join(File.expand_path('..', __dir__),
