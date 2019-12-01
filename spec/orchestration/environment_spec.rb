@@ -39,6 +39,59 @@ RSpec.describe Orchestration::Environment do
   its(:database_volume) { is_expected.to eql 'database' }
   its(:mongo_volume) { is_expected.to eql 'mongo' }
 
+  describe '#database_url' do
+    subject(:database_url) { environment.database_url }
+
+    before do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('DATABASE_URL') { 'database-url' }
+    end
+
+    context 'development' do
+      before do
+        allow(ENV).to receive(:[]).with('RAILS_ENV') { 'development' }
+      end
+
+      context 'with DEVELOPMENT_DATABASE_URL set' do
+        before do
+          allow(ENV).to receive(:[]).with('DEVELOPMENT_DATABASE_URL') { 'abc' }
+        end
+
+        it { is_expected.to eql 'abc' }
+      end
+
+      context 'without DEVELOPMENT_DATABASE_URL set' do
+        it { is_expected.to eql 'database-url' }
+      end
+    end
+
+    context 'test' do
+      before do
+        allow(ENV).to receive(:[]).with('RAILS_ENV') { 'test' }
+      end
+
+      context 'with TEST_DATABASE_URL set' do
+        before do
+          allow(ENV).to receive(:[]).with('TEST_DATABASE_URL') { 'abc' }
+        end
+
+        it { is_expected.to eql 'abc' }
+      end
+
+      context 'without TEST_DATABASE_URL set' do
+        it { is_expected.to eql 'database-url' }
+      end
+    end
+
+    context 'production' do
+      before do
+        allow(ENV).to receive(:[]).with('RAILS_ENV') { 'production' }
+      end
+
+      it { is_expected.to eql 'database-url' }
+    end
+  end
+
   describe '#docker_compose_path' do
     subject { environment.docker_compose_path(env).to_s }
 
