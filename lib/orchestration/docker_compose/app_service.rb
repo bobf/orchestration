@@ -11,7 +11,8 @@ module Orchestration
       def definition
         {
           'image' => '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}',
-          'environment' => environment
+          'environment' => environment,
+          'ports' => ports
         }
       end
 
@@ -23,8 +24,7 @@ module Orchestration
           'RAILS_SERVE_STATIC_FILES' => '1',
           'UNICORN_PRELOAD_APP' => '1',
           'UNICORN_TIMEOUT' => '60',
-          'UNICORN_WORKER_PROCESSES' => '8',
-          'SERVICE_PORTS' => '8080'
+          'UNICORN_WORKER_PROCESSES' => '8'
         }.merge(inherited_environment)
       end
 
@@ -33,9 +33,12 @@ module Orchestration
           'DATABASE_URL' => nil,
           'HOST_UID' => nil,
           'RAILS_ENV' => nil,
-          'SECRET_KEY_BASE' => nil,
-          'VIRTUAL_HOST' => nil
+          'SECRET_KEY_BASE' => nil
         }
+      end
+
+      def ports
+        ['${LISTEN_PORT}:8080']
       end
     end
   end

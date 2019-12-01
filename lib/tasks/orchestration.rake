@@ -29,13 +29,6 @@ namespace :orchestration do
     end
   end
 
-  namespace :haproxy do
-    desc I18n.t('orchestration.rake.haproxy.wait')
-    task :wait do
-      Orchestration::Services::HAProxy::Healthcheck.start
-    end
-  end
-
   namespace :rabbitmq do
     desc I18n.t('orchestration.rake.rabbitmq.wait')
     task :wait do

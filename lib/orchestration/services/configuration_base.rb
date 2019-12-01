@@ -32,13 +32,11 @@ module Orchestration
       end
 
       def local_port
-        key = @service_name == 'app' ? 'haproxy' : @service_name
-
-        return ENV.fetch('LISTEN_PORT', '3000').to_i if key == 'haproxy'
+        return ENV.fetch('LISTEN_PORT', '3000').to_i if @service_name == 'app'
 
         @env.docker_compose_config
             .fetch('services')
-            .fetch(key)
+            .fetch(@service_name)
             .fetch('ports')
             .first
             .partition(':')

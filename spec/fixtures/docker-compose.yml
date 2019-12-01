@@ -16,17 +16,8 @@ services:
       UNICORN_PRELOAD_APP: '1'
       UNICORN_TIMEOUT: '60'
       UNICORN_WORKER_PROCESSES: '8'
-      VIRTUAL_PORT: '8080'
-      VIRTUAL_HOST: localhost
       HOST_UID: 
       RAILS_ENV: 
       SECRET_KEY_BASE: 
-    expose:
-    - 8080
-  haproxy:
-    image: dockercloud/haproxy
     ports:
-    - 3000:80
-    volumes:
-    - "/var/run/docker.sock:/tmp/docker.sock:ro"
-
+      '3000:8080'

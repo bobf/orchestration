@@ -29,7 +29,6 @@ RSpec.describe Orchestration::InstallGenerator do
         wait-database
         wait-mongo
         wait-rabbitmq
-        wait-haproxy
         wait-app
       ].join(' ')
     end

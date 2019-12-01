@@ -28,8 +28,7 @@ module Orchestration
           app: AppService,
           database: DatabaseService,
           mongo: MongoService,
-          rabbitmq: RabbitMQService,
-          haproxy: HAProxyService
+          rabbitmq: RabbitMQService
         }
       end
 
