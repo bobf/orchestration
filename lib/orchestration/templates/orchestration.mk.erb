@@ -57,7 +57,7 @@ ifneq (,$(wildcard config/database.yml))
   env_volume:=--volume '${pwd}/.env:/app/.env:ro'
 endif
 
-ifeq (database_enabled,1)
+ifeq (${database_enabled},1)
   database_config_volume:=--volume '${pwd}/config/database.yml:/app/config/database.yml:ro'
   database_migrations_volume:=--volume '${pwd}/db/:/app/db/:ro'
 endif
@@ -89,8 +89,8 @@ endif
 start:
 	@$(call print,'${yellow}Starting containers${reset} ...')
 ifeq (${env},$(filter ${env},test development))
-	${compose} up -d --force-recreate ${services} ${log_progress} || ${fail}
-	[ '${is_container}' == '1' ] && \
+	@${compose} up -d --force-recreate ${services} ${log_progress} || ${fail}
+	@[ '${is_container}' == '1' ] && \
          ( \
            docker network connect '${network}' '$(shell hostname)' ${log} \
            || \
@@ -98,13 +98,14 @@ ifeq (${env},$(filter ${env},test development))
          ) \
          || ( [ '${is_container}' == '0' ] || ${fail} )
 else
-	${compose} up -d --scale app=$${instances:-1} ${services} ${log_progress} || ${fail}
+	@${compose} up -d --scale app=$${instances:-1} ${services} ${log_progress} || ${fail}
 endif
-
+	@$(call printrawln,' ${green}started${reset} ${tick}')
+	@$(call printrln,'Waiting for services ...')
 ifdef services
-	$(MAKE) wait services='${services}' post_hook=1 2>${stderr} || ${fail}
+	@$(MAKE) wait services='${services}' 2>${stderr} || ${fail}
 else
-	$(MAKE) wait post_hook=1 2>${stderr} || ${fail}
+	@$(MAKE) wait 2>${stderr} || ${fail}
 endif
 
 <% services.each do |service| %>
@@ -125,7 +126,7 @@ stop:
           else \
             ${compose} down ${log_progress} || ${fail} ; \
           fi
-	@$(call printraw,' ${green}stopped${reset}. ${tick}\n')
+	@$(call printrawln,' ${green}stopped${reset}. ${tick}')
 
 .PHONY: logs
 logs:
@@ -220,13 +221,13 @@ deploy:
 ### Database utility commands ###
 
 .PHONY: migrate
-migrate: success := $(call printraw,'${green}complete${reset}. ${tick}\n')
+migrate: success := $(call printrawln,'${green}complete${reset}. ${tick}')
 migrate: start-database
 ifeq (,$(wildcard config/database.yml))
 	@$(call println,'${yellow}No database configuration found${reset}: ${cyan}skipping migrations${reset} ... ${tick}')
 else
 	@$(MAKE) _verify_compose env=${env} env_file=${env_file} || ${fail}
-	@$(call print,'[${green}app${reset}] ${yellow}Running migrations${reset} ... ')
+	@$(call print,'[${green}toolkit${reset}] ${yellow}Running migrations${reset} ... ')
 	@${replace_env}
 	@${toolkit} _migrate env=${env} ${log_progress} || ${fail}
 	@${restore_env}
@@ -244,12 +245,7 @@ endif
 ifndef services
 wait: <%= services.map { |command| "wait-#{command}" }.join(' ') %>
 endif
-
-ifdef post_hook
-	@$(call printrawln,' ${green}started${reset}. ${tick}')
-else
-	@$(call println,'${yellow}All containers${reset} ${green}ready${reset}. ${tick}')
-endif
+	@$(call println,'${yellow}All services${reset} ${green}ready${reset}. ${tick}')
 
 ## Generic Listener healthcheck for TCP services ##
 
@@ -263,9 +259,9 @@ wait-listener:
 .PHONY: wait-<%= service %>
 wait-<%= service %>:
 ifdef toolkit
-	${rake} orchestration:<%= service %>:wait
+	@${rake} orchestration:<%= service %>:wait
 else
-	$(call toolkit,'wait-<%= service %>' 'toolkit=1')
+	@$(call toolkit,'wait-<%= service %>' 'toolkit=1')
 endif
 
 <% end %>

@@ -42,7 +42,7 @@ module Orchestration
       relpath = relative_path(path)
       overwrite = options.fetch(:overwrite, true)
       present = File.exist?(path)
-      return @terminal.write(:skip, relpath) if present && !overwrite
+      return @terminal.write(:skip, relpath) if present && !overwrite && !force?
 
       write_file(path, content)
       @terminal.write(:create, relative_path(path))
@@ -54,7 +54,7 @@ module Orchestration
 
       overwrite = options.fetch(:overwrite, true)
       previous_content = File.read(path) if present
-      if present && (!overwrite || previous_content == content)
+      if present && ((!overwrite && !force?) || previous_content == content)
         return @terminal.write(:skip, relative_path(path))
       end
 
@@ -104,6 +104,11 @@ module Orchestration
     def write_file(path, content)
       FileUtils.mkdir_p(File.dirname(path))
       File.write(path, content)
+    end
+
+    def force?
+      # Rake task was invoked with `force=yes`
+      ENV['force'] == 'yes'
     end
   end
 end

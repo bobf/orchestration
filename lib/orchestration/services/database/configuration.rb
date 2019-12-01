@@ -45,7 +45,7 @@ module Orchestration
         end
 
         def merged_settings
-          port = base['port'] || DockerCompose::DatabaseService::PORT
+          port = base['port'] || @adapter.default_port
           base.merge(@adapter.credentials)
               .merge('scheme' => base['adapter'], 'port' => port)
         end

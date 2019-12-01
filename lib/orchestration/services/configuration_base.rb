@@ -28,7 +28,7 @@ module Orchestration
       end
 
       def host
-        '127.0.0.1'
+        'database'
       end
 
       def local_port
