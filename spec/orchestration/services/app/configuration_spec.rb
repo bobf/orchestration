@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Services::Application::Configuration do
+RSpec.describe Orchestration::Services::App::Configuration do
   subject(:configuration) { described_class.new(env) }
 
   let(:env) do
@@ -10,7 +10,7 @@ RSpec.describe Orchestration::Services::Application::Configuration do
       database_configuration_path: fixture_path('mysql2'),
       environment: 'development',
       database_url: nil,
-      application_name: 'testapp',
+      app_name: 'testapp',
       settings: instance_double(Orchestration::Settings),
       docker_compose_config?: true,
       docker_compose_config: {
@@ -29,7 +29,7 @@ RSpec.describe Orchestration::Services::Application::Configuration do
 
   it { is_expected.to be_a described_class }
   its(:docker_username) { is_expected.to eql 'testuser' }
-  its(:application_name) { is_expected.to eql 'repo' }
+  its(:app_name) { is_expected.to eql 'repo' }
   its(:friendly_config) { is_expected.to eql '[repo] 127.0.0.1:3000' }
   its(:local_port) { is_expected.to eql 3000 }
   its(:database_settings) { is_expected.to be_a Hash }

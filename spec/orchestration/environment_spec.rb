@@ -78,7 +78,7 @@ RSpec.describe Orchestration::Environment do
     end
   end
 
-  its(:default_application_name) { is_expected.to eql 'dummy' }
+  its(:default_app_name) { is_expected.to eql 'dummy' }
 
   describe '#settings' do
     subject(:settings) { environment.settings }

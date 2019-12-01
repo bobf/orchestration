@@ -8,7 +8,7 @@ end
 require 'orchestration/docker_compose/install_generator'
 require 'orchestration/docker_compose/configuration'
 
-require 'orchestration/docker_compose/application_service'
+require 'orchestration/docker_compose/app_service'
 require 'orchestration/docker_compose/database_service'
 require 'orchestration/docker_compose/mongo_service'
 require 'orchestration/docker_compose/nginx_proxy_service'

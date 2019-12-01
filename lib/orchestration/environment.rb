@@ -52,11 +52,11 @@ module Orchestration
       docker_compose_path(env).file?
     end
 
-    def default_application_name
+    def default_app_name
       Rails.application.class.parent.name.underscore
     end
 
-    def application_name
+    def app_name
       settings.get('docker.repository')
     end
 
@@ -79,15 +79,15 @@ module Orchestration
     end
 
     def public_volume
-      "#{application_name}_public"
+      "#{app_name}_public"
     end
 
     def database_volume
-      "#{application_name}_database"
+      "#{app_name}_database"
     end
 
     def mongo_volume
-      "#{application_name}_mongo"
+      "#{app_name}_mongo"
     end
   end
 end

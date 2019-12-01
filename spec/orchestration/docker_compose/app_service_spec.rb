@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::DockerCompose::ApplicationService do
-  subject(:application_service) { described_class.new(configuration, :test) }
+RSpec.describe Orchestration::DockerCompose::AppService do
+  subject(:app_service) { described_class.new(configuration, :test) }
 
   let(:configuration) do
-    Orchestration::Services::Application::Configuration.new(env)
+    Orchestration::Services::App::Configuration.new(env)
   end
 
   let(:env) do
@@ -13,7 +13,7 @@ RSpec.describe Orchestration::DockerCompose::ApplicationService do
       environment: 'test',
       orchestration_root: Pathname.new('orchestration'),
       public_volume: 'myapp_public',
-      application_name: 'test_app',
+      app_name: 'test_app',
       database_url: 'postgresql://hostname',
       settings: settings,
       docker_compose_config?: false,
@@ -24,7 +24,7 @@ RSpec.describe Orchestration::DockerCompose::ApplicationService do
   let(:settings) { double('Settings') }
 
   describe '#definition' do
-    subject(:definition) { application_service.definition }
+    subject(:definition) { app_service.definition }
 
     it { is_expected.to be_a Hash }
     its(['expose']) { is_expected.to eql [8080] }

@@ -2,7 +2,7 @@
 
 module Orchestration
   module Services
-    module Application
+    module App
       class Configuration
         include ConfigurationBase
 
@@ -17,12 +17,12 @@ module Orchestration
           @env.settings.get('docker.username')
         end
 
-        def application_name
+        def app_name
           @env.settings.get('docker.repository')
         end
 
         def friendly_config
-          "[#{application_name}] #{host}:#{local_port}"
+          "[#{app_name}] #{host}:#{local_port}"
         end
 
         def database_settings

@@ -43,7 +43,7 @@ RSpec.describe Orchestration::Services::NginxProxy::Healthcheck do
       start
     end
 
-    it 'attempts to connect to application' do
+    it 'attempts to connect to app' do
       expect(Net::HTTP).to receive(:start)
 
       start
