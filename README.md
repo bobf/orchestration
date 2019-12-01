@@ -341,6 +341,7 @@ When running in sidecar mode, dependencies will bind to an ephemeral host port (
 Note that a temporary file `orchestration/.sidecar` will be created when sidecar mode is used. If this file exists, sidecar mode is always assumed to be on. This is to allow (e.g.) stopping services that have been started with `make test sidecar=1`:
 
 ```
+# Will stop services in sidecar mode
 make stop env=test
 ```
 
