@@ -34,6 +34,6 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
   end
 
   its(:friendly_config) do
-    is_expected.to eql '[mongoid] 127.0.0.1:27018/test_db'
+    is_expected.to eql '[mongoid] 127.0.0.1:27020/test_db'
   end
 end

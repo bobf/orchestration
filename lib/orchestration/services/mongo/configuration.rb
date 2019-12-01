@@ -24,11 +24,19 @@ module Orchestration
         end
 
         def friendly_config
-          "[mongoid] #{host}:#{local_port}/#{database}"
+          "[mongoid] #{host}:#{port}/#{database}"
         end
 
         def port
+          return url_config[:port] unless url_config.nil?
+
           DockerCompose::MongoService::PORT
+        end
+
+        def host
+          return url_config[:host] unless url_config.nil?
+
+          super
         end
 
         private
@@ -40,6 +48,13 @@ module Orchestration
               'database' => database
             }
           }
+        end
+
+        def url_config
+          return nil unless ENV.key?('MONGO_URL')
+
+          host, _, port = ENV['MONGO_URL'].partition(':')
+          { host: host, port: port.empty? ? '27017' : port }
         end
 
         def database
