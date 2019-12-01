@@ -83,16 +83,14 @@ module Orchestration
       'orchestration'
     end
 
-    def public_volume
-      "#{app_name}_public"
+    def database_volume(env = nil)
+      env ||= environment
+      "#{app_name}_#{env}_database"
     end
 
-    def database_volume
-      "#{app_name}_database"
-    end
-
-    def mongo_volume
-      "#{app_name}_mongo"
+    def mongo_volume(env = nil)
+      env ||= environment
+      "#{app_name}_#{env}_mongo"
     end
   end
 end
