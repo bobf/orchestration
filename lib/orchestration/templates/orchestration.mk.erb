@@ -2,8 +2,6 @@
 SHELL:=/bin/bash
 
 <%= macros %>
-_:=$(shell echo > ${stdout})
-_:=$(shell echo > ${stderr})
 
 ifdef env_file
   -include ${env_file}
@@ -103,15 +101,15 @@ endif
 	@$(call printrawln,' ${green}started${reset} ${tick}')
 	@$(call println,'${yellow}Waiting for services to become available${reset} ...')
 ifdef services
-	@$(MAKE) wait services='${services}' 2>${stderr} || ${fail}
+	@$(call make,wait services='${services}') 2>${stderr} || ${fail}
 else
-	@$(MAKE) wait 2>${stderr} || ${fail}
+	@$(call make,wait) 2>${stderr} || ${fail}
 endif
 
 <% services.each do |service| %>
 .PHONY: start-<%= service %>
 start-<%= service %>:
-	@$(MAKE) start services='<%= service %>'
+	@$(call make,start services='<%= service %>')
 
 <% end %>
 
@@ -164,7 +162,31 @@ serve: _verify_env
 
 .PHONY: test-setup
 test-setup:
-	@$(MAKE) start migrate env=test
+	@$(call make,start migrate env=test)
+
+.PHONY: dump
+dump: _preserve_logs = 1
+dump:
+	@$(call println)
+	@$(call println,'${yellow}Captured${reset} ${green}stdout${reset} ${yellow}and${reset} ${red}stderr${reset} ${yellow}log data${reset}:')
+	@$(call println)
+	@echo
+	@test -f '${stdout}' && ( \
+          $(call hr,${green}) ; \
+          $(call println,'${gray}${stdout}${reset}') ; \
+          $(call hr,${green}) ; \
+          echo ; cat '${stdout}' ; echo ; \
+          $(call hr,${green}) ; \
+        )
+
+	@test -f '${stdout}' && ( \
+          echo ; \
+          $(call hr,${red}) ; \
+          $(call println,'${gray}${stderr}${reset}') ; \
+          $(call hr,${red}) ; \
+          echo ; cat '${stderr}' ; echo ; \
+          $(call hr,${red}) ; \
+        )
 
 ### Deployment utility commands ###
 
@@ -199,8 +221,8 @@ deploy: DOCKER_TAG = ${git_version}
 deploy:
 	@$(call println,'${yellow}Deploying stack via${reset} ${green}${manager}${reset} ...') && \
           ( \
-            $(MAKE) _verify_compose env_file=${env_file} env=${env} && \
-            $(MAKE) bundle path='${path}/bundle.tar' ${log} && \
+            $(call make,_verify_compose env_file=${env_file} env=${env}) && \
+            $(call make,bundle path='${path}/bundle.tar') ${log} && \
             cd '${path}' ${log} && \
             tar xf './bundle.tar' ${log} && \
             cd '${docker_repository}' ${log} && \
@@ -219,24 +241,6 @@ deploy:
 
 	@$(call println,'${yellow}Deployment${reset} ${green}complete${reset}. ${tick}')
 
-.PHONY: dump
-dump:
-	@test -f '${stdout}' && ( \
-          echo '${yellow}Captured${reset} ${green}stdout${reset} ${yellow}log data${reset}:' ; \
-          echo '${green}================================${reset}' ; \
-          cat '${stdout}' ; \
-          echo '${green}================================${reset}' ; \
-          echo ; \
-          echo \
-        )
-
-	@test -f '${stdout}' && ( \
-          echo '${yellow}Captured${reset} ${red}stderr${reset} ${yellow}log data${reset}:' ; \
-          echo '${red}================================${reset}' ; \
-          cat '${stdout}' ; \
-          echo '${red}================================${reset}' ; \
-        )
-
 ### Database utility commands ###
 
 .PHONY: migrate
@@ -245,7 +249,7 @@ migrate: start-database
 ifeq (,$(wildcard config/database.yml))
 	@$(call println,'${yellow}No database configuration found${reset}: ${cyan}skipping migrations${reset} ... ${tick}')
 else
-	@$(MAKE) _verify_compose env=${env} env_file=${env_file} || ${fail}
+	@$(call make,_verify_compose env=${env} env_file=${env_file}) || ${fail}
 	@$(call print,'[${green}toolkit${reset}] ${yellow}Running migrations${reset} ... ')
 	@${replace_env}
 	@${toolkit} _migrate env=${env} ${log_progress} || ${fail}
