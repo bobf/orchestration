@@ -54,14 +54,14 @@ endif
 .PHONY: start
 start: network := ${docker_repository}_${env}_default
 start:
-	@echo '${yellow}Starting containers${reset} ...'
+	@$(call println,'${yellow}Starting containers${reset} ...')
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up -d --force-recreate ${log} || ${fail}
 	@[ '${is_container}' == '1' ] && \
          ( \
            docker network connect '${network}' '$(shell hostname)' ${log} \
            || \
-           echo '${yellow}Warning${reset}: Unable to join network: "${yellow}${network}${reset}". Container will not be able to connect to dependency services.' \
+           $(call println,'${yellow}Warning${reset}: Unable to join network: "${yellow}${network}${reset}". Container will not be able to connect to dependency services.') \
          ) \
          || ( [ '${is_container}' == '0' ] || ${fail} )
 else
@@ -71,7 +71,7 @@ endif
 
 .PHONY: stop
 stop:
-	@printf '${yellow}Stopping containers${reset} ... '
+	@$(call print,'${yellow}Stopping containers${reset} ... ')
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
           then \
             ( ${compose} down ${log} || ${fail} ) \
@@ -80,7 +80,7 @@ stop:
           else \
             ${compose} down ${log} || ${fail} ; \
           fi
-	@echo '${green}stopped${reset}. ${tick}'
+	@$(call printraw,'${green}stopped${reset}. ${tick}\n')
 
 .PHONY: logs
 logs:
@@ -102,15 +102,15 @@ serve: rails := bundle exec rails server
 serve: _verify_env
 	@if [ "${custom_env_file}" == "1" ] && [ ! -f "${env_file}" ] ; \
          then \
-           echo "${red}Error${reset}: Environment file '${yellow}${env_file}${reset}' not found. ${cross}" ; \
+           $(call println,'${red}Error${reset}: Environment file "${yellow}${env_file}${reset}" not found. ${cross}') ; \
            ${fail} ; \
          fi
 	@if [ -f "${env_file}" ] ; \
          then ( \
-                echo "${green}Launching Rails environment:${reset}" && \
-                cat "${env_file}" | ${format_env} && \
-                echo && \
-                set -a && . "${env_file}" && set +a && \
+                $(call println,'${yellow}Environment${reset}: ${green}${env_file}${reset}') && \
+                cat '${env_file}' | ${format_env} && \
+                $(call println,'') && \
+                set -a && . '${env_file}' && set +a && \
                 ${rails} \
             ) ; \
          else ${rails} ; \
@@ -148,7 +148,7 @@ deploy: project_name := ${docker_repository}_${env}
 deploy: path := $(shell mktemp -d)
 deploy: env ?= production
 deploy:
-	@echo "${yellow}Deploying stack via${reset} ${green}${manager}${reset} ..." && \
+	@$(call println,'${yellow}Deploying stack via${reset} ${green}${manager}${reset} ...') && \
           ( \
             $(MAKE) _verify_compose env_file=${env_file} env=${env} && \
             $(MAKE) bundle path='${path}/bundle.tar' ${log} && \
@@ -156,34 +156,35 @@ deploy:
             tar xf './bundle.tar' ${log} && \
             cd '${docker_repository}' ${log} && \
                ( [ -z '${env_file}' ] || cp '${env_file}' './.env' ${log} ) && \
-               echo '${yellow}Deployment environment${reset}:' && \
+               $(call println,'${yellow}Deployment environment${reset}:') && \
                cat '.env' | ${format_env} && \
                echo 'DOCKER_ORGANIZATION=${docker_organization}' >> './.env' && \
                echo 'DOCKER_REPOSITORY=${docker_repository}' >> './.env' && \
                echo 'DOCKER_TAG=${git_version}' >> ./.env && \
-               printf '\n${yellow}Application image${reset}: ${cyan}${docker_image}${reset}\n' && \
+               $(call println,'') && \
+               $(call println,'${yellow}Application image${reset}: ${cyan}${docker_image}${reset}') && \
                docker-compose config 2>${stderr} | ssh "${manager}" 'docker stack deploy --prune --with-registry-auth -c - "${project_name}"' ${log} && \
             ( [ -z "${path}" ] || rm -rf "${path}" ${log} ) \
           ) \
           || ${fail}
 
-	@echo "Deployment complete. ${tick}"
+	@$(call println,'${yellow}Deployment${reset} ${green}complete${reset}. ${tick}')
 
 ### Database utility commands ###
 
 .PHONY: migrate
-migrate: success := echo "${green}complete${reset}. ${tick}"
+migrate: success := $(call printraw,'${green}complete${reset}. ${tick}\n')
 migrate:
 ifeq (,$(wildcard config/database.yml))
-	@echo "${yellow}No database configuration found${reset}: ${cyan}skipping migrations${reset} ... ${tick}"
+	@$(call println,'${yellow}No database configuration found${reset}: ${cyan}skipping migrations${reset} ... ${tick}')
 else ifeq (${env},$(filter ${env},test development))
 	@$(MAKE) _verify_env env=${env} env_file=${env_file} || ${fail}
-	@printf "${yellow}Running migrations${reset} ... "
+	@$(call print,'${yellow}Running migrations${reset} ... ')
 	@$(MAKE) _migrate env=${env} ${log} || ${fail}
 	@${success}
 else
 	@$(MAKE) _verify_compose env=${env} env_file=${env_file} || ${fail}
-	@printf "[${green}app${reset}] ${yellow}Running migrations${reset} ... "
+	@$(call print,'[${green}app${reset}] ${yellow}Running migrations${reset} ... ')
 	@${replace_env}
 	@${compose} run \
                     -v '${orchestration_dir}/Makefile:/tmp/orchestration.mk:ro' \
@@ -199,7 +200,7 @@ endif
 
 .PHONY: wait
 wait: <%= wait_commands.join(' ') %>
-	@echo 'All containers ${green}started${reset}. ${tick}'
+	@$(call println,'All containers ${green}started${reset}. ${tick}')
 
 ## Generic Listener healthcheck for TCP services ##
 
@@ -235,7 +236,7 @@ wait-app:
 .PHONY: build
 build: context := ${orchestration_dir}/.build/context.tar
 build:
-	@printf "${yellow}Preparing build context from${reset} ${cyan}${git_branch}${reset} ... "
+	@$(call print,'${yellow}Preparing build context from${reset} ${cyan}${git_branch}:${git_version}${reset} ... ')
 	@mkdir -p ${orchestration_dir}/.build ${log} || ${fail}
 	@git show ${git_branch}:./Gemfile > ${orchestration_dir}/.build/Gemfile 2>${stderr} || ${fail}
 	@git show ${git_branch}:./Gemfile.lock > ${orchestration_dir}/.build/Gemfile.lock 2>${stderr} || ${fail}
@@ -243,39 +244,39 @@ build:
 <% if defined?(Webpacker) %>	@git show ${git_branch}:./yarn.lock > ${orchestration_dir}/.build/yarn.lock 2>${stderr} || ${fail}<% end %>
 	@git archive --format 'tar' -o '${context}' '${git_branch}' ${log} || ${fail}
 	@temp=$$(mktemp -d) ; ( cd "$${temp}" && touch './.orchestration_container_flag' && tar -uvf '${context}' . ) ${log} || ${fail}
-	@echo "${green}complete.${reset} ${tick}"
-	@printf "${yellow}Building image${reset} ... "
+	@$(call printraw,'${green}complete.${reset} ${tick}\n')
+	@$(call print,'${yellow}Building image${reset} ...')
 	@docker build \
 	             --build-arg BUNDLE_GITHUB__COM \
 	             --build-arg BUNDLE_BITBUCKET__ORG \
 		     -t ${docker_organization}/${docker_repository} \
 		     -t ${docker_organization}/${docker_repository}:${git_version} \
-		     ${orchestration_dir}/ ${log} || ${fail}
-	@echo "${green}complete${reset}. ${tick}"
-	@echo "[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}${reset}"
-	@echo "[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset}"
+		     ${orchestration_dir}/ ${log_progress} || ${fail}
+	@$(call printraw,' ${green}complete${reset}. ${tick}\n')
+	@$(call println,'[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}${reset}')
+	@$(call println,'[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset}')
 
 .PHONY: push
 push:
-	@printf '${yellow}Pushing${reset} ${cyan}${docker_image}${reset} ... '
-	@docker push ${docker_image} ${log} || ${fail}
-	@echo '${green}complete${reset}. ${tick}'
+	@$(call print,'${yellow}Pushing${reset} ${cyan}${docker_image}${reset} ...')
+	@docker push ${docker_image} ${log_progress} || ${fail}
+	@$(call printraw,' ${green}complete${reset}. ${tick}\n')
 
 ### Internal Commands ###
 
 .PHONY: _verify_compose
 _verify_compose: _verify_env
-	@printf "${yellow}Verifying compose file(s)${reset} ... "
+	@$(call print,'${yellow}Verifying compose file(s)${reset} ... ')
 	@${replace_env}
 	@${compose} config ${log} || ${fail}
 	@${restore_env}
-	@echo '${green}success${reset}. ${tick}'
+	@$(call printraw,'${green}success${reset}. ${tick}\n')
 
 .PHONY: _verify_env
 _verify_env:
 	@if [ "${custom_env_file}" == "1" ] && [ ! -f "${env_file}" ] ; \
          then \
-           echo '${red}Error${reset}: Environment file "${yellow}${env_file}${reset}" not found. ${cross}' ; \
+           $(call print,'${red}Error${reset}: Environment file "${yellow}${env_file}${reset}" not found. ${cross}') ; \
            exit 1 ; \
          fi
 
