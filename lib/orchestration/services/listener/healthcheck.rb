@@ -11,7 +11,7 @@ module Orchestration
         end
 
         def connection_errors
-          [Errno::ECONNREFUSED]
+          [Errno::ECONNREFUSED, Errno::EADDRNOTAVAIL]
         end
       end
     end
