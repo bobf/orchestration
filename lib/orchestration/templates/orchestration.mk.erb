@@ -12,70 +12,45 @@ endif
 export
 
 ifneq (,$(env))
-  env:=$(env)
+  # `env` set by current shell.
 else ifneq (,$(RAILS_ENV))
-  env:=$(RAILS_ENV)
+  env=$(RAILS_ENV)
 else ifneq (,$(RACK_ENV))
-  env:=$(RACK_ENV)
+  env=$(RACK_ENV)
 else
-  env:=development
+  env=development
 endif
 
 DOCKER_TAG ?= latest
 
 ifneq (,$(wildcard ./bin/rake))
-  rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
+  rake=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
 else ifneq (,$(wildcard ./Gemfile))
-  rake:=RACK_ENV=${env} RAILS_ENV=${env} bundle exec rake
+  rake=RACK_ENV=${env} RAILS_ENV=${env} bundle exec rake
 else
-  rake:=RACK_ENV=${env} RAILS_ENV=${env} rake
+  rake=RACK_ENV=${env} RAILS_ENV=${env} rake
 endif
 
-docker_organization:=$(shell bash ${orchestration_dir}/yaml.bash docker_organization)
-docker_repository:=$(shell bash ${orchestration_dir}/yaml.bash docker_repository)
+ifneq (,$(wildcard ${env_file}))
+  rake=. ${env_file} && ${rake}
+endif
 
-compose_base:=env HOST_UID=$(shell id -u) \
-              DOCKER_ORGANIZATION="${docker_organization}" \
-              DOCKER_REPOSITORY="${docker_repository}" \
-              docker-compose \
-              -p "${docker_repository}_${env}" \
-              -f "${orchestration_dir}/docker-compose.yml"
+docker_organization=$(shell bash ${orchestration_dir}/yaml.bash docker_organization)
+docker_repository=$(shell bash ${orchestration_dir}/yaml.bash docker_repository)
+
+compose_base=env HOST_UID=$(shell id -u) \
+             DOCKER_ORGANIZATION="${docker_organization}" \
+             DOCKER_REPOSITORY="${docker_repository}" \
+             docker-compose \
+             -p "${docker_repository}_${env}" \
+             -f "${orchestration_dir}/docker-compose.yml"
 
 git_branch ?= $(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
 git_version ?= $(shell git rev-parse --short --verify ${git_branch})
-docker_image:=${docker_organization}/${docker_repository}:${git_version}
+docker_image=${docker_organization}/${docker_repository}:${git_version}
 
 compose=${compose_base} -f ${orchestration_dir}/docker-compose.${env}.yml -f ${orchestration_dir}/docker-compose.override.yml
 random_str=cat /dev/urandom | LC_ALL=C tr -dc 'a-z' | head -c $1
-ifneq (,$(wildcard ./.env))
-  env_volume:=--volume '${orchestration_dir}/../.env:/app/.env:ro'
-endif
-
-ifneq (,$(wildcard config/database.yml))
-  env_volume:=--volume '${pwd}/.env:/app/.env:ro'
-endif
-
-ifeq (${database_enabled},1)
-  database_config_volume:=--volume '${pwd}/config/database.yml:/app/config/database.yml:ro'
-  database_migrations_volume:=--volume '${pwd}/db/:/app/db/:ro'
-endif
-
-default_network:=${docker_repository}_${env}_default
-mount_path:=/app/orchestration.$(shell $(call random_str,16))
-toolkit_container_run:=docker run --rm \
-                                  --volume '${orchestration_dir}:${mount_path}:ro' \
-                                  --volume '${orchestration_config}:/app/${orchestration_config_filename}:ro' \
-                                  ${env_volume} \
-                                  ${database_config_volume} \
-                                  ${database_migrations_volume} \
-                                  --network '${default_network}' \
-                                  --env 'TERM' \
-                                  'rubyorchestration/toolkit'
-
-toolkit=${toolkit_container_run} 'make' '-f' '${mount_path}/Makefile' $1 mounted_orchestration='${mount_path}' git_branch='${git_branch}' git_version='${git_version}'
-
-app_container_run:=${compose} run --rm ${env_volume} --volume '${orchestration_dir}:${mount_path}:ro' app
-app_container_make:=${app_container_run} make -f '${mount_path}/Makefile' mounted_orchestration='${mount_path}'
 
 ifneq (,$(wildcard ${orchestration_dir}/docker-compose.local.yml))
   compose:=${compose} -f ${orchestration_dir}/docker-compose.local.yml
@@ -144,7 +119,7 @@ compose:
 
 .PHONY: serve
 serve: env_file ?= ./.env
-serve: rails := RAILS_ENV='${env}' bundle exec rails server ${server}
+serve: rails = RAILS_ENV='${env}' bundle exec rails server ${server}
 serve: _verify_env
 	@if [ "${custom_env_file}" == "1" ] && [ ! -f "${env_file}" ] ; \
          then \
@@ -163,8 +138,19 @@ serve: _verify_env
          fi
 
 .PHONY: test-setup
+test-setup: env := test
 test-setup:
-	@$(call make,start migrate env=test)
+	@$(call make,start env=test)
+ifneq (,$(wildcard config/database.yml))
+	${rake} db:create || :
+  ifneq (,$(wildcard db/structure.sql))
+	${rake} db:structure:load
+  else ifneq (,$(wildcard db/schema.rb))
+	${rake} db:schema:load
+  endif
+
+	${rake} db:migrate
+endif
 
 .PHONY: dump
 dump:
@@ -218,8 +204,8 @@ ifndef manager
 	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.cor`')
 endif
 deploy: env := production
-deploy: project_name := ${docker_repository}_${env}
-deploy: path := $(shell mktemp -d)
+deploy: project_name = ${docker_repository}_${env}
+deploy: path = $(shell mktemp -d)
 deploy: RAILS_ENV = ${env}
 deploy: RACK_ENV = ${env}
 deploy: DOCKER_TAG = ${git_version}
@@ -245,19 +231,6 @@ deploy:
           || ${fail}
 
 	@$(call println,'${yellow}Deployment${reset} ${green}complete${reset}. ${tick}')
-
-### Database utility commands ###
-
-.PHONY: migrate
-migrate: success := $(call printrawln,'${green}complete${reset}. ${tick}')
-migrate: start-database
-ifeq (,$(wildcard config/database.yml))
-	@$(call println,'${yellow}No database configuration found${reset}: ${cyan}skipping migrations${reset} ... ${tick}')
-else
-	@$(call make,_verify_compose env=${env} env_file=${env_file}) || ${fail}
-	@$(call make,_migrate env=${env} env_file=${env_file}) ${log_progress} || ${fail}
-	@${success}
-endif
 
 ### Service healthcheck commands ###
 
@@ -294,7 +267,7 @@ wait-app:
 ### Docker build commands ###
 
 .PHONY: build
-build: context := ${orchestration_dir}/.build/context.tar
+build: context = ${orchestration_dir}/.build/context.tar
 build:
 	@$(call print,'${yellow}Preparing build context from${reset} ${cyan}${git_branch}:${git_version}${reset} ... ')
 	@mkdir -p ${orchestration_dir}/.build ${log} || ${fail}
@@ -348,21 +321,3 @@ _verify_env:
 _clean-logs:
 	@rm -f '${stdout}' '${stderr}'
 	@touch '${stdout}' '${stderr}'
-
-.PHONY: _migrate
-# User must choose either `structure.sql` or `schema.rb`, or deal with
-# `structure.sql` taking precedence:
-ifneq (,$(wildcard db/structure.sql))
-_migrate: _db_load := db:structure:load
-else ifneq (,$(wildcard db/schema.rb))
-_migrate: _db_load := db:schema:load
-endif
-ifndef DATABASE_URL
-_migrate: DATABASE_URL=$(shell ${rake} orchestration:database:url)
-endif
-_migrate:
-# Allow a failure to create (DB may already exist) but fail and output full logs
-# if migrations fail [as well].
-	@$(call print,'${yellow}Running migrations ${blue}[${cyan}$(DATABASE_URL)${blue}]${reset} ... ')
-	@${rake} --trace db:create ${_db_load} || :
-	@${rake} --trace db:migrate
