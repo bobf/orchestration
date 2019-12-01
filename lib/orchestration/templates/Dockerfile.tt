@@ -1,0 +1,11 @@
+FROM ruby:<%= config.fetch(:ruby_version) %>
+ARG BUNDLE_BITBUCKET__ORG
+RUN apt-get update \
+ && apt-get install -y node.js \
+ && gem install bundler \
+ && mkdir /application
+WORKDIR /application
+COPY Gemfile Gemfile.lock ./
+RUN bundle install --deployment --without development test
+ADD .build/context.tar.gz .
+CMD ["bundle", "exec", "rails", "server", "-p", "3000"]

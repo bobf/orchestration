@@ -1,0 +1,2 @@
+Be aware of yarn and include build steps in Dockerfile if present. Use dashboard
+front end as a reference.
