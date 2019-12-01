@@ -1,4 +1,3 @@
-is_container:=$(shell [ -f './.orchestration_container_flag' ] && echo -n '1' || echo -n '0')
 TERM ?= 'dumb'
 pwd:=$(shell pwd)
 ifdef mounted_orchestration
