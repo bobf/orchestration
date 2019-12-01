@@ -23,7 +23,7 @@ services:
       SECRET_KEY_BASE: 
     expose:
     - 8080
-  nginx-proxy:
+  nginx_proxy:
     image: jwilder/nginx-proxy
     ports:
     - 3000:80

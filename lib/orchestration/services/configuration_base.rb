@@ -32,7 +32,7 @@ module Orchestration
       end
 
       def local_port
-        key = @service_name == 'application' ? 'nginx-proxy' : @service_name
+        key = @service_name == 'app' ? 'nginx_proxy' : @service_name
 
         @env.docker_compose_config
             .fetch('services')

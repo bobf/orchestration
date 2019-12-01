@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Orchestration::DockerCompose::NginxProxyService do
-  subject(:nginx_proxy_service) { described_class.new(configuration) }
+  subject(:nginx_proxy_service) { described_class.new(configuration, :test) }
 
   let(:env) do
     instance_double(

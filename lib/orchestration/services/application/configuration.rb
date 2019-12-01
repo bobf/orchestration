@@ -6,7 +6,7 @@ module Orchestration
       class Configuration
         include ConfigurationBase
 
-        self.service_name = 'application'
+        self.service_name = 'app'
 
         def initialize(env, service_name = nil)
           super

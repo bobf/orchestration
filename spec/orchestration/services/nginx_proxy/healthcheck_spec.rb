@@ -9,7 +9,7 @@ RSpec.describe Orchestration::Services::NginxProxy::Healthcheck do
       settings: settings,
       docker_compose_path: fixture_path('docker-compose'),
       docker_compose_config: {
-        'services' => { 'nginx-proxy' => { 'ports' => ['3000:80'] } }
+        'services' => { 'nginx_proxy' => { 'ports' => ['3000:80'] } }
       }
     )
   end

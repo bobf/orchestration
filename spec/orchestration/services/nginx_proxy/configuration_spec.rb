@@ -9,11 +9,11 @@ RSpec.describe Orchestration::Services::NginxProxy::Configuration do
       Orchestration::Environment,
       docker_compose_path: config,
       docker_compose_config: {
-        'services' => { 'nginx-proxy' => { 'ports' => ['3000:80'] } }
+        'services' => { 'nginx_proxy' => { 'ports' => ['3000:80'] } }
       }
     )
   end
 
   it { is_expected.to be_a described_class }
-  its(:friendly_config) { is_expected.to eql '[nginx-proxy] 127.0.0.1:3000' }
+  its(:friendly_config) { is_expected.to eql '[nginx_proxy] 127.0.0.1:3000' }
 end

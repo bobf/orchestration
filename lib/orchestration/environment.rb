@@ -85,5 +85,9 @@ module Orchestration
     def database_volume
       "#{application_name}_database"
     end
+
+    def mongo_volume
+      "#{application_name}_mongo"
+    end
   end
 end

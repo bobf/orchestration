@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Orchestration::DockerCompose::ApplicationService do
-  subject(:application_service) { described_class.new(configuration) }
+  subject(:application_service) { described_class.new(configuration, :test) }
 
   let(:configuration) do
     Orchestration::Services::Application::Configuration.new(env)

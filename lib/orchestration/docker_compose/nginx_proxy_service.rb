@@ -3,7 +3,8 @@
 module Orchestration
   module DockerCompose
     class NginxProxyService
-      def initialize(config)
+      def initialize(config, environment)
+        @environment = environment
         @config = config
       end
 
