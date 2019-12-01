@@ -28,7 +28,7 @@ module Orchestration
       end
 
       def volume
-        @config.env.database_volume(@environment)
+        @config.env.database_volume
       end
 
       def remote_port

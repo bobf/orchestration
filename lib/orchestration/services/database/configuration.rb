@@ -45,7 +45,7 @@ module Orchestration
         def file_config
           return {} unless File.exist?(@env.database_configuration_path)
 
-          yaml = File.read(env.database_configuration_path)
+          yaml = ERB.new(File.read(env.database_configuration_path)).result
           YAML.safe_load(yaml, [], [], true)[@env.environment] || {}
         end
 
