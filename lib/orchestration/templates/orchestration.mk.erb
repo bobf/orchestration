@@ -46,7 +46,7 @@ else
 endif
 
 sidecar_suffix := $(shell test -f ${orchestration_dir}/.sidecar && cat ${orchestration_dir}/.sidecar)
-ifneq (,$.sidecar})
+ifneq (,${sidecar_suffix})
   sidecar := 1
 endif
 
