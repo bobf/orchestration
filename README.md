@@ -336,7 +336,7 @@ To do this automatically, pass the `sidecar` parameter to the `start` or `test` 
 make test sidecar=1
 ```
 
-When running in sidecar mode, dependencies will bind to an ephemeral host port (chosen by _Docker_) since the host port will not be used in container-to-container communication. This allows running multiple builds on the same host.
+When running in sidecar mode, dependencies will bind to an ephemeral host port (chosen by _Docker_) since the host port will not be used in container-to-container communication. The _Docker Compose_ project name (and derived network name) will also be suffixed with a random token. This permits running multiple builds on the same host.
 
 <a name="rabbitmq-configuration"></a>
 ## RabbitMQ Configuration
