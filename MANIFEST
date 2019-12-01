@@ -21,6 +21,7 @@ lib/orchestration.rb
 lib/orchestration/docker_compose.rb
 lib/orchestration/docker_compose/app_service.rb
 lib/orchestration/docker_compose/compose_configuration.rb
+lib/orchestration/docker_compose/compose_helpers.rb
 lib/orchestration/docker_compose/configuration.rb
 lib/orchestration/docker_compose/database_service.rb
 lib/orchestration/docker_compose/install_generator.rb
