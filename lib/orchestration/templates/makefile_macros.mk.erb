@@ -46,7 +46,7 @@ hr=path=${stdout} ; echo "${gray}$(shell head -c ${log_path_length} < /dev/zero 
 managed_env_tag:=\# -|- ORCHESTRATION
 standard_env_path:=${pwd}/.env
 backup_env_path:=${pwd}/.env.orchestration.backup
-is_managed_env:=$$(test -f '${standand_env_path}' && tail -n 1 '${standard_env_path}') == "${managed_env_tag}"*
+is_managed_env:=$$(test -f '${standard_env_path}' && tail -n 1 '${standard_env_path}') == "${managed_env_tag}"*
 
 back_up_env:=( \
                [ ! -f '${standard_env_path}' ] \
@@ -64,14 +64,14 @@ replace_env:=( \
                  [ "${custom_env_file}" == "1" ] \
                  && ${back_up_env} \
                  && cp ${env_file} '${standard_env_path}' \
-                 && $(call print,'\n${managed_env_tag}' >> '${standard_env_path}') \
+                 && $(call printraw,'\n${managed_env_tag}') >> '${standard_env_path}' \
                ) \
              )
 
 restore_env:=( \
                ( \
-                 [ ! -f '${backup_env_path}' ] \
-                 && [[ ! ${is_managed_env} ]] \
+                 [[ ! ${is_managed_env} ]] \
+                 || [ ! -f '${backup_env_path}' ] \
                ) \
              || \
                ( \

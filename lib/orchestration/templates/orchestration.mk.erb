@@ -101,7 +101,7 @@ else
 	@${compose} up -d --scale app=$${instances:-1} ${services} ${log_progress} || ${fail}
 endif
 	@$(call printrawln,' ${green}started${reset} ${tick}')
-	@$(call printrln,'Waiting for services ...')
+	@$(call println,'${yellow}Waiting for services to become available${reset} ...')
 ifdef services
 	@$(MAKE) wait services='${services}' 2>${stderr} || ${fail}
 else
@@ -211,7 +211,7 @@ deploy:
                echo 'DOCKER_TAG=${git_version}' >> ./.env && \
                $(call println,'') && \
                $(call println,'${yellow}Application image${reset}: ${cyan}${docker_image}${reset}') && \
-               docker-compose config 2>${stderr} | ssh "${manager}" 'docker stack deploy --prune --with-registry-auth -c - "${project_name}"' ${log} && \
+               ${compose} config 2>${stderr} | ssh "${manager}" 'docker stack deploy --prune --with-registry-auth -c - "${project_name}"' ${log} && \
             ( [ -z "${path}" ] || rm -rf "${path}" ${log} ) \
           ) \
           || ${fail}

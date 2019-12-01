@@ -14,6 +14,7 @@ bin/rubocop
 bin/setup
 bin/strong_versions
 config/locales/en.yml
+docker/.ruby-version
 docker/Dockerfile
 docker/Gemfile
 lib/Rakefile
