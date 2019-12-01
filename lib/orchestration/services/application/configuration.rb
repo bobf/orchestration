@@ -10,7 +10,7 @@ module Orchestration
 
         def initialize(env, service_name = nil)
           super
-          @settings = {} # Included for interface consistency; currently unused.
+          @settings = {}
         end
 
         def docker_username

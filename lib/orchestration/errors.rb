@@ -6,4 +6,6 @@ module Orchestration
   class ApplicationConnectionError < OrchestrationError; end
   class DatabaseConfigurationError < OrchestrationError; end
   class MongoConfigurationError < OrchestrationError; end
+
+  class UnknownEnvironmentError < DatabaseConfigurationError; end
 end

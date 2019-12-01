@@ -1,4 +1,4 @@
-.PHONY: start stop migrate docker build push start logs compose config <%= wait_commands %>
+.PHONY: start stop migrate docker build push start logs compose config <%= (test_wait_commands + production_wait_commands).uniq.join(' ') %>
 
 ### Container management commands ###
 
@@ -46,7 +46,10 @@ migrate: wait-database
 
 ### Service healthcheck commands ###
 
-wait: <%= wait_commands %>
+wait: <%= production_wait_commands.join(' ') %>
+	@echo "All Containers ready."
+
+wait-test: <%= test_wait_commands.join(' ') %>
 	@echo "All Containers ready."
 
 wait-application:

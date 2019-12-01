@@ -7,7 +7,7 @@ RSpec.describe Orchestration::Services::NginxProxy::Healthcheck do
     instance_double(
       Orchestration::Environment,
       settings: settings,
-      docker_compose_configuration_path: fixture_path('docker-compose'),
+      docker_compose_path: fixture_path('docker-compose'),
       docker_compose_config: {
         'services' => { 'nginx-proxy' => { 'ports' => ['3000:80'] } }
       }

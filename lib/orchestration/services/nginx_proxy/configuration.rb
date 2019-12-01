@@ -8,6 +8,11 @@ module Orchestration
 
         self.service_name = 'nginx-proxy'
 
+        def initialize(env, service_name = nil)
+          super
+          @settings = {}
+        end
+
         def friendly_config
           "[nginx-proxy] #{host}:#{local_port}"
         end

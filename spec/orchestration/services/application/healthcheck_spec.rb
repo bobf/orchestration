@@ -8,7 +8,7 @@ RSpec.describe Orchestration::Services::Application::Healthcheck do
       Orchestration::Environment,
       settings: settings,
       application_name: 'test_app',
-      docker_compose_configuration_path: fixture_path('docker-compose'),
+      docker_compose_path: fixture_path('docker-compose'),
       docker_compose_config: {
         'services' => { 'nginx-proxy' => { 'ports' => ['3000:80'] } }
       }

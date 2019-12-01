@@ -8,8 +8,8 @@ RSpec.describe Orchestration::Services::Database::Configuration do
   end
 
   let(:env) do
-    double(
-      'Environment',
+    instance_double(
+      Orchestration::Environment,
       environment: 'test',
       database_url: nil,
       database_configuration_path: config_path,
@@ -123,5 +123,14 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       its(['username']) { is_expected.to eql 'postgres' }
       its(['password']) { is_expected.to eql 'password' }
     end
+  end
+
+  context 'unknown environment' do
+    before do
+      allow(env).to receive(:environment) { 'garbage' }
+    end
+
+    subject { proc { configuration } }
+    it { is_expected.to raise_error(Orchestration::UnknownEnvironmentError) }
   end
 end
