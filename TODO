@@ -11,3 +11,5 @@ unfortunately Rails ignores this value in development mode. (It's configured in
 config/environments/production.rb)
 
 Standardise on log formats - by policy or recommendation ?
+
+Redis support
