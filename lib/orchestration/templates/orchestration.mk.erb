@@ -257,7 +257,7 @@ endif
                echo 'DOCKER_TAG=${git_version}' >> ./.env && \
                $(call println,'') && \
                $(call println,'${yellow}Application image${reset}: ${cyan}${docker_image}${reset}') && \
-               ${compose} config 2>${stderr} | ssh "${manager}" 'docker stack deploy --prune --with-registry-auth -c - "${compose_project_name}"' ${log} && \
+               ${compose} config 2>${stderr} | ssh "${manager}" 'docker stack deploy --prune --with-registry-auth -c - "${project_base}"' ${log} && \
             ( [ -z "${path}" ] || rm -rf "${path}" ${log} ) \
           ) \
           || ${fail}
