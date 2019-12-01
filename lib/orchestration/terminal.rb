@@ -15,6 +15,10 @@ module Orchestration
   }.freeze
 
   class Terminal
+    def initialize(settings)
+      @settings = settings
+    end
+
     def write(desc, message, color_name = nil, newline = true)
       output = newline ? "#{message}\n" : message.to_s
       STDOUT.print colorize(desc, output, color_name)
@@ -26,6 +30,14 @@ module Orchestration
       return default if result.empty?
 
       result
+    end
+
+    def ask_setting(setting, default = nil)
+      return unless @settings.get(setting).nil?
+
+      @terminal.write(:setup, t("settings.#{setting}.description"))
+      prompt = t("settings.#{setting}.prompt")
+      @settings.set(setting, @terminal.read(prompt, default))
     end
 
     private

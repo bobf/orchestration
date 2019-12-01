@@ -16,11 +16,11 @@ module Orchestration
 
       def structure
         {
-          'version' => '3.7',
+          'version' => @env.docker_api_version,
           'services' => services,
           'volumes' => {
-            @env.public_volume => nil
-          }
+            @env.public_volume => {}
+          }.merge(database_volume)
         }
       end
 
@@ -53,6 +53,12 @@ module Orchestration
 
           [service[:name], service[:class].new(config).definition]
         end
+      end
+
+      def database_volume
+        return {} unless services.key?('database')
+
+        { @env.database_volume => {} }
       end
     end
   end

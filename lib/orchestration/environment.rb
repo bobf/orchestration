@@ -32,6 +32,10 @@ module Orchestration
       root.join('.orchestration.yml')
     end
 
+    def docker_api_version
+      '3.7'
+    end
+
     def docker_compose_configuration_path
       orchestration_root.join('docker-compose.yml')
     end
@@ -72,6 +76,10 @@ module Orchestration
 
     def public_volume
       "#{application_name}_public"
+    end
+
+    def database_volume
+      "#{application_name}_database"
     end
   end
 end

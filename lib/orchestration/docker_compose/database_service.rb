@@ -14,37 +14,22 @@ module Orchestration
       def definition
         return nil if @config.settings.nil?
 
-        adapter = @config.settings.fetch('adapter')
-        return nil if adapter == 'sqlite3'
+        adapter = @config.adapter
+        return nil if adapter.name == 'sqlite3'
 
         port = @config.settings.fetch('port')
         {
-          'image' => image_from_adapter(adapter),
-          'environment' => environment_from_adapter(adapter),
+          'image' => adapter.image,
+          'environment' => adapter.environment,
+          'volumes' => ["#{volume}:#{adapter.data_dir}"],
           'ports' => ["#{port}:#{PORT}"]
         }
       end
 
       private
 
-      def image_from_adapter(adapter)
-        {
-          'postgresql' => 'library/postgres',
-          'mysql2' => 'library/mysql'
-        }.fetch(adapter)
-      end
-
-      def environment_from_adapter(adapter)
-        {
-          'postgresql' => {
-            'PGPORT' => PORT.to_s,
-            'POSTGRES_PASSWORD' => 'password'
-          },
-          'mysql2' => {
-            'MYSQL_ROOT_PASSWORD' => 'password',
-            'MYSQL_TCP_PORT' => PORT.to_s
-          }
-        }.fetch(adapter)
+      def volume
+        @config.env.database_volume
       end
     end
   end

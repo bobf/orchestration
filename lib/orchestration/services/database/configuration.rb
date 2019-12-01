@@ -22,16 +22,15 @@ module Orchestration
         end
 
         def friendly_config
-          adapter = @settings.fetch('adapter')
-          return "[#{adapter}]" if adapter == 'sqlite3'
+          return "[#{@adapter.name}]" if @adapter.name == 'sqlite3'
 
-          "[#{adapter}] #{host}:#{local_port}"
+          "[#{@adapter.name}] #{host}:#{local_port}"
         end
 
         private
 
         def setup
-          @adapter = adapter_object(base['adapter'])
+          @adapter = adapter_for(base['adapter'])
           @settings = base.merge(@adapter.credentials)
                           .merge(
                             'scheme' => base['adapter'],
@@ -52,7 +51,7 @@ module Orchestration
           YAML.safe_load(content, [], [], true) # true: Allow aliases
         end
 
-        def adapter_object(name)
+        def adapter_for(name)
           {
             'mysql2' => adapters::Mysql2,
             'postgresql' => adapters::Postgresql,
@@ -69,7 +68,7 @@ module Orchestration
         end
 
         def host
-          return nil if @adapter.is_a?(adapters::Sqlite3)
+          return nil if @adapter&.name == 'sqlite3'
 
           super
         end
@@ -79,7 +78,7 @@ module Orchestration
         end
 
         def default_port
-          return {} if @adapter.is_a?(adapters::Sqlite3)
+          return {} if @adapter.name == 'sqlite3'
 
           { 'port' => @adapter.default_port }
         end

@@ -5,6 +5,14 @@ module Orchestration
     module Database
       module Adapters
         class Postgresql
+          def name
+            'postgresql'
+          end
+
+          def image
+            'library/postgres'
+          end
+
           def credentials
             {
               'username' => 'postgres',
@@ -19,6 +27,18 @@ module Orchestration
 
           def default_port
             5432
+          end
+
+          def environment
+            {
+              'PGPORT' => DockerCompose::DatabaseService::PORT.to_s,
+              'POSTGRES_PASSWORD' => 'password',
+              'PGDATA' => data_dir
+            }
+          end
+
+          def data_dir
+            '/var/pgdata'
           end
         end
       end

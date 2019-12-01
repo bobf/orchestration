@@ -30,8 +30,12 @@ module Orchestration
       path.relative_path_from(Rails.root).to_s
     end
 
-    def simple_copy(template_name, dest)
-      update_file(dest, template(template_name))
+    def simple_copy(template_name, dest, options = {})
+      update_file(
+        dest,
+        template(template_name, env: @env),
+        overwrite: options.fetch(:overwrite, true)
+      )
     end
 
     def create_file(path, content, options = {})
@@ -44,12 +48,13 @@ module Orchestration
       @terminal.write(:create, relative_path(path))
     end
 
-    def update_file(path, content)
+    def update_file(path, content, options = {})
       present = File.exist?(path)
       return create_file(path, content) unless present
 
+      overwrite = options.fetch(:overwrite, true)
       previous_content = File.read(path) if present
-      if present && previous_content == content
+      if present && (!overwrite || previous_content == content)
         return @terminal.write(:skip, relative_path(path))
       end
 

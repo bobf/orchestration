@@ -5,6 +5,10 @@ module Orchestration
     module Database
       module Adapters
         class Sqlite3
+          def name
+            'sqlite3'
+          end
+
           def credentials
             {
               'username' => '',
