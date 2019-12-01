@@ -23,8 +23,8 @@ services:
       SECRET_KEY_BASE: 
     expose:
     - 8080
-  nginx_proxy:
-    image: jwilder/nginx-proxy
+  haproxy:
+    image: dockercloud/haproxy
     ports:
     - 3000:80
     volumes:

@@ -27,7 +27,6 @@ RSpec.describe Orchestration::DockerCompose::AppService do
     subject(:definition) { app_service.definition }
 
     it { is_expected.to be_a Hash }
-    its(['expose']) { is_expected.to eql [8080] }
     its(['image']) do
       is_expected.to eql '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}'
     end
@@ -43,7 +42,6 @@ RSpec.describe Orchestration::DockerCompose::AppService do
     its(%w[environment UNICORN_PRELOAD_APP]) { is_expected.to eql '1' }
     its(%w[environment UNICORN_TIMEOUT]) { is_expected.to eql '60' }
     its(%w[environment UNICORN_WORKER_PROCESSES]) { is_expected.to eql '8' }
-    its(%w[environment VIRTUAL_PORT]) { is_expected.to eql '8080' }
-    its(%w[environment VIRTUAL_HOST]) { is_expected.to be_nil }
+    its(%w[environment SERVICE_PORTS]) { is_expected.to eql '8080' }
   end
 end

@@ -15,7 +15,7 @@ RSpec.describe Orchestration::Services::App::Configuration do
       docker_compose_config?: true,
       docker_compose_config: {
         'services' => {
-          'nginx_proxy' => { 'ports' => ['3000:80'] },
+          'haproxy' => { 'ports' => ['3000:80'] },
           'database' => { 'ports' => ['3360:3354'] }
         }
       }

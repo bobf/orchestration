@@ -53,7 +53,7 @@ module Orchestration
         {
           'version' => compose_config(environment).version,
           'services' => services(environment)
-        }.merge('volumes' => volumes(environment))
+        }
       end
 
       def services(environment)
@@ -79,7 +79,7 @@ module Orchestration
         when :test, :development
           %i[database mongo rabbitmq]
         when :production
-          %i[nginx_proxy app database mongo rabbitmq]
+          %i[haproxy app database mongo rabbitmq]
         when nil
           []
         else
@@ -99,7 +99,7 @@ module Orchestration
           database: Orchestration::Services::Database::Configuration,
           mongo: Orchestration::Services::Mongo::Configuration,
           rabbitmq: Orchestration::Services::RabbitMQ::Configuration,
-          nginx_proxy: Orchestration::Services::NginxProxy::Configuration
+          haproxy: Orchestration::Services::HAProxy::Configuration
         }.fetch(service).new(@env)
       end
 

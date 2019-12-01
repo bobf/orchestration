@@ -29,10 +29,10 @@ namespace :orchestration do
     end
   end
 
-  namespace :nginx_proxy do
-    desc I18n.t('orchestration.rake.nginx_proxy.wait')
+  namespace :haproxy do
+    desc I18n.t('orchestration.rake.haproxy.wait')
     task :wait do
-      Orchestration::Services::NginxProxy::Healthcheck.start
+      Orchestration::Services::HAProxy::Healthcheck.start
     end
   end
 

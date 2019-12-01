@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Services::NginxProxy::Healthcheck do
+RSpec.describe Orchestration::Services::HAProxy::Healthcheck do
   subject(:healthcheck) { described_class.new(env) }
 
   let(:env) do
@@ -9,7 +9,7 @@ RSpec.describe Orchestration::Services::NginxProxy::Healthcheck do
       settings: settings,
       docker_compose_path: fixture_path('docker-compose'),
       docker_compose_config: {
-        'services' => { 'nginx_proxy' => { 'ports' => ['3000:80'] } }
+        'services' => { 'haproxy' => { 'ports' => ['3000:80'] } }
       }
     )
   end
@@ -39,7 +39,7 @@ RSpec.describe Orchestration::Services::NginxProxy::Healthcheck do
       expect(terminal)
         .to receive(:write)
         .with(:waiting, any_args)
-        .with(:ready, 'Nginx proxy is ready.')
+        .with(:ready, 'HAProxy is ready.')
       start
     end
 
