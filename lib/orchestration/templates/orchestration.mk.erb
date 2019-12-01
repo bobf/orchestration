@@ -129,9 +129,9 @@ stop: _clean-logs
 	@$(call print,'${yellow}Stopping containers${reset} ...')
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
           then \
-            ( docker network disconnect ${docker_repository}_${env}_default $(shell hostname) ${log} || : ) ; \
+            ( docker network disconnect ${docker_repository}_${env}_default $(shell hostname) ${log} || : ) \
             && \
-            ( ${compose} down ${log} || ${fail} ) \
+            ( ${compose} down ${log} || ${fail} ) ; \
           else \
             ${compose} down ${log} || ${fail} ; \
           fi
