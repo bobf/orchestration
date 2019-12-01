@@ -19,15 +19,22 @@ module Orchestration
         end
 
         def settings
-          { adapter: adapter.name, host: host, port: port }
+          {
+            adapter: adapter.name,
+            host: host,
+            port: port,
+            username: username,
+            password: password,
+            database: database
+          }.transform_keys(&:to_s)
         end
 
         def adapter
-          url = url_config['adapter']
-          file = file_config['adapter']
+          url_adapter = url_config['adapter']
+          file_adapter = file_config['adapter']
 
-          return adapter_by_name(url) unless url.nil?
-          return adapter_by_name(file) unless file.nil?
+          return adapter_by_name(url_adapter) unless url_adapter.nil?
+          return adapter_by_name(file_adapter) unless file_adapter.nil?
           return adapter_by_name('sqlite3') if defined?(SQLite3)
 
           nil
@@ -39,21 +46,52 @@ module Orchestration
           return {} unless File.exist?(@env.database_configuration_path)
 
           yaml = File.read(env.database_configuration_path)
-          YAML.safe_load(yaml, [], [], true)[@env.environment]
+          YAML.safe_load(yaml, [], [], true)[@env.environment] || {}
         end
 
         def url_config
           return {} if env.database_url.nil?
 
-          DatabaseUrl.to_active_record_hash(env.database_url).stringify_keys
+          config = DatabaseUrl.to_active_record_hash(env.database_url)
+                             &.transform_keys(&:to_s)
+
+          # A quirk of DatabaseUrl is that if no "/path" is present then the
+          # `database` component is an empty string. In this unique case, we
+          # want `nil` instead so that we can delegate to a default.
+          config['database'] = nil if config['database']&.empty?
+          config
         end
 
         def host
-          url_config[:host] || super
+          url_config['host'] || file_config['host'] || super
         end
 
         def port
-          url_config[:port] || super
+          url_config['port'] || file_config['port'] || super
+        end
+
+        def username
+          (
+            url_config['username'] ||
+            file_config['username'] ||
+            adapter&.credentials['username']
+          )
+        end
+
+        def password
+          (
+            url_config['password'] ||
+            file_config['password'] ||
+            adapter&.credentials['password']
+          )
+        end
+
+        def database
+          (
+            url_config['database'] ||
+            file_config['database'] ||
+            adapter&.credentials['database']
+          )
         end
 
         def adapter_by_name(name)

@@ -9,7 +9,7 @@ module Orchestration
         self.service_name = 'mongo'
 
         def enabled?
-          defined?(Mongoid)
+          defined?(::Mongoid)
         end
 
         def friendly_config

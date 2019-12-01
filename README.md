@@ -22,10 +22,10 @@ bundle install
 
 ### Setup
 
-Generate configuration files:
+Generate configuration files and select your deployment server:
 
 ```bash
-bin/rake orchestration:install
+bin/rake orchestration:install server=unicorn # (or puma [default], etc.)
 ```
 
 Commit changes:

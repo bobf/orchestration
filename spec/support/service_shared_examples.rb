@@ -9,11 +9,13 @@ RSpec.shared_examples 'a service' do |service|
   describe 'healthcheck instance' do
     subject(:healthcheck) { service::Healthcheck.new(env, 'myservice') }
 
-    let(:environment) { 'development' }
+    let(:environment) { 'test' }
+    let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
     let(:env) do
       double(
         'Environment',
         environment: environment,
+        database_configuration_path: '/non/existent/path/i/hope',
         database_url: nil,
         mongo_url: nil,
         docker_compose_config: {

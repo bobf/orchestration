@@ -15,8 +15,7 @@ RSpec.describe Orchestration::Services::Database::Adapters::Mysql2 do
   its(:default_port) { is_expected.to eql 3306 }
   its(:environment) do
     is_expected.to eql(
-      'MYSQL_ROOT_PASSWORD' => 'password',
-      'MYSQL_TCP_PORT' => '3354'
+      'MYSQL_ROOT_PASSWORD' => 'password'
     )
   end
 

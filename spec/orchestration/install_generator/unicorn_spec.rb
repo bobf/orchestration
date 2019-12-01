@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Orchestration::InstallGenerator do
+  before { allow(ENV).to receive(:fetch).with('server', 'puma') { 'unicorn' } }
   let(:install_generator) { described_class.new }
 
   describe '#unicorn' do

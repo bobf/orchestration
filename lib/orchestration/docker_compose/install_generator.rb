@@ -108,7 +108,7 @@ module Orchestration
       end
 
       def service_enabled?(service_name)
-        return false if configuration(service_name).enabled?
+        return false unless configuration(service_name).enabled?
 
         true
       end

@@ -15,7 +15,6 @@ RSpec.describe Orchestration::Services::Database::Adapters::Postgresql do
   its(:default_port) { is_expected.to eql 5432 }
   its(:environment) do
     is_expected.to eql(
-      'PGPORT' => '3354',
       'POSTGRES_PASSWORD' => 'password',
       'PGDATA' => '/var/pgdata'
     )
