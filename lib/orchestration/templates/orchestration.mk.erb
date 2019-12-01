@@ -208,14 +208,14 @@ endif
 	@bundle_path="${path}" ; tar -C '${orchestration_dir}/.deploy' -cf "$${bundle_path:-./bundle.tar}" ./${docker_repository}
 
 .PHONY: deploy
-ifndef manager
-	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`')
-endif
 deploy: path := $(shell mktemp -d)
 deploy: RAILS_ENV := ${env}
 deploy: RACK_ENV := ${env}
 deploy: DOCKER_TAG = ${git_version}
 deploy:
+ifndef manager
+	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`') ; exit 1
+endif
 	@$(call println,'${yellow}Deploying stack via${reset} ${green}${manager}${reset} ...') && \
           ( \
             $(call make,_verify_compose env_file=${env_file} env=${env}) && \
@@ -237,6 +237,18 @@ deploy:
           || ${fail}
 
 	@$(call println,'${yellow}Deployment${reset} ${green}complete${reset}. ${tick}')
+
+.PHONY: rollback
+ifndef service
+rollback: service = app
+endif
+rollback:
+ifndef manager
+	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`') ; exit 1
+endif
+	@$(call println,'${yellow}Rolling back${reset} ${green}${project_name}_${service}${reset} ${yellow}via${reset} ${green}${manager}${reset} ...')
+	@ssh "${manager}" 'docker service rollback --detach "${project_name}_${service}"' ${log} || ${fail}
+	@$(call println,'${yellow}Rollback request${reset} ${green}complete${reset}. ${tick}')
 
 ### Service healthcheck commands ###
 
