@@ -71,6 +71,10 @@ module Orchestration
       simple_copy('yaml.bash', @env.orchestration_root.join('yaml.bash'))
     end
 
+    def env
+      simple_copy('env', @env.root.join('.env'))
+    end
+
     def docker_compose
       @docker_compose.docker_compose_yml
       @docker_compose.docker_compose_test_yml
