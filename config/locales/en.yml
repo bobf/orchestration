@@ -12,6 +12,7 @@ en:
       waiting: "Waiting for database: %{config}"
       ready: "Database is ready."
       unknown_environment: "Environment not defined in database configuration: %{environment}"
+      unknown_adapter: "Unable to determine adapter from database.yml: %{adapter}"
 
     mongo:
       waiting: "Waiting for Mongo: %{config}"

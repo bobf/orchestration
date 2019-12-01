@@ -33,4 +33,9 @@ module Orchestration
   def self.rakefile
     root.join('lib', 'Rakefile')
   end
+
+  def self.error(key, options = {})
+    STDERR.puts('# Orchestration Error')
+    STDERR.puts('# ' + I18n.t("orchestration.#{key}", options))
+  end
 end
