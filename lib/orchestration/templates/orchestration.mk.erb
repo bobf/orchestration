@@ -81,6 +81,8 @@ ifneq (,$(wildcard ${orchestration_dir}/docker-compose.local.yml))
   compose:=${compose} -f ${orchestration_dir}/docker-compose.local.yml
 endif
 
+all: build
+
 ### Container management commands ###
 
 .PHONY: start
@@ -355,7 +357,7 @@ else ifneq (,$(wildcard db/schema.rb))
 _migrate: _db_load := db:schema:load
 endif
 ifndef DATABASE_URL
-_migrate: DATABASE_URL:=$(shell ${rake} orchestration:database:url)
+_migrate: DATABASE_URL=$(shell ${rake} orchestration:database:url)
 endif
 _migrate:
 # Allow a failure to create (DB may already exist) but fail and output full logs
