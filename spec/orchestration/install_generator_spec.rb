@@ -18,9 +18,4 @@ RSpec.describe Orchestration::InstallGenerator do
     install_generator.yaml_bash
     expect(File).to exist(yaml_bash_path)
   end
-
-  it 'creates nginx.tmpl' do
-    install_generator.nginx_tmpl
-    expect(File).to exist(nginx_tmpl_path)
-  end
 end

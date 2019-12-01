@@ -1,4 +1,4 @@
-.PHONY: start stop migrate docker build push start logs compose <%= wait_commands %>
+.PHONY: start stop migrate docker build push start logs compose config <%= wait_commands %>
 
 ### Container management commands ###
 
@@ -24,6 +24,9 @@ start-application:
 
 logs:
 	@${COMPOSE} logs
+
+config:
+	@${COMPOSE} config
 
 compose:
 	@${COMPOSE} $$cmd

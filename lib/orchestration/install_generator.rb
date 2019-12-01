@@ -79,10 +79,6 @@ module Orchestration
       simple_copy('yaml.bash', @env.orchestration_root.join('yaml.bash'))
     end
 
-    def nginx_tmpl
-      simple_copy('nginx.tmpl', @env.orchestration_root.join('nginx.tmpl'))
-    end
-
     private
 
     def t(key)
