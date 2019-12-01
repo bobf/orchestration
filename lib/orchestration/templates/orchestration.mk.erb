@@ -40,26 +40,35 @@ docker_organization=$(shell bash ${orchestration_dir}/yaml.bash docker_organizat
 docker_repository=$(shell bash ${orchestration_dir}/yaml.bash docker_repository)
 
 ifeq (,$(project_name))
-  project_base := ${docker_repository}_${env}
+  project_base = ${docker_repository}_${env}
 else
   project_base := $(project_name)
 endif
 
+sidecar_suffix := $(shell test -f ${orchestration_dir}/.sidecar_suffix && cat ${orchestration_dir}/.sidecar_suffix)
+ifneq (,${sidecar_suffix})
+  sidecar := 1
+endif
+
 ifdef sidecar
-  sidecar_compose := sidecar=1
-  suffix := $(call token)
-  ifeq (,${suffix})
+  sidecar_compose = sidecar=1
+  ifeq (,${sidecar_suffix})
+    sidecar_suffix := $(call token)
+    _ignore := $(shell echo ${sidecar_suffix} > ${orchestration_dir}/.sidecar_suffix)
+  endif
+
+  ifeq (,${sidecar_suffix})
     $(warning Unable to generate project suffix; project name collisions may occur.)
   endif
-  project_name := ${project_base}_${suffix}
+  compose_project_name = ${project_base}_${sidecar_suffix}
 else
-  project_name := ${project_base}
+  compose_project_name = ${project_base}
 endif
 
 compose_base=env HOST_UID=$(shell id -u) \
              DOCKER_ORGANIZATION="${docker_organization}" \
              DOCKER_REPOSITORY="${docker_repository}" \
-             COMPOSE_PROJECT_NAME="${project_name}" \
+             COMPOSE_PROJECT_NAME="${compose_project_name}" \
 	     ${sidecar_compose} \
              docker-compose \
              -f "${orchestration_dir}/docker-compose.yml"
@@ -81,7 +90,7 @@ all: build
 
 .PHONY: start
 ifndef network
-start: network := ${project_name}_default
+start: network := ${compose_project_name}_default
 endif
 start: _clean-logs
 	@$(call print,'${yellow}Starting containers${reset} ...')
@@ -245,7 +254,7 @@ endif
                echo 'DOCKER_TAG=${git_version}' >> ./.env && \
                $(call println,'') && \
                $(call println,'${yellow}Application image${reset}: ${cyan}${docker_image}${reset}') && \
-               ${compose} config 2>${stderr} | ssh "${manager}" 'docker stack deploy --prune --with-registry-auth -c - "${project_name}"' ${log} && \
+               ${compose} config 2>${stderr} | ssh "${manager}" 'docker stack deploy --prune --with-registry-auth -c - "${compose_project_name}"' ${log} && \
             ( [ -z "${path}" ] || rm -rf "${path}" ${log} ) \
           ) \
           || ${fail}
@@ -260,8 +269,8 @@ rollback:
 ifndef manager
 	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`') ; exit 1
 endif
-	@$(call println,'${yellow}Rolling back${reset} ${green}${project_name}_${service}${reset} ${yellow}via${reset} ${green}${manager}${reset} ...')
-	@ssh "${manager}" 'docker service rollback --detach "${project_name}_${service}"' ${log} || ${fail}
+	@$(call println,'${yellow}Rolling back${reset} ${green}${compose_project_name}_${service}${reset} ${yellow}via${reset} ${green}${manager}${reset} ...')
+	@ssh "${manager}" 'docker service rollback --detach "${compose_project_name}_${service}"' ${log} || ${fail}
 	@$(call println,'${yellow}Rollback request${reset} ${green}complete${reset}. ${tick}')
 
 ### Service healthcheck commands ###
