@@ -44,7 +44,7 @@ namespace :orchestration do
   end
 
   namespace :docker do
-    desc I18n.t('orchestration.rake.listener.wait')
+    desc I18n.t('orchestration.rake.docker.username')
     task :username do
       STDOUT.write(
         Orchestration::Environment.new.settings.get('docker.username')
