@@ -188,7 +188,7 @@ Dependencies will be launched and then tested for readiness. The retry limit and
 
 ```
 ORCHESTRATION_RETRY_LIMIT # default: 10
-ORCHESTRATION_RETRY_INTERVAL # default: 3 [seconds]
+ORCHESTRATION_RETRY_INTERVAL # default: 5 [seconds]
 ```
 
 ### (Local) Production
