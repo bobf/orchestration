@@ -11,63 +11,61 @@ module Orchestration
       super
       @env = Environment.new
       @terminal ||= Terminal.new
+      @settings = Settings.new(@env.orchestration_configuration_path)
     end
 
     def orchestration_configuration
       path = @env.orchestration_configuration_path
-      settings = Settings.new(path)
-      docker_username(settings)
+      ask_setting('docker.username')
+      ask_setting('docker.repository', @env.default_application_name)
       relpath = relative_path(path)
-      return @terminal.write(:create, relpath) unless settings.exist?
-      return @terminal.write(:update, relpath) if settings.dirty?
+      return @terminal.write(:create, relpath) unless @settings.exist?
+      return @terminal.write(:update, relpath) if @settings.dirty?
 
       @terminal.write(:skip, relpath)
     end
 
     def makefile
-      environment = {
-        app_id: @env.application_name,
-        wait_commands: wait_commands
-      }
+      environment = { env: @env, wait_commands: wait_commands }
       content = template('Makefile', environment)
-      path = @env.root.join('Makefile')
-      delete_and_inject_after(path, "\n#!!orchestration\n", content)
+      path = @env.orchestration_root.join('Makefile')
+      path.exist? ? update_file(path, content) : write_file(path, content)
+      inject_if_missing(
+        @env.root.join('Makefile'),
+        'include orchestration/Makefile'
+      )
     end
 
     def dockerfile
       content = template('Dockerfile', ruby_version: RUBY_VERSION)
-      write_file(docker_dir.join('Dockerfile'), content, overwrite: false)
+      write_file(
+        orchestration_dir.join('Dockerfile'),
+        content,
+        overwrite: false
+      )
     end
 
     def entrypoint
       content = template('entrypoint.sh')
-      path = docker_dir.join('entrypoint.sh')
+      path = orchestration_dir.join('entrypoint.sh')
       write_file(path, content, overwrite: false)
       FileUtils.chmod('a+x', path)
     end
 
     def gitignore
       path = @env.root.join('.gitignore')
-      entries = [
-        'docker/.build/',
-        'docker/Gemfile',
-        'docker/Gemfile.lock',
-        'docker/*.gemspec'
-      ]
+      entries = %w[.build/ Gemfile Gemfile.lock *.gemspec].map do |entry|
+        "#{@env.orchestration_dir_name}/#{entry}"
+      end
+
       ensure_lines_in_file(path, entries)
     end
 
     def docker_compose
-      path = @env.root.join('docker-compose.yml')
+      path = @env.orchestration_root.join('docker-compose.yml')
       return if File.exist?(path)
 
-      docker_compose = DockerCompose::Services.new(
-        application: configuration(:application),
-        database: configuration(:database),
-        mongo: configuration(:mongo),
-        rabbitmq: configuration(:rabbitmq),
-        nginx_proxy: configuration(:nginx_proxy)
-      )
+      docker_compose = DockerCompose::Services.new(@env, service_configurations)
       write_file(path, docker_compose.structure.to_yaml)
     end
 
@@ -77,7 +75,27 @@ module Orchestration
       write_file(path, content, overwrite: false)
     end
 
+    def yaml_bash
+      simple_copy('yaml.bash', @env.orchestration_root.join('yaml.bash'))
+    end
+
+    def nginx_tmpl
+      simple_copy('nginx.tmpl', @env.orchestration_root.join('nginx.tmpl'))
+    end
+
     private
+
+    def t(key)
+      I18n.t("orchestration.#{key}")
+    end
+
+    def service_configurations
+      Hash[
+        %i[application database mongo rabbitmq nginx_proxy].map do |key|
+          [key, configuration(key)]
+        end
+      ]
+    end
 
     def configuration(service)
       {
@@ -99,18 +117,12 @@ module Orchestration
       ].compact.join(' ')
     end
 
-    def docker_username(settings)
-      return unless settings.get('docker.username').nil?
+    def ask_setting(setting, default = nil)
+      return unless @settings.get(setting).nil?
 
-      @terminal.write(:setup, I18n.t('orchestration.docker.username_request'))
-      settings.set('docker.username', @terminal.read('[username]:'))
-    end
-
-    def docker_dir
-      path = @env.root.join('docker')
-      FileUtils.mkdir(path) unless Dir.exist?(path)
-
-      path
+      @terminal.write(:setup, t("settings.#{setting}.description"))
+      prompt = t("settings.#{setting}.prompt")
+      @settings.set(setting, @terminal.read(prompt, default))
     end
   end
 end

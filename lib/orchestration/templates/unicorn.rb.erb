@@ -1,6 +1,6 @@
 listen '0.0.0.0:8080', :tcp_nopush => true
 
-pid '/application/tmp/pids/unicorn.pid'
+pid '/app/tmp/pids/unicorn.pid'
 
 preload_app ENV.fetch('UNICORN_PRELOAD_APP', '1') == '1'
 

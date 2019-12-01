@@ -7,7 +7,7 @@ RSpec.describe Orchestration::InstallGenerator do
     subject(:dockerfile) { install_generator.dockerfile }
 
     let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
-    let(:dockerfile_path) { dummy_path.join('docker', 'Dockerfile') }
+    let(:dockerfile_path) { dummy_path.join('orchestration', 'Dockerfile') }
     let(:content) { File.read(dockerfile_path) }
 
     before { FileUtils.rm_f(dockerfile_path) }

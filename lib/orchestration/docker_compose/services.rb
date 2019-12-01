@@ -3,7 +3,8 @@
 module Orchestration
   module DockerCompose
     class Services
-      def initialize(options = {})
+      def initialize(env, options = {})
+        @env = env
         @configurations = {
           'application' => options.fetch(:application, nil),
           'database' => options.fetch(:database, nil),
@@ -14,7 +15,13 @@ module Orchestration
       end
 
       def structure
-        { 'version' => '3.7', 'services' => services }
+        {
+          'version' => '3.7',
+          'services' => services,
+          'volumes' => {
+            @env.public_volume => nil
+          }
+        }
       end
 
       def services

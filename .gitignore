@@ -19,8 +19,7 @@ spec/dummy/log/*
 !spec/dummy/log/.keep
 spec/dummy/.gitignore
 spec/dummy/Makefile
-spec/dummy/docker/*
-spec/dummy/docker-compose.yml
+spec/dummy/orchestration/*
 spec/dummy/config/unicorn.rb
 
 orchestration-*.gem

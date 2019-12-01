@@ -9,17 +9,16 @@ module Orchestration
 
       def definition
         {
-          'image' => image,
+          'image' => '${DOCKER_USERNAME}/${DOCKER_REPOSITORY}',
           'environment' => environment,
-          'expose' => [8080]
+          'expose' => [8080],
+          'volumes' => [
+            "#{@config.env.public_volume}:/app/public/:ro"
+          ]
         }
       end
 
       private
-
-      def image
-        "#{@config.docker_username}/#{@config.application_name}"
-      end
 
       def environment
         {

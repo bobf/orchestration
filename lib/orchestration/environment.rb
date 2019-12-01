@@ -33,7 +33,7 @@ module Orchestration
     end
 
     def docker_compose_configuration_path
-      root.join('docker-compose.yml')
+      orchestration_root.join('docker-compose.yml')
     end
 
     def docker_compose_config
@@ -44,8 +44,12 @@ module Orchestration
       docker_compose_configuration_path.file?
     end
 
-    def application_name
+    def default_application_name
       Rails.application.class.parent.name.underscore
+    end
+
+    def application_name
+      settings.get('docker.repository')
     end
 
     def settings
@@ -56,6 +60,18 @@ module Orchestration
       return Rails.root if defined?(Rails) && Rails.root
 
       Pathname.new(Dir.pwd)
+    end
+
+    def orchestration_root
+      root.join(orchestration_dir_name)
+    end
+
+    def orchestration_dir_name
+      'orchestration'
+    end
+
+    def public_volume
+      "#{application_name}_public"
     end
   end
 end

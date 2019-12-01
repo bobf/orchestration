@@ -7,7 +7,9 @@ RSpec.describe Orchestration::InstallGenerator do
     subject(:docker_compose) { install_generator.docker_compose }
 
     let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
-    let(:docker_compose_path) { dummy_path.join('docker-compose.yml') }
+    let(:docker_compose_path) do
+      dummy_path.join('orchestration', 'docker-compose.yml')
+    end
 
     before { FileUtils.rm_f(docker_compose_path) }
 
@@ -44,7 +46,8 @@ RSpec.describe Orchestration::InstallGenerator do
     it 'includes application service' do
       docker_compose
       config = YAML.safe_load(File.read(docker_compose_path))
-      expect(config['services']['application']['image']).to eql 'testuser/dummy'
+      expect(config['services']['application']['image'])
+        .to eql '${DOCKER_USERNAME}/${DOCKER_REPOSITORY}'
     end
   end
 end

@@ -18,7 +18,7 @@ module Orchestration
         end
 
         def application_name
-          @env.application_name
+          @env.settings.get('docker.repository')
         end
 
         def friendly_config

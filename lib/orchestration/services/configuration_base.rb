@@ -3,7 +3,7 @@
 module Orchestration
   module Services
     module ConfigurationBase
-      attr_reader :settings, :service_name
+      attr_reader :settings, :service_name, :env
 
       def self.included(base)
         base.extend(ClassMethods)

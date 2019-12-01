@@ -15,7 +15,14 @@ RSpec.describe Orchestration::Services::Application::Healthcheck do
     )
   end
 
-  let(:settings) { instance_double(Orchestration::Settings) }
+  let(:settings) do
+    instance_double(Orchestration::Settings)
+  end
+
+  before do
+    allow(settings).to receive(:get).with('docker.username') { 'dockeruser' }
+    allow(settings).to receive(:get).with('docker.repository') { 'repo' }
+  end
 
   it { is_expected.to be_a described_class }
 

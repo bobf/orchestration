@@ -46,7 +46,6 @@ RSpec.describe Orchestration::Terminal do
     ready
     create
     update
-    identical
     status
     setup
     input
