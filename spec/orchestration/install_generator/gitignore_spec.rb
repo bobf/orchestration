@@ -51,6 +51,7 @@ RSpec.describe Orchestration::InstallGenerator do
 
     [
       'deploy.tar',
+      '.env',
       'orchestration/.build',
       'orchestration/.deploy',
       'orchestration/Gemfile',

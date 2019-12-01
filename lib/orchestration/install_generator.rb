@@ -57,7 +57,7 @@ module Orchestration
     def gitignore
       path = @env.root.join('.gitignore')
       globs = %w[.build/ .deploy/ Gemfile Gemfile.lock]
-      entries = ['deploy.tar'] + globs.map do |entry|
+      entries = %w[.env deploy.tar] + globs.map do |entry|
         "#{@env.orchestration_dir_name}/#{entry}"
       end
 
