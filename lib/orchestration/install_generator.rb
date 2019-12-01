@@ -39,7 +39,11 @@ module Orchestration
     end
 
     def dockerfile
-      content = template('Dockerfile', ruby_version: RUBY_VERSION)
+      content = template(
+        'Dockerfile',
+        ruby_version: RUBY_VERSION,
+        web_server: ENV.fetch('web_server', 'unicorn')
+      )
       create_file(
         orchestration_dir.join('Dockerfile'),
         content,
@@ -64,14 +68,28 @@ module Orchestration
       ensure_lines_in_file(path, entries)
     end
 
+    def puma
+      return nil unless web_server == 'puma'
+
+      content = template('puma.rb')
+      path = @env.root.join('config', 'puma.rb')
+      create_file(path, content, overwrite: false)
+    end
+
     def unicorn
+      return nil unless web_server == 'unicorn'
+
       content = template('unicorn.rb')
       path = @env.root.join('config', 'unicorn.rb')
       create_file(path, content, overwrite: false)
     end
 
+    def healthcheck
+      simple_copy('healthcheck.rb')
+    end
+
     def yaml_bash
-      simple_copy('yaml.bash', @env.orchestration_root.join('yaml.bash'))
+      simple_copy('yaml.bash')
     end
 
     def env
@@ -79,7 +97,7 @@ module Orchestration
     end
 
     def deploy_mk
-      simple_copy('deploy.mk', @env.orchestration_root.join('deploy.mk'))
+      simple_copy('deploy.mk')
     end
 
     def docker_compose
@@ -107,6 +125,10 @@ module Orchestration
       %i[test development production].map do |environment|
         @docker_compose.enabled_services(environment)
       end.flatten.uniq
+    end
+
+    def web_server
+      ENV.fetch('WEB_SERVER', 'unicorn')
     end
   end
 end

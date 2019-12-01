@@ -1,0 +1,19 @@
+environment ENV.fetch('RAILS_ENV') { 'development' }
+
+port ENV.fetch('WEB_PORT') { 3000 }
+workers ENV.fetch('WEB_CONCURRENCY') { 4 }
+threads_count = ENV.fetch('RAILS_MAX_THREADS') { 8 }
+
+pidfile './tmp/pids/server.pid'
+threads threads_count, threads_count
+
+preload_app! if ENV.key?('WEB_PRELOAD_APP')
+
+before_fork do
+  ActiveRecord::Base.connection_pool.disconnect! if defined?(ActiveRecord)
+end
+
+on_worker_boot do
+  ActiveRecord::Base.establish_connection if defined?(ActiveRecord)
+end
+
