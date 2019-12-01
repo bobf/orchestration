@@ -52,15 +52,15 @@ endif
 
 ifdef sidecar
   sidecar_compose = sidecar=1
-  ifeq (,$.sidecar})
-   .sidecar := $(call token)
-    _ignore := $(shell echo $.sidecar} > ${orchestration_dir}/.sidecar)
+  ifeq (,${sidecar_suffix})
+    sidecar_suffix := $(call token)
+    _ignore := $(shell echo ${sidecar_suffix} > ${orchestration_dir}/.sidecar_suffix)
   endif
 
-  ifeq (,$.sidecar})
+  ifeq (,${sidecar_suffix})
     $(warning Unable to generate project suffix; project name collisions may occur.)
   endif
-  compose_project_name = ${project_base}_$.sidecar}
+  compose_project_name = ${project_base}_${sidecar_suffix}
 else
   compose_project_name = ${project_base}
 endif
