@@ -54,7 +54,7 @@ ifdef sidecar
   sidecar_compose = sidecar=1
   ifeq (,${sidecar_suffix})
     sidecar_suffix := $(call token)
-    _ignore := $(shell echo ${sidecar_suffix} > ${orchestration_dir}/.sidecar_suffix)
+    _ignore := $(shell echo ${sidecar_suffix} > ${orchestration_dir}/.sidecar)
   endif
 
   ifeq (,${sidecar_suffix})
