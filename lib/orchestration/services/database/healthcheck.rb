@@ -9,6 +9,8 @@ module Orchestration
         dependencies 'active_record'
 
         def connect
+          return if settings[:adapter] == 'sqlite3'
+
           ActiveRecord::Base.establish_connection(settings)
           ActiveRecord::Base.connection
         end
@@ -24,12 +26,7 @@ module Orchestration
         end
 
         def settings
-          return @configuration.settings unless @options[:init]
-
-          {
-            adapter: @configuration.adapter.name,
-            port: DockerCompose::DatabaseService::PORT
-          }.merge(@configuration.adapter.credentials)
+          @configuration.settings
         end
       end
     end

@@ -13,7 +13,7 @@ module Orchestration
         end
 
         def friendly_config
-          return "[#{adapter.name}]" if adapter.name == 'sqlite3'
+          return "[#{adapter.name}]" if sqlite?
 
           "[#{adapter.name}] #{host}:#{port}"
         end
@@ -29,6 +29,10 @@ module Orchestration
           }.transform_keys(&:to_s)
         end
 
+        def configured?
+          sqlite? || super
+        end
+
         def adapter
           url_adapter = url_config['adapter']
           file_adapter = file_config['adapter']
@@ -42,10 +46,20 @@ module Orchestration
 
         private
 
-        def file_config
-          return {} unless File.exist?(@env.database_configuration_path)
+        def custom?
+          !@options[:config_path].nil?
+        end
 
-          yaml = ERB.new(File.read(env.database_configuration_path)).result
+        def database_configuration_path
+          return @env.database_configuration_path unless custom?
+
+          @options[:config_path]
+        end
+
+        def file_config
+          return {} unless File.exist?(database_configuration_path) || custom?
+
+          yaml = ERB.new(File.read(database_configuration_path)).result
           YAML.safe_load(yaml, [], [], true)[@env.environment] || {}
         end
 
@@ -67,6 +81,8 @@ module Orchestration
         end
 
         def port
+          return nil if sqlite?
+
           url_config['port'] || file_config['port'] || super
         end
 
@@ -108,6 +124,10 @@ module Orchestration
 
         def adapters
           Orchestration::Services::Database::Adapters
+        end
+
+        def sqlite?
+          adapter.name == 'sqlite3'
         end
       end
     end

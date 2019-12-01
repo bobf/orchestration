@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe Orchestration::Services::Database::Configuration do
-  subject(:configuration) { described_class.new(env) }
+  subject(:configuration) { described_class.new(env, 'database', options) }
+
+  let(:options) { {} }
 
   let(:config_path) do
     Orchestration.root.join('spec', 'dummy', 'config', 'database.yml')
@@ -116,6 +118,19 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       its(['database']) { is_expected.to eql 'production_db' }
       its(['username']) { is_expected.to eql 'postgres' }
       its(['password']) { is_expected.to eql 'password' }
+    end
+
+    context 'from alternate database.yml' do
+      let(:options) { { config_path: fixture_path('database.custom') } }
+      let(:config_path) { fixture_path('mysql2') }
+
+      its(['adapter']) { is_expected.to eql 'postgresql' }
+    end
+
+    context 'not from alternate database.yml' do
+      let(:config_path) { fixture_path('mysql2') }
+
+      its(['adapter']) { is_expected.to_not eql 'custom' }
     end
   end
 end

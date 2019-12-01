@@ -8,10 +8,19 @@ namespace :orchestration do
     Orchestration::InstallGenerator.start
   end
 
+  namespace :install do
+    desc I18n.t('orchestration.rake.install_makefile')
+    task :makefile do
+      Orchestration::InstallGenerator.new.orchestration_makefile
+    end
+  end
+
   namespace :app do
     desc I18n.t('orchestration.rake.app.wait')
     task :wait do
-      Orchestration::Services::App::Healthcheck.start
+      Orchestration::Services::App::Healthcheck.start(
+        nil, nil, config_path: ENV['config'], service_name: ENV['service']
+      )
     end
   end
 
@@ -19,7 +28,7 @@ namespace :orchestration do
     desc I18n.t('orchestration.rake.database.wait')
     task :wait do
       Orchestration::Services::Database::Healthcheck.start(
-        nil, nil, init: ENV.key?('init')
+        nil, nil, config_path: ENV['config'], service_name: ENV['service']
       )
     end
   end
@@ -27,14 +36,18 @@ namespace :orchestration do
   namespace :mongo do
     desc I18n.t('orchestration.rake.mongo.wait')
     task :wait do
-      Orchestration::Services::Mongo::Healthcheck.start
+      Orchestration::Services::Mongo::Healthcheck.start(
+        nil, nil, config_path: ENV['config'], service_name: ENV['service']
+      )
     end
   end
 
   namespace :rabbitmq do
     desc I18n.t('orchestration.rake.rabbitmq.wait')
     task :wait do
-      Orchestration::Services::RabbitMQ::Healthcheck.start
+      Orchestration::Services::RabbitMQ::Healthcheck.start(
+        nil, nil, config_path: ENV['config'], service_name: ENV['service']
+      )
     end
   end
 

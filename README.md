@@ -363,6 +363,46 @@ Using this approach, the environment variable `RABBITMQ_URL` can be used to conf
 
 This is a convention of the _Orchestration_ gem intended to make _RabbitMQ_ configuration consistent with other services.
 
+## Alternate Database Configuration Files
+
+If you have multiple databases configured in various (e.g.) `config/database.*.yml` files then the `make wait-database` command can be used directly in continuous integration environments to verify that your database services are available.
+
+Note that all services from the relevant `docker-compose.yml` configuration will be loaded when using the `make start` or `make test-setup` (called by default `make test` command).
+
+Assuming the following configurations:
+```
+# orchestration/docker-compose.test.yml
+version: '3.7'
+services:
+  customdb:
+    image: postgres
+    ports:
+      - "55667:5432"
+  # ...
+```
+
+```
+# config/database.custom.yml
+test:
+  adapter: postgresql
+  host: 127.0.0.1
+  port: 55667
+  username: postgres
+  password: password
+  database: postgres
+```
+
+The following command can be used to ensure that the `customdb` service is available:
+```
+make wait-database service=custom config=config/database.custom.yml env=test
+```
+
+You may wish to extend the example `Makefile` to include something like this:
+```
+test: test-setup
+	$(MAKE) wait-database service=custom config=config/database.custom.yml env=test
+	# ...
+```
 ## License
 
 [MIT License](LICENSE)
