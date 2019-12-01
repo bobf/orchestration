@@ -8,6 +8,7 @@ RSpec.describe Orchestration::InstallGenerator do
 
     let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
     let(:dockerfile_path) { dummy_path.join('docker', 'Dockerfile') }
+    let(:content) { File.read(dockerfile_path) }
 
     before { FileUtils.rm_f(dockerfile_path) }
 
@@ -19,14 +20,35 @@ RSpec.describe Orchestration::InstallGenerator do
     it 'does not replace existing Dockerfile' do
       File.write(dockerfile_path, 'some docker commands')
       dockerfile
-      content = File.read(dockerfile_path)
       expect(content).to eql 'some docker commands'
     end
 
     it 'uses appropriate Ruby image' do
       dockerfile
-      content = File.read(dockerfile_path)
       expect(content).to include "ruby:#{RUBY_VERSION}"
+    end
+
+    context 'with webpacker' do
+      before do
+        module Webpacker
+        end
+      end
+
+      it 'includes webpacker build dependencies' do
+        dockerfile
+        expect(content).to include('npm install -g yarn')
+      end
+
+      after do
+        Object.send(:remove_const, :Webpacker)
+      end
+    end
+
+    context 'without webpacker' do
+      it 'includes webpacker build dependencies' do
+        dockerfile
+        expect(content).to_not include('npm install -g yarn')
+      end
     end
   end
 end
