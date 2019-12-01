@@ -3,7 +3,10 @@ ARG BUNDLE_BITBUCKET__ORG
 ARG BUNDLE_GITHUB__COM
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
  && apt-get update \
- && apt-get install -y nodejs gosu sendmail \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+      nodejs \
+      gosu \
+      sendmail \
  && rm -rf /var/lib/apt/lists/* \
  && gem install bundler \
  && mkdir /app<%if defined?(Webpacker) %> \
