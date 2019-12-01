@@ -12,6 +12,11 @@ module Orchestration
       ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
     end
 
+    def web_server
+      # Used at installation time only
+      ENV.fetch('web_server', 'puma')
+    end
+
     def database_url
       ENV['DATABASE_URL']
     end

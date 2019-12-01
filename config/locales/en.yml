@@ -44,6 +44,7 @@ en:
     rake:
       app:
         wait: "Wait for app to become available"
+        unknown_web_server: "Unrecognised web server '%{server}'. Expected: %{expected}"
 
       database:
         wait: "Wait for database to become available"

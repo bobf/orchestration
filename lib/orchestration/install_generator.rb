@@ -42,7 +42,7 @@ module Orchestration
       content = template(
         'Dockerfile',
         ruby_version: RUBY_VERSION,
-        web_server: ENV.fetch('web_server', 'unicorn')
+        web_server: @env.web_server
       )
       create_file(
         orchestration_dir.join('Dockerfile'),
