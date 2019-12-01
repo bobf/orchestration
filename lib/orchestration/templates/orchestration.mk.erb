@@ -99,8 +99,11 @@ ifeq (${env},$(filter ${env},test development))
 	@[ -n '${sidecar}' ] && \
          ( \
            docker network connect '${network}' '$(shell hostname)' ${log} \
-           || \
-           $(call println,'${yellow}Warning${reset}: Unable to join network: "${yellow}${network}${reset}". Container will not be able to connect to dependency services.') \
+           || ( \
+           $(call println,'') ; \
+           $(call println,'${yellow}Warning${reset}: Unable to join network: "${yellow}${network}${reset}". Container will not be able to connect to dependency services.') ; \
+           $(call println,'You may need to delete "${yellow}orchestration/.sidecar_suffix${reset}" to disable sidecar mode if this file was added by mistake.') ; \
+           ) \
          ) \
          || ( [ -z '${sidecar}' ] || ${fail} )
 else
