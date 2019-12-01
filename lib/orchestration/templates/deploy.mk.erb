@@ -9,40 +9,45 @@ endif
 
 verify-environment:
 ifndef VIRTUAL_HOST
-        @$(error `VIRTUAL_HOST` must be defined in environment)
+  @$(error `VIRTUAL_HOST` must be defined in environment)
 endif
 
 ifndef LISTEN_PORT
-        @$(error `LISTEN_PORT` must be defined in environment)
+  @$(error `LISTEN_PORT` must be defined in environment)
 endif
 
 ifndef env
-        @$(error Either `env`, `RACK_ENV` or `RAILS_ENV` must be defined in environment)
+  @$(error Either `env`, `RACK_ENV` or `RAILS_ENV` must be defined in environment)
 endif
 
+project_name:=%%REPOSITORY%%_${env}
 compose_base:=env HOST_UID=$(shell id -u) \
               DOCKER_ORGANIZATION=%%ORGANIZATION%% \
               DOCKER_REPOSITORY=%%REPOSITORY%%:%%VERSION%% \
               docker-compose \
-              -p %%REPOSITORY%%_${env} \
+              -p ${project_name} \
               -f docker-compose.yml
 
 compose:=${compose_base} -f docker-compose.production.yml -f docker-compose.override.yml
 
 .PHONY: deploy
 deploy:
-	@echo "Deploying application to Docker swarm..."
-	@${compose} config | docker stack deploy --with-registry-auth -c - %%REPOSITORY%%_${env}
+ifndef manager
+	@$(error Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`)
+else
+	@tar -cf - . | ssh ${manager} 'cd $$(mktemp -d) ; chmod 0700 . ; cat - | tar -x ; make deploy-stack ; rm -r $$(pwd)'
+endif
 
-.PHONY: stop
-stop:
-	@echo "Stopping containers..."
-	@${compose} down
+.PHONY: deploy-stack
+deploy-stack:
+	@${compose} config | docker stack deploy --with-registry-auth -c - ${project_name}
 
-.PHONY: start
-start:
-	@echo "Launching application..."
-	@${compose} up -d --scale app=$${instances:-1}
+.PHONY: console
+service := app
+command := /bin/bash
+console:
+	@echo "Creating temporary container..."
+	@${compose} run --rm ${service} ${command}
 
 .PHONY: config
 config:
@@ -53,12 +58,17 @@ pull:
 	@${compose} pull
 
 .PHONY: logs
+service := app
 logs:
-	@${compose} logs -f
+ifndef manager
+        @$(error Missing `manager` parameter: `make logs manager=swarm-manager.example.com`)
+else
+	ssh ${manager} "docker service logs -f ${project_name}_${service}"
+endif
 
 .PHONY: migrate
 migrate:
-	@${compose} run --rm app make migrate env=${env}
+	@${compose} run --rm app bundle exec rake db:migrate
 
 .PHONY: compose
 compose:
