@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 module Orchestration
   module Services
     module HTTPHealthcheck
       def connect
-        response = Net::HTTP.get_response(
+        code = Net::HTTP.get_response(
           URI("http://#{@configuration.host}:#{@configuration.port}")
-        )
-        connection_error(response.code) if connection_error?(response.code)
-        connection_error(response.code) unless connection_success?(response.code)
+        ).code
+        connection_error(code) if connection_error?(code)
+        connection_error(code) unless connection_success?(code)
       end
 
       def connection_errors
@@ -24,7 +26,7 @@ module Orchestration
         %w[502 503 500].include?(code)
       end
 
-      def connection_success?(code)
+      def connection_success?(_code)
         # Override if specific success codes needed, otherwise default to true
         # (i.e. an error code [as defined above] was not returned so we assume
         # success).

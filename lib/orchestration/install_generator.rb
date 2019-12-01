@@ -4,6 +4,7 @@ require 'thor'
 require 'tempfile'
 
 module Orchestration
+  # rubocop:disable Metrics/ClassLength
   class InstallGenerator < Thor::Group
     include FileHelpers
 
@@ -39,16 +40,9 @@ module Orchestration
     end
 
     def dockerfile
-      content = template(
-        'Dockerfile',
-        ruby_version: RUBY_VERSION,
-        command: DockerCompose::AppService.command,
-        entrypoint: DockerCompose::AppService.entrypoint,
-        healthcheck: DockerCompose::AppService.healthcheck
-      )
       create_file(
         orchestration_dir.join('Dockerfile'),
-        content,
+        dockerfile_content,
         overwrite: false
       )
     end
@@ -148,7 +142,17 @@ module Orchestration
     end
 
     def service_config(filename, config_class)
-      content = template(
+      content = service_config_content(filename, config_class)
+      path = @env.root.join('config', filename)
+      if path.exist?
+        update_file(path, content, backup: true)
+      else
+        create_file(path, content)
+      end
+    end
+
+    def service_config_content(filename, config_class)
+      template(
         filename,
         config: config_class.new(@env),
         compose: proc do |env|
@@ -157,13 +161,17 @@ module Orchestration
           )
         end
       )
+    end
 
-      path = @env.root.join('config', filename)
-      if path.exist?
-        update_file(path, content, backup: true)
-      else
-        create_file(path, content)
-      end
+    def dockerfile_content
+      template(
+        'Dockerfile',
+        ruby_version: RUBY_VERSION,
+        command: DockerCompose::AppService.command,
+        entrypoint: DockerCompose::AppService.entrypoint,
+        healthcheck: DockerCompose::AppService.healthcheck
+      )
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

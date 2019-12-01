@@ -74,7 +74,7 @@ module Orchestration
           (
             url_config['username'] ||
             file_config['username'] ||
-            adapter&.credentials['username']
+            (adapter && adapter.credentials['username'])
           )
         end
 
@@ -82,7 +82,7 @@ module Orchestration
           (
             url_config['password'] ||
             file_config['password'] ||
-            adapter&.credentials['password']
+            (adapter && adapter.credentials['password'])
           )
         end
 
@@ -90,7 +90,7 @@ module Orchestration
           (
             url_config['database'] ||
             file_config['database'] ||
-            adapter&.credentials['database']
+            (adapter && adapter.credentials['database'])
           )
         end
 

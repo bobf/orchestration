@@ -11,11 +11,11 @@ module Orchestration
       class << self
         def command
           server = env.web_server
-          %w(bundle exec) + case env.web_server
+          %w[bundle exec] + case env.web_server
                             when 'puma'
-                              %w(puma -C config/puma.rb)
+                              %w[puma -C config/puma.rb]
                             when 'unicorn'
-                              %w(unicorn -c config/unicorn.rb)
+                              %w[unicorn -c config/unicorn.rb]
                             else
                               unsupported_web_server(server)
                             end
@@ -45,7 +45,7 @@ module Orchestration
         end
 
         def env
-          @environment ||= Environment.new
+          @env ||= Environment.new
         end
 
         def unsupported_web_server(server)
@@ -53,7 +53,7 @@ module Orchestration
                 I18n.t(
                   'orchestration.rake.app.unspported_web_server',
                   server: server,
-                  expected: %w(puma unicorn)
+                  expected: %w[puma unicorn]
                 )
         end
       end
@@ -63,17 +63,8 @@ module Orchestration
           'image' => image,
           'environment' => environment,
           'ports' => ports,
-          'deploy' => {
-            'mode' => 'replicated',
-            'replicas' => '${REPLICAS}'
-          },
-          'logging' => {
-            'driver' => 'json-file',
-            'options' => {
-              'max-size' => '10m',
-              'max-file' => '5'
-            }
-          }
+          'deploy' => deploy,
+          'logging' => logging
         }
       end
 
@@ -81,6 +72,23 @@ module Orchestration
 
       def image
         '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}:${DOCKER_TAG}'
+      end
+
+      def deploy
+        {
+          'mode' => 'replicated',
+          'replicas' => '${REPLICAS}'
+        }
+      end
+
+      def logging
+        {
+          'driver' => 'json-file',
+          'options' => {
+            'max-size' => '10m',
+            'max-file' => '5'
+          }
+        }
       end
 
       def environment
@@ -93,14 +101,14 @@ module Orchestration
       end
 
       def inherited_environment
-        [
-          'DATABASE_URL',
-          'HOST_UID',
-          'RAILS_ENV',
-          'SECRET_KEY_BASE',
-          'WEB_CONCURRENCY',
-          'WEB_TIMEOUT',
-          'WEB_WORKER_PROCESSES'
+        %w[
+          DATABASE_URL
+          HOST_UID
+          RAILS_ENV
+          SECRET_KEY_BASE
+          WEB_CONCURRENCY
+          WEB_TIMEOUT
+          WEB_WORKER_PROCESSES
         ]
       end
 
