@@ -9,7 +9,7 @@ module Orchestration
         self.service_name = 'database'
 
         def enabled?
-          !adapter.nil?
+          defined?(::ActiveRecord)
         end
 
         def friendly_config

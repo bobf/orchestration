@@ -27,6 +27,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
     context 'postgresql' do
       let(:adapter) { 'postgresql' }
       let(:environment) { :production }
+      before { hide_const('Mysql2') }
 
       it { is_expected.to be_a Hash }
       its(['image']) { is_expected.to eql 'library/postgres' }
@@ -41,6 +42,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
     context 'mysql2' do
       let(:adapter) { 'mysql2' }
       let(:environment) { :production }
+      before { hide_const('PG') }
 
       it { is_expected.to be_a Hash }
       its(['image']) { is_expected.to eql 'library/mysql' }
@@ -53,6 +55,8 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
 
     context 'sqlite3' do
       let(:adapter) { 'sqlite3' }
+      before { hide_const('Mysql2') }
+      before { hide_const('PG') }
 
       it { is_expected.to be_nil }
     end
@@ -67,6 +71,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
     context 'test' do
       let(:environment) { :test }
       let(:adapter) { 'postgresql' }
+      before { hide_const('Mysql2') }
       its(['volumes']) { is_expected.to be_empty }
       describe 'local port' do
         subject(:port) { definition['ports'].first.partition(':').first.to_i }
@@ -82,6 +87,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
     context 'development' do
       let(:environment) { :development }
       let(:adapter) { 'mysql2' }
+      before { hide_const('PG') }
       it { is_expected.to include 'volumes' }
       describe 'local port' do
         subject(:port) { definition['ports'].first.partition(':').first.to_i }
