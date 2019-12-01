@@ -9,6 +9,9 @@ development:
   username: <%= compose.call(nil).database_adapter.credentials['username'] %>
   password: <%= compose.call(nil).database_adapter.credentials['password'] %>
   database: <%= compose.call(nil).database_adapter.credentials['database'] %>
+  <%% if ENV.key?('DEVELOPMENT_DATABASE_URL') %>
+  url: <%%= ENV['DEVELOPMENT_DATABASE_URL'] %>
+  <%% end %>
 <% end %>
 
 <% if compose.call('test').services.key?('database') %>
