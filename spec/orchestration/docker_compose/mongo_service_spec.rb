@@ -22,12 +22,7 @@ RSpec.describe Orchestration::DockerCompose::MongoService do
     subject(:definition) { mongo_service.definition }
 
     its(['image']) { is_expected.to eql 'library/mongo' }
-    its(['ports']) { is_expected.to eql ['27017:27017'] }
-
-    context 'multiple hosts' do
-      let(:config) { fixture_path('mongoid_multiple_hosts') }
-      its(['ports']) { is_expected.to eql ['27017:27017', '27018:27017'] }
-    end
+    its(['ports']) { is_expected.to eql ['27020:27017'] }
 
     context 'mongoid not configured' do
       let(:config) { '/path/to/non/existent/mongoid.yml' }

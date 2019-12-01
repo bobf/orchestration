@@ -4,7 +4,9 @@ module Orchestration
   module Services
     module Application
       class Configuration
-        attr_reader :settings
+        include ConfigurationBase
+
+        self.service_name = 'application'
 
         def initialize(env)
           @env = env
@@ -20,7 +22,7 @@ module Orchestration
         end
 
         def friendly_config
-          "[#{application_name}]"
+          "[#{application_name}] #{host}:#{local_port}"
         end
 
         def database_settings
@@ -35,26 +37,10 @@ module Orchestration
           database = settings.fetch('database')
           username = settings.fetch('username')
           password = settings.fetch('password')
-          port = DockerCompose::DatabaseService::PORT
+          port = settings.fetch('port')
+          host = Database::Configuration.service_name
 
-          "#{scheme}://#{username}:#{password}@database:#{port}/#{database}"
-        end
-
-        def local_port
-          docker_compose_config
-            .fetch('services')
-            .fetch('nginx-proxy')
-            .fetch('ports')
-            .first
-            .partition(':')
-            .first
-            .to_i
-        end
-
-        private
-
-        def docker_compose_config
-          YAML.safe_load(File.read(@env.docker_compose_configuration_path))
+          "#{scheme}://#{username}:#{password}@#{host}:#{port}/#{database}"
         end
       end
     end

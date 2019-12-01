@@ -5,6 +5,9 @@ module Orchestration
   end
 end
 
+require 'orchestration/services/configuration_base'
+require 'orchestration/services/healthcheck_base'
+
 require 'orchestration/services/application'
 require 'orchestration/services/database'
 require 'orchestration/services/mongo'

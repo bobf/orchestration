@@ -6,6 +6,8 @@ module Orchestration
       class Healthcheck
         include HealthcheckBase
 
+        dependencies 'active_record'
+
         def initialize(env)
           @configuration = Configuration.new(env)
         end

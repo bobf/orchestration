@@ -6,6 +6,8 @@ module Orchestration
       class Healthcheck
         include HealthcheckBase
 
+        dependencies 'bunny'
+
         def initialize(env)
           @configuration = Configuration.new(env)
         end
@@ -18,10 +20,9 @@ module Orchestration
         end
 
         def connect
-          host = @configuration.settings.fetch('host')
-          port = @configuration.settings.fetch('port')
+          port = @configuration.local_port
 
-          connection = Bunny.new("amqp://#{host}:#{port}", log_file: devnull)
+          connection = Bunny.new("amqp://localhost:#{port}", log_file: devnull)
           connection.start
           connection.stop
         end

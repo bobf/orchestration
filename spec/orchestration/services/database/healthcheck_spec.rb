@@ -7,7 +7,10 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
       'Environment',
       environment: 'test',
       database_url: nil,
-      database_configuration_path: database_config_path
+      database_configuration_path: database_config_path,
+      docker_compose_config: {
+        'services' => { 'database' => { 'ports' => ['5499:5499'] } }
+      }
     )
   end
 
@@ -34,7 +37,7 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
     it 'outputs a waiting message' do
       expect(terminal)
         .to receive(:write)
-        .with(:waiting, 'Waiting for database: [sqlite3]')
+        .with(:waiting, any_args)
 
       start
     end

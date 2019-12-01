@@ -7,7 +7,10 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
     double(
       'Environment',
       environment: 'test',
-      mongoid_configuration_path: fixture_path('mongoid')
+      mongoid_configuration_path: fixture_path('mongoid'),
+      docker_compose_config: {
+        'services' => { 'mongo' => { 'ports' => ['27020:27017'] } }
+      }
     )
   end
 
@@ -27,7 +30,7 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
     it 'outputs a waiting message' do
       expect(terminal)
         .to receive(:write)
-        .with(:waiting, 'Waiting for Mongo: [mongoid] localhost:27017')
+        .with(:waiting, 'Waiting for Mongo: [mongoid] localhost:27020')
 
       start
     end

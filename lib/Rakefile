@@ -1,0 +1,5 @@
+# frozen_string_literal: true
+
+require 'orchestration'
+
+import Orchestration.root.join('lib', 'tasks', 'orchestration.rake')

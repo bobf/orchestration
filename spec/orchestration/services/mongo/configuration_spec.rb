@@ -8,7 +8,10 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
     double(
       'Environment',
       environment: 'test',
-      mongoid_configuration_path: config
+      mongoid_configuration_path: config,
+      docker_compose_config: {
+        'services' => { 'mongo' => { 'ports' => ['27018:27017'] } }
+      }
     )
   end
 
@@ -21,7 +24,7 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
       {
         'clients' => {
           'default' => {
-            'database' => 'test_db', 'hosts' => ['localhost']
+            'database' => 'test_db', 'hosts' => ['localhost:27020']
           }
         }
       }
@@ -30,14 +33,5 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
     it { is_expected.to eql(expected_settings) }
   end
 
-  describe '#friendly_config' do
-    subject(:friendly_config) { configuration.friendly_config }
-
-    it { is_expected.to eql '[mongoid] localhost:27017' }
-
-    context 'multiple hosts' do
-      let(:config) { fixture_path('mongoid_multiple_hosts') }
-      it { is_expected.to eql '[mongoid] localhost:27017, example.com:27018' }
-    end
-  end
+  its(:friendly_config) { is_expected.to eql '[mongoid] localhost:27018' }
 end
