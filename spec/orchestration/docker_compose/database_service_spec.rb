@@ -30,7 +30,6 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
 
       it { is_expected.to be_a Hash }
       its(['image']) { is_expected.to eql 'library/postgres' }
-      its(['volumes']) { is_expected.to eql ['dummy_database:/var/pgdata'] }
       its(['environment']) do
         is_expected.to eql(
           'PGPORT' => '3354',
@@ -46,7 +45,6 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
 
       it { is_expected.to be_a Hash }
       its(['image']) { is_expected.to eql 'library/mysql' }
-      its(['volumes']) { is_expected.to eql ['dummy_database:/var/lib/mysql'] }
       its(['environment']) do
         is_expected.to eql(
           'MYSQL_ROOT_PASSWORD' => 'password',
@@ -64,7 +62,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
     context 'production' do
       let(:environment) { :production }
       let(:adapter) { 'postgresql' }
-      it { is_expected.to include 'volumes' }
+      it { is_expected.to_not include 'volumes' }
       it { is_expected.to_not include 'ports' }
     end
 

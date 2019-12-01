@@ -34,11 +34,8 @@ RSpec.describe Orchestration::DockerCompose::AppService do
     its(['environment']) { is_expected.to have_key 'HOST_UID' }
     its(['environment']) { is_expected.to have_key 'RAILS_ENV' }
     its(['environment']) { is_expected.to have_key 'SECRET_KEY_BASE' }
+    its(['environment']) { is_expected.to have_key 'DATABASE_URL' }
     its(%w[environment RAILS_LOG_TO_STDOUT]) { is_expected.to eql '1' }
-    its(%w[environment DATABASE_URL]) do
-      is_expected.to eql 'postgresql://postgres:password@database:3354/postgres'
-    end
-
     its(%w[environment UNICORN_PRELOAD_APP]) { is_expected.to eql '1' }
     its(%w[environment UNICORN_TIMEOUT]) { is_expected.to eql '60' }
     its(%w[environment UNICORN_WORKER_PROCESSES]) { is_expected.to eql '8' }

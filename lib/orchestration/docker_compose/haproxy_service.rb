@@ -11,9 +11,7 @@ module Orchestration
       def definition
         {
           'deploy' => {
-            'placement' => {
-              'constraints' => ['node.role == manager']
-            }
+            'placement' => { 'constraints' => ['node.role == manager'] }
           },
           'image' => 'dockercloud/haproxy',
           'ports' => %w[${LISTEN_PORT}:80],
