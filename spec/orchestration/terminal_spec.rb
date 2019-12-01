@@ -17,7 +17,7 @@ RSpec.describe Orchestration::Terminal do
       it 'writes colorised output to stdout' do
         expect(STDOUT)
           .to receive(:print)
-          .with("\e[0;34;49m         status\e[0m message\n")
+          .with("\e[34m         status\e[0m message\n")
         write
       end
     end
@@ -27,7 +27,7 @@ RSpec.describe Orchestration::Terminal do
       it 'writes colorised output to stdout' do
         expect(STDOUT)
           .to receive(:print)
-          .with("\e[0;32;49m         status\e[0m message\n")
+          .with("\e[32m         status\e[0m message\n")
         write
       end
     end
