@@ -32,7 +32,9 @@ namespace :orchestration do
   namespace :docker do
     desc 'Output configured Docker username'
     task :username do
-      STDOUT.write(Orchestration::Environment.new.settings('docker.username'))
+      STDOUT.write(
+        Orchestration::Environment.new.settings.get('docker.username')
+      )
       STDOUT.flush
     end
   end
