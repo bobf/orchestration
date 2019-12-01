@@ -56,7 +56,9 @@ namespace :orchestration do
   namespace :listener do
     desc I18n.t('orchestration.rake.listener.wait')
     task :wait do
-      Orchestration::Services::Listener::Healthcheck.start(ENV.fetch('service'))
+      Orchestration::Services::Listener::Healthcheck.start(
+        nil, nil, service_name: ENV.fetch('service')
+      )
     end
   end
 end
