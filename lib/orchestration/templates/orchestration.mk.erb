@@ -98,7 +98,7 @@ ifeq (${env},$(filter ${env},test development))
 	@${compose} up --detach --force-recreate --renew-anon-volumes ${services} ${log} || ${fail}
 	@[ -n '${sidecar}' ] && \
          ( \
-           $(call printrawln,' ${yellow}(joining dependency network ${green}${network}${yellow})${reset} ... ') ; \
+           $(call printraw,' ${yellow}(joining dependency network ${green}${network}${yellow})${reset} ... ') ; \
            docker network connect '${network}' '$(shell hostname)' ${log} \
            || ( \
            $(call println,'') ; \
