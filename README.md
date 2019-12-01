@@ -18,7 +18,7 @@ Containers are automatically created for the following dependencies:
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'orchestration', '~> 0.1.0'
+gem 'orchestration', '~> 0.2.0'
 ```
 
 And then build your bundle:
@@ -36,17 +36,18 @@ A _Rake_ task is provided to generate the following files:
 * `.gitignore` - ensures any unwanted files created by _Orchestration_ do not clutter your project's version control system.
 * `docker/Dockerfile` - a ready-to-use _Docker_ build script which should need minimal (if any) modification to build your _Rails_ project.
 * `docker-compose.yml` - a custom-made set of services to allow you to run your application's dependencies locally.
+* `.orchestration.yml` - _Orchestration_ internal configuration, e.g. _Docker_ username.
 
 ### Building and pushing your project as a _Docker_ image
 
-#### Private git repository authentication
+#### Private Git repository authentication
 
 If your project has any dependencies on private  _Git_ repositories then you will need to create an authentication token. See the relevant documentation for your _Git_ host:
 
 * [GitHub](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
 * [Bitbucket](https://confluence.atlassian.com/bitbucket/app-passwords-828781300.html)
 
-Create a file named `.env` in the same directory as your `docker-compose.yml` and add one or both of the following (note that _Bitbucket_ and _GitHub_ use a different format:
+Create a file named `.env` in the same directory as your `docker-compose.yml` and add one or both of the following (note that _Bitbucket_ and _GitHub_ use a different format):
 
 ```bash
 BUNDLE_BITBUCKET__ORG=<bitbucket-username>:<app-password>
