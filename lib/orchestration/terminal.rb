@@ -8,6 +8,7 @@ module Orchestration
     ready: :green,
     create: :green,
     update: :yellow,
+    backup: :blue,
     status: :blue,
     setup: :blue,
     input: :red,

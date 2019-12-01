@@ -187,6 +187,10 @@ dump:
           $(call hr,${red}) ; \
         )
 
+.PHONY: image
+image:
+	@echo ${docker_image}
+
 ### Deployment utility commands ###
 
 .PHONY: bundle
@@ -249,10 +253,7 @@ ifeq (,$(wildcard config/database.yml))
 	@$(call println,'${yellow}No database configuration found${reset}: ${cyan}skipping migrations${reset} ... ${tick}')
 else
 	@$(call make,_verify_compose env=${env} env_file=${env_file}) || ${fail}
-	@$(call print,'[${green}toolkit${reset}] ${yellow}Running migrations${reset} ... ')
-	@${replace_env}
-        @${compose} run app make _migrate env=${env} ${log_progress} || ${fail}
-	@${restore_env}
+	@$(call make,_migrate env=${env} env_file=${env_file}) ${log_progress} || ${fail}
 	@${success}
 endif
 
@@ -324,6 +325,10 @@ push:
 	@$(call printrawln,' ${green}complete${reset}. ${tick}')
 
 ### Internal Commands ###
+#
+.PHONY: _verify_app_image
+_verify_app_image:
+	@docker inspect '${docker_image}'
 
 .PHONY: _verify_compose
 _verify_compose: _verify_env
@@ -349,8 +354,12 @@ _migrate: _db_load := db:structure:load
 else ifneq (,$(wildcard db/schema.rb))
 _migrate: _db_load := db:schema:load
 endif
+ifndef DATABASE_URL
+_migrate: DATABASE_URL:=$(shell ${rake} orchestration:database:url)
+endif
 _migrate:
 # Allow a failure to create (DB may already exist) but fail and output full logs
 # if migrations fail [as well].
+	@$(call print,'${yellow}Running migrations ${blue}[${cyan}$(DATABASE_URL)${blue}]${reset} ... ')
 	@${rake} --trace db:create ${_db_load} || :
 	@${rake} --trace db:migrate

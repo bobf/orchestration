@@ -70,6 +70,15 @@ module Orchestration
       ensure_lines_in_file(path, entries)
     end
 
+    def docker_compose
+      @docker_compose.docker_compose_yml
+      @docker_compose.docker_compose_test_yml
+      @docker_compose.docker_compose_development_yml
+      @docker_compose.docker_compose_local_yml
+      @docker_compose.docker_compose_production_yml
+      @docker_compose.docker_compose_override_yml
+    end
+
     def puma
       return nil unless @env.web_server == 'puma'
 
@@ -84,6 +93,24 @@ module Orchestration
       content = template('unicorn.rb')
       path = @env.root.join('config', 'unicorn.rb')
       create_file(path, content, overwrite: false)
+    end
+
+    def database_yml
+      return unless defined?(ActiveRecord)
+
+      service_config('database.yml', Services::Database::Configuration)
+    end
+
+    def mongoid_yml
+      return unless defined?(Mongoid)
+
+      service_config('mongoid.yml', Services::Mongo::Configuration)
+    end
+
+    def rabbitmq_yml
+      return unless defined?(Bunny)
+
+      service_config('rabbitmq.yml', Services::RabbitMQ::Configuration)
     end
 
     def healthcheck
@@ -102,15 +129,6 @@ module Orchestration
       simple_copy('deploy.mk')
     end
 
-    def docker_compose
-      @docker_compose.docker_compose_yml
-      @docker_compose.docker_compose_test_yml
-      @docker_compose.docker_compose_development_yml
-      @docker_compose.docker_compose_local_yml
-      @docker_compose.docker_compose_production_yml
-      @docker_compose.docker_compose_override_yml
-    end
-
     private
 
     def t(key)
@@ -127,6 +145,25 @@ module Orchestration
       %i[test development production].map do |environment|
         @docker_compose.enabled_services(environment)
       end.flatten.uniq
+    end
+
+    def service_config(filename, config_class)
+      content = template(
+        filename,
+        config: config_class.new(@env),
+        compose: proc do |env|
+          DockerCompose::ComposeConfiguration.new(
+            Environment.new(environment: env)
+          )
+        end
+      )
+
+      path = @env.root.join('config', filename)
+      if path.exist?
+        update_file(path, content, backup: true)
+      else
+        create_file(path, content)
+      end
     end
   end
 end

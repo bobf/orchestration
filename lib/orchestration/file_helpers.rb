@@ -61,6 +61,12 @@ module Orchestration
 
       File.write(path, content)
       @terminal.write(:update, relative_path(path))
+
+      return unless options.fetch(:backup, false)
+
+      backup_path = Pathname.new("#{path}.bak")
+      File.write(backup_path, previous_content)
+      @terminal.write(:backup, relative_path(backup_path))
     end
 
     def append_file(path, content, echo: true)

@@ -11,7 +11,7 @@ module Orchestration
       end
 
       def definition
-        return nil if @config.settings.nil?
+        return nil unless @config.enabled?
 
         { 'image' => 'library/mongo' }.merge(ports).merge(volumes)
       end
@@ -30,14 +30,14 @@ module Orchestration
         { 'volumes' => ["#{@config.env.mongo_volume(@environment)}:/data/db"] }
       end
 
-      def local_port
-        @config.port.nil? ? remote_port : @config.port
-      end
-
       def client
         Services::Mong::Configuration::CONFIG_KEYS.each do |key|
           return @config.settings.fetch(key) if @config.settings.key?(key)
         end
+      end
+
+      def local_port
+        Orchestration.random_local_port
       end
 
       def remote_port

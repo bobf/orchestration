@@ -22,6 +22,14 @@ namespace :orchestration do
         nil, nil, init: ENV.key?('init')
       )
     end
+
+    desc I18n.t('orchestration.rake.database.url')
+    task :url do
+      require 'database_url'
+      env = Orchestration::Environment.new
+      config = Orchestration::DockerCompose::ComposeConfiguration.new(env)
+      STDOUT.puts(DatabaseUrl.to_active_record_url())
+    end
   end
 
   namespace :mongo do

@@ -8,55 +8,34 @@ module Orchestration
 
         self.service_name = 'database'
 
-        attr_reader :adapter
-
-        def initialize(env, service_name = nil)
-          super
-          @adapter = nil
-          @settings = nil
-          return unless defined?(ActiveRecord)
-          return unless File.exist?(@env.database_configuration_path)
-
-          @environments = parse(File.read(@env.database_configuration_path))
-          setup
+        def enabled?
+          !adapter.nil?
         end
 
         def friendly_config
-          return "[#{@adapter.name}]" if @adapter.name == 'sqlite3'
+          return "[#{adapter.name}]" if adapter.name == 'sqlite3'
 
-          "[#{@adapter.name}] #{@settings['host']}:#{@settings['port']}"
+          if ENV.key?('DATABASE_URL')
+            config = DatabaseUrl.to_active_record_hash
+            host = config.fetch('host', '127.0.0.1')
+            port = config.fetch('port', compose.local_port('database'))
+          else
+            host = '127.0.0.1'
+            port = compose.local_port('database')
+          end
+
+          "[#{adapter.name}] #{host}:#{port}"
+        end
+
+        def adapter
+          return adapter_for('postgresql') if defined?(PG)
+          return adapter_for('mysql2') if defined?(Mysql2)
+          return adapter_for('sqlite3') if defined?(SQLite3)
+
+          nil
         end
 
         private
-
-        def setup
-          @adapter = adapter_for(base['adapter'])
-          @settings = merged_settings
-          return if @adapter.name == 'sqlite3'
-          return unless %w[test development].include?(@env.environment)
-
-          merge_port
-        end
-
-        def merge_port
-          return if environment.key?('port') || url_config['port']
-
-          @settings.merge!('port' => local_port) if @env.docker_compose_config?
-        end
-
-        def merged_settings
-          port = base['port'] || @adapter.default_port
-          base.merge(@adapter.credentials)
-              .merge('scheme' => base['adapter'], 'port' => port)
-        end
-
-        def parse(content)
-          yaml(erb(content))
-        end
-
-        def erb(content)
-          ERB.new(content).result
-        end
 
         def adapter_for(name)
           {
@@ -70,54 +49,8 @@ module Orchestration
           raise
         end
 
-        def environment
-          @environments.fetch(@env.environment)
-        rescue KeyError
-          raise UnknownEnvironmentError,
-                I18n.t(
-                  'orchestration.database.unknown_environment',
-                  environment: @env.environment
-                )
-        end
-
-        def base
-          environment.merge(url_config).merge('host' => host)
-        end
-
-        def host
-          return nil if @adapter && @adapter.name == 'sqlite3'
-          return url_config['host'] if url_config['host']
-          return environment['host'] if environment.key?('host')
-
-          super
-        end
-
         def adapters
           Orchestration::Services::Database::Adapters
-        end
-
-        def default_port
-          return {} if @adapter.name == 'sqlite3'
-
-          { 'port' => @adapter.default_port }
-        end
-
-        def url_config
-          return {} if @env.database_url.nil?
-
-          uri = URI.parse(@env.database_url)
-
-          {
-            'host' => uri.hostname,
-            'adapter' => uri.scheme,
-            'port' => uri.port
-          }.merge(query_params(uri))
-        end
-
-        def query_params(uri)
-          return {} if uri.query.nil?
-
-          Hash[URI.decode_www_form(uri.query)]
         end
       end
     end

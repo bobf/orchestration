@@ -9,7 +9,7 @@ module Orchestration
       end
 
       def definition
-        return nil if @config.settings.nil?
+        return nil unless @config.enabled?
 
         { 'image' => 'library/rabbitmq' }.merge(ports)
       end
@@ -17,10 +17,9 @@ module Orchestration
       def ports
         return {} unless %i[development test].include?(@environment)
 
-        host_port = @config.settings.fetch('port', 5672)
         container_port = Orchestration::Services::RabbitMQ::PORT
 
-        { 'ports' => ["#{host_port}:#{container_port}"] }
+        { 'ports' => ["#{Orchestration.random_local_port}:#{container_port}"] }
       end
     end
   end

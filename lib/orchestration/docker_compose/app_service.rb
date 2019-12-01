@@ -79,7 +79,8 @@ module Orchestration
         {
           'RAILS_LOG_TO_STDOUT' => '1',
           'RAILS_SERVE_STATIC_FILES' => '1',
-          'WEB_PRELOAD_APP' => '1'
+          'WEB_PRELOAD_APP' => '1',
+          'WEB_HEALTHCHECK_PATH' => '/'
         }.merge(Hash[inherited_environment.map { |key| [key, nil] }])
       end
 
