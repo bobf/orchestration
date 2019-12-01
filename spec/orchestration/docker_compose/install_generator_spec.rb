@@ -104,7 +104,7 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
           config = YAML.safe_load(File.read(path))
           expect(
             config['services']['app']['image']
-          ).to eql '${DOCKER_USERNAME}/${DOCKER_REPOSITORY}'
+          ).to eql '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}'
         end
 
         it 'includes volumes' do

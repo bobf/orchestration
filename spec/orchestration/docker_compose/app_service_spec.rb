@@ -29,7 +29,7 @@ RSpec.describe Orchestration::DockerCompose::AppService do
     it { is_expected.to be_a Hash }
     its(['expose']) { is_expected.to eql [8080] }
     its(['image']) do
-      is_expected.to eql '${DOCKER_USERNAME}/${DOCKER_REPOSITORY}'
+      is_expected.to eql '${DOCKER_ORGANIZATION}/${DOCKER_REPOSITORY}'
     end
 
     its(['environment']) { is_expected.to have_key 'HOST_UID' }

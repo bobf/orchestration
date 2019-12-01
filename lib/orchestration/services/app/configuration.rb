@@ -13,8 +13,8 @@ module Orchestration
           @settings = {}
         end
 
-        def docker_username
-          @env.settings.get('docker.username')
+        def docker_organization
+          @env.settings.get('docker.organization')
         end
 
         def app_name
