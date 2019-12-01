@@ -207,6 +207,14 @@ To override this default, pass the `project_name` parameter:
 make deploy project_name=acme_anvil_production
 ```
 
+This variable will also be available as `COMPOSE_PROJECT_NAME` for use within your `docker-compose.yml`. e.g. to explicitly name a network after the project name:
+
+```yaml
+networks:
+  myapp:
+    name: "${COMPOSE_PROJECT_NAME}"
+```
+
 #### Use a custom `.env` file
 
 Specify a path to a local `.env` file (see [Docker Compose documentation](https://docs.docker.com/compose/environment-variables/#the-env-file)):
