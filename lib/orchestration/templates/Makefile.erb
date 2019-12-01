@@ -19,10 +19,12 @@ COMPOSE_DEVELOPMENT:=-f orchestration/docker-compose.development.yml -f orchestr
 -include .env
 export
 
-ifeq ($(RAILS_ENV),)
-  ENV:=development
-else
+ifneq (,$(RAILS_ENV))
   ENV:=$(RAILS_ENV)
+else ifneq (,$(RACK_ENV))
+  ENV:=$(RACK_ENV)
+else
+  ENV:=development
 endif
 
 COMPOSE:=${COMPOSE_BASE} -f orchestration/docker-compose.${ENV}.yml -f orchestration/docker-compose.override.yml
