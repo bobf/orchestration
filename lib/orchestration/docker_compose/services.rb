@@ -5,6 +5,7 @@ module Orchestration
     class Services
       def initialize(options = {})
         @configurations = {
+          'application' => options.fetch(:application, nil),
           'database' => options.fetch(:database, nil),
           'mongo' => options.fetch(:mongo, nil),
           'rabbitmq' => options.fetch(:rabbitmq, nil)
@@ -27,6 +28,7 @@ module Orchestration
 
       def services_available
         [
+          { name: 'application', class: ApplicationService },
           { name: 'database', class: DatabaseService },
           { name: 'mongo', class: MongoService },
           { name: 'rabbitmq', class: RabbitMQService }

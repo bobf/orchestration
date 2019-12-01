@@ -25,6 +25,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       let(:config_path) { fixture_path('sqlite3') }
 
       its(['adapter']) { is_expected.to eql 'sqlite3' }
+      its(['scheme']) { is_expected.to eql 'sqlite3' }
       its(['host']) { is_expected.to be_nil }
       its(['database']) { is_expected.to eql 'healthcheck' }
       its(['username']) { is_expected.to eql '' }
@@ -37,6 +38,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       let(:config_path) { fixture_path('postgresql') }
 
       its(['adapter']) { is_expected.to eql 'postgresql' }
+      its(['scheme']) { is_expected.to eql 'postgres' }
       its(['host']) { is_expected.to eql 'localhost' }
       its(['database']) { is_expected.to eql 'postgres' }
       its(['username']) { is_expected.to eql 'postgres' }
@@ -48,6 +50,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       let(:config_path) { fixture_path('mysql2') }
 
       its(['adapter']) { is_expected.to eql 'mysql2' }
+      its(['scheme']) { is_expected.to eql 'mysql' }
       its(['host']) { is_expected.to eql 'localhost' }
       its(['database']) { is_expected.to eql 'mysql' }
       its(['username']) { is_expected.to eql 'root' }

@@ -6,6 +6,8 @@ module Orchestration
 end
 
 require 'orchestration/docker_compose/services'
+
+require 'orchestration/docker_compose/application_service'
 require 'orchestration/docker_compose/database_service'
 require 'orchestration/docker_compose/mongo_service'
 require 'orchestration/docker_compose/rabbitmq_service'
