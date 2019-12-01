@@ -1,11 +1,11 @@
 <% if compose.call('development').services.key?('rabbitmq') %>
 development:
-  url: amqp://127.0.0.1:<%= compose.call('development').local_port('rabbitmq') %>
+  url: <%= "#{'<' + '%' + '='} ENV.fetch('RABBITMQ_URL', 'amqp://127.0.0.1:#{compose.call('development').local_port('rabbitmq')}') #{'%' + '>'}" %>
 <% end %>
 
 <% if compose.call('test').services.key?('rabbitmq') %>
 test:
-  url: amqp://127.0.0.1:<%= compose.call('test').local_port('rabbitmq') %>
+  url: <%= "#{'<' + '%' + '='} ENV.fetch('RABBITMQ_URL', 'amqp://127.0.0.1:#{compose.call('test').local_port('rabbitmq')}') #{'%' + '>'}" %>
 <% end %>
 
 production:
