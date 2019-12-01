@@ -57,11 +57,11 @@ module Orchestration
     def gitignore
       path = @env.root.join('.gitignore')
       globs = %w[.build/ .deploy/ Gemfile Gemfile.lock docker-compose.local.yml]
-      entries = %w[.env deploy.tar] + globs.map do |entry|
-        "#{@env.orchestration_dir_name}/#{entry}"
+      lines = %w[orchestration/.sidecar .env deploy.tar] + globs.map do |line|
+        "#{@env.orchestration_dir_name}/#{line}"
       end
 
-      ensure_lines_in_file(path, entries)
+      ensure_lines_in_file(path, lines)
     end
 
     def docker_compose

@@ -338,7 +338,7 @@ make test sidecar=1
 
 When running in sidecar mode, dependencies will bind to an ephemeral host port (chosen by _Docker_) since the host port will not be used in container-to-container communication. The _Docker Compose_ project name (and derived network name) will also be suffixed with a random token. This permits running multiple builds on the same host.
 
-Note that a temporary file `orchestration/.sidecar_suffix` will be created when sidecar mode is used. If this file exists, sidecar mode is always assumed to be on. This is to allow (e.g.) stopping services that have been started with `make test sidecar=1`:
+Note that a temporary file `orchestration/.sidecar` will be created when sidecar mode is used. If this file exists, sidecar mode is always assumed to be on. This is to allow (e.g.) stopping services that have been started with `make test sidecar=1`:
 
 ```
 make stop env=test

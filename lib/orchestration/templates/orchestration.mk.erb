@@ -45,22 +45,22 @@ else
   project_base := $(project_name)
 endif
 
-sidecar_suffix := $(shell test -f ${orchestration_dir}/.sidecar_suffix && cat ${orchestration_dir}/.sidecar_suffix)
-ifneq (,${sidecar_suffix})
+sidecar_suffix := $(shell test -f ${orchestration_dir}/.sidecar && cat ${orchestration_dir}/.sidecar)
+ifneq (,$.sidecar})
   sidecar := 1
 endif
 
 ifdef sidecar
   sidecar_compose = sidecar=1
-  ifeq (,${sidecar_suffix})
-    sidecar_suffix := $(call token)
-    _ignore := $(shell echo ${sidecar_suffix} > ${orchestration_dir}/.sidecar_suffix)
+  ifeq (,$.sidecar})
+   .sidecar := $(call token)
+    _ignore := $(shell echo $.sidecar} > ${orchestration_dir}/.sidecar)
   endif
 
-  ifeq (,${sidecar_suffix})
+  ifeq (,$.sidecar})
     $(warning Unable to generate project suffix; project name collisions may occur.)
   endif
-  compose_project_name = ${project_base}_${sidecar_suffix}
+  compose_project_name = ${project_base}_$.sidecar}
 else
   compose_project_name = ${project_base}
 endif
@@ -103,7 +103,7 @@ ifeq (${env},$(filter ${env},test development))
            || ( \
            $(call println,'') ; \
            $(call println,'${yellow}Warning${reset}: Unable to join network: "${yellow}${network}${reset}". Container will not be able to connect to dependency services.') ; \
-           $(call print,'You may need to delete "${yellow}orchestration/.sidecar_suffix${reset}" to disable sidecar mode if this file was added by mistake.\n...') ; \
+           $(call print,'You may need to delete "${yellow}orchestration/.sidecar${reset}" to disable sidecar mode if this file was added by mistake.\n...') ; \
            ) \
          ) \
          || ( [ -z '${sidecar}' ] || ${fail} )

@@ -54,6 +54,7 @@ RSpec.describe Orchestration::InstallGenerator do
       '.env',
       'orchestration/.build',
       'orchestration/.deploy',
+      'orchestration/.sidecar',
       'orchestration/Gemfile',
       'orchestration/Gemfile.lock'
     ].each do |entry|
