@@ -32,7 +32,8 @@ else
 endif
 
 ifneq (,$(wildcard ${env_file}))
-  rake=. ${env_file} && ${rake}
+  rake_cmd:=${rake}
+  rake=. ${env_file} && ${rake_cmd}
 endif
 
 docker_organization=$(shell bash ${orchestration_dir}/yaml.bash docker_organization)
@@ -201,11 +202,11 @@ endif
 
 .PHONY: deploy
 ifndef manager
-	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.cor`')
+	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`')
 endif
 deploy: env := production
 deploy: project_name = ${docker_repository}_${env}
-deploy: path = $(shell mktemp -d)
+deploy: path := $(shell mktemp -d)
 deploy: RAILS_ENV = ${env}
 deploy: RACK_ENV = ${env}
 deploy: DOCKER_TAG = ${git_version}
@@ -215,7 +216,7 @@ deploy:
             $(call make,_verify_compose env_file=${env_file} env=${env}) && \
             $(call make,bundle path='${path}/bundle.tar') ${log} && \
             cd '${path}' ${log} && \
-            tar xf './bundle.tar' ${log} && \
+            tar xf 'bundle.tar' ${log} && \
             cd '${docker_repository}' ${log} && \
                ( [ -z '${env_file}' ] || cp '${env_file}' './.env' ${log} ) && \
                $(call println,'${yellow}Deployment environment${reset}:') && \
