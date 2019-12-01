@@ -21,6 +21,10 @@ module Orchestration
       ENV['DATABASE_URL']
     end
 
+    def mongo_url
+      ENV['MONGO_URL']
+    end
+
     def mongoid_configuration_path
       root.join('config', 'mongoid.yml')
     end
@@ -64,6 +68,14 @@ module Orchestration
       return default if Rails.application.class.parent == Object
 
       Rails.application.class.parent.name.underscore
+    end
+
+    def rabbitmq_url
+      ENV.fetch('RABBITMQ_URL', nil)
+    end
+
+    def app_port
+      ENV.fetch('CONTAINER_PORT', ENV.fetch('WEB_PORT', '3000')).to_i
     end
 
     def app_name

@@ -28,20 +28,22 @@ module Orchestration
       end
 
       def host
-        'database'
+        return '127.0.0.1' if %w(test development).include?(@env.environment)
+
+        @service_name
       end
 
-      def local_port
-        return ENV.fetch('CONTAINER_PORT', '3000').to_i if @service_name == 'app'
+      def port
+        return @env.app_port if @service_name == 'app'
 
-        @env.docker_compose_config
+        local, _, remote = @env.docker_compose_config
             .fetch('services')
             .fetch(@service_name)
             .fetch('ports')
             .first
             .partition(':')
-            .first
-            .to_i
+
+        (@env.environment == 'production' ? remote : local).to_i
       end
 
       def yaml(content)

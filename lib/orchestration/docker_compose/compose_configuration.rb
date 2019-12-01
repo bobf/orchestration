@@ -5,6 +5,12 @@ module Orchestration
         @env = env
       end
 
+      def services
+        config['services']
+      end
+
+      private
+
       def local_port(name, remote_port = nil)
         return nil if ports(name).empty?
         return ports(name).first[:local] if remote_port.nil?
@@ -12,12 +18,6 @@ module Orchestration
         ports(name).find { |mapping| mapping[:remote] == remote_port }
                    .fetch(:local)
       end
-
-      def services
-        config['services']
-      end
-
-      private
 
       def config
         @config ||= @env.docker_compose_config

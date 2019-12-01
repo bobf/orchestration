@@ -6,7 +6,7 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
     double(
       'Environment',
       environment: 'test',
-      database_url: nil,
+      database_url: database_url,
       database_configuration_path: database_config_path,
       docker_compose_config?: true,
       docker_compose_config: {
@@ -15,6 +15,7 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
     )
   end
 
+  let(:database_url) { nil }
   let(:database_config_path) { fixture_path('sqlite3') }
 
   it { is_expected.to be_a described_class }
@@ -83,13 +84,13 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
 
     context 'Mysql2 error' do
       let(:error) { Mysql2::Error.new('message') }
-      let(:database_config_path) { fixture_path('mysql2') }
+      let(:database_url) { 'mysql://127.0.0.1:3306' }
       it_behaves_like 'an error handler'
     end
 
     context 'PG connection bad error' do
+      let(:database_url) { 'postgresql://127.0.0.1:5342' }
       let(:error) { PG::ConnectionBad }
-      let(:database_config_path) { fixture_path('postgresql') }
       it_behaves_like 'an error handler'
     end
   end

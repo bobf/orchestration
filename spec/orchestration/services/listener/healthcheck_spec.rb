@@ -7,6 +7,7 @@ RSpec.describe Orchestration::Services::Listener::Healthcheck do
     instance_double(
       Orchestration::Environment,
       settings: settings,
+      environment: 'test',
       docker_compose_path: fixture_path('docker-compose'),
       docker_compose_config: {
         'services' => { 'custom-service' => { 'ports' => ['3000:80'] } }

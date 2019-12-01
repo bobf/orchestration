@@ -13,66 +13,61 @@ module Orchestration
         end
 
         def friendly_config
-          "[mongoid] #{host}:#{port}/#{database}"
+          "[mongoid] mongodb://#{host}:#{port}/#{database}"
+        end
+
+        def database
+          return url_config['database'] unless @env.mongo_url.nil?
+
+          file_config.fetch('database', default_database)
+        end
+
+        def host
+          return url_config['host'] unless @env.mongo_url.nil?
+
+          super
+        end
+
+        def port
+          return url_config['port'] unless @env.mongo_url.nil?
+
+          super
         end
 
         private
 
-        def host
-          return from_url['host'] if ENV.key?('MONGO_URL')
-
-          '127.0.0.1'
+        def default_database
+          "#{@env.environment}db"
         end
 
-        def port
-          return from_url['port'] if ENV.key?('MONGO_URL')
-
-          DockerCompose::ComposeConfiguration.new(@env).local_port('mongo')
-        end
-
-        def from_url
-          uri = URI.parse(ENV.fetch('MONGO_URL'))
-          proto = uri.gsub(%r{([a-zA-Z0-9+-_]+)://.*$}, '\1')
-          unless proto == 'mongodb'
+        def url_config
+          uri = URI.parse(@env.mongo_url)
+          unless uri.scheme == 'mongodb'
             raise ArgumentError, 'MONGO_URL protocol must be mongodb://'
           end
 
-          rest = uri[(proto + '://').size..-1]
-          hosts_string, _, database = rest.rpartition('/')
+          hosts = uri.host.split(',')
+          database = uri.path.partition('/').last
 
-          user = nil
-          password = nil
+          {
+            'user' => uri.user,
+            'password' => uri.password,
+            'host' => hosts.first,
+            'port' => uri.port || Services::Mongo::PORT,
+            'database' => database == '' ? default_database : database
+          }
+        end
 
-          hosts = hosts_string.split(',').each do |string|
-            uri = URI.parse("mongodb://#{string}")
-            host ||= uri.host
-            port ||= uri.port
-            break unless host.nil? && port.nil?
-          end
+        def file_config
+          return {} unless File.exist?(@env.mongoid_configuration_path)
+          yaml = File.read(@env.mongoid_configuration_path)
+          config = YAML.safe_load(yaml, [], [], true)
+          env = config.fetch(@env.environment, nil)
+          return {} if env.nil?
 
-          { 'host' => host, 'port' => port || Services::Mongo::PORT }
+          env.fetch('clients', env.fetch('sessions', {})).fetch('default', {})
         end
       end
     end
   end
 end
-
-  uri = ENV.fetch('MONGO_URL', 'mongodb://localhost:27017/bake')
-
-  proto = uri.gsub(%r{([a-zA-Z0-9+-_]+)://.*$}, '\1')
-  unless proto == 'mongodb'
-    raise ArgumentError, 'MONGO_URL protocol must be mongodb://'
-  end
-
-  rest = uri[(proto + '://').size..-1]
-  hosts_string, _, database = rest.rpartition('/')
-
-  user = nil
-  password = nil
-
-  hosts = hosts_string.split(',').map do |string|
-    uri = URI.parse("mongodb://#{string}")
-    user ||= uri.user
-    password ||= uri.password
-    "#{uri.host}:#{uri.port.nil? ? 27017 : uri.port }"
-  end

@@ -8,6 +8,7 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
       'Environment',
       environment: 'test',
       mongoid_configuration_path: fixture_path('mongoid'),
+      mongo_url: nil,
       docker_compose_config: {
         'services' => { 'mongo' => { 'ports' => ['27020:27017'] } }
       }
@@ -21,16 +22,18 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
 
     let(:terminal) { double('Terminal') }
     let(:options) { {} }
+    let!(:mongo_stub) do
+      stub_request(:get, 'http://127.0.0.1:27020/').and_return(status: 200)
+    end
 
     before do
-      allow(Mongoid).to receive(:default_client) { double(database_names: [1]) }
       allow(terminal).to receive(:write)
     end
 
     it 'outputs a waiting message' do
       expect(terminal)
         .to receive(:write)
-        .with(:waiting, 'Waiting for Mongo: [mongoid] 127.0.0.1:27020/test_db')
+        .with(:waiting, 'Waiting for Mongo: [mongoid] mongodb://127.0.0.1:27020/config_db')
 
       start
     end
@@ -44,9 +47,8 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
     end
 
     it 'connects to mongo' do
-      expect(Mongoid).to receive(:default_client)
-
       start
+      expect(mongo_stub).to have_been_requested
     end
 
     describe 'connection errors' do
@@ -56,7 +58,7 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
 
       shared_examples 'an error handler' do
         before do
-          allow(Mongoid).to receive(:default_client) { raise error }
+          stub_request(:get, 'http://127.0.0.1/') { raise error }
         end
 
         it 'handles connection errors' do
@@ -65,14 +67,7 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
       end
 
       context 'no server available' do
-        let(:error_info) do
-          double(
-            server_selection_timeout: nil,
-            local_threshold: nil
-          )
-        end
-
-        let(:error) { ::Mongo::Error::NoServerAvailable.new(error_info) }
+        let(:error) { Errno::ECONNREFUSED }
         it_behaves_like 'an error handler'
       end
     end

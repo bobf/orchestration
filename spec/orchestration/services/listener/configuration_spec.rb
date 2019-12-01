@@ -7,6 +7,7 @@ RSpec.describe Orchestration::Services::Listener::Configuration do
   let(:env) do
     instance_double(
       Orchestration::Environment,
+      environment: 'test',
       docker_compose_path: config,
       docker_compose_config: {
         'services' => { 'custom-service' => { 'ports' => ['3000:80'] } }
