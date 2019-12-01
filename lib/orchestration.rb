@@ -3,7 +3,11 @@
 require 'colorize'
 require 'erubis'
 require 'i18n'
-require 'rails'
+begin
+  require 'rails'
+rescue LoadError
+  STDERR.puts('Rails not detected; continuing without Rails support.')
+end
 
 I18n.load_path += Dir[File.join(File.expand_path('..', __dir__),
                                 'config', 'locales', '**', '*.yml')]
@@ -14,7 +18,7 @@ require 'orchestration/docker_compose'
 require 'orchestration/environment'
 require 'orchestration/errors'
 require 'orchestration/install_generator'
-require 'orchestration/railtie'
+require 'orchestration/railtie' if defined?(Rails)
 require 'orchestration/service_check'
 require 'orchestration/services'
 require 'orchestration/settings'

@@ -26,7 +26,7 @@ compose_base:=env HOST_UID=$(shell id -u) \
               DOCKER_ORGANIZATION=${docker_organization} \
               DOCKER_REPOSITORY=${docker_repository} \
               docker-compose \
-              -p ${docker_repository} \
+              -p ${docker_repository}_${env} \
               -f <%= env.orchestration_dir_name %>/docker-compose.yml
 
 git_branch:=$(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
