@@ -18,7 +18,7 @@ Containers are automatically created for the following dependencies:
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'orchestration', '~> 0.3.3'
+gem 'orchestration', '~> 0.3.4'
 ```
 
 And then build your bundle:
