@@ -68,7 +68,7 @@ endif
 start: _clean-logs
 	@$(call print,'${yellow}Starting containers${reset} ...')
 ifeq (${env},$(filter ${env},test development))
-	@${compose} up -d --force-recreate ${services} ${log} || ${fail}
+	@${compose} up --detach --force-recreate --renew-anon-volumes ${services} ${log} || ${fail}
 	@[ -n '${sidecar}' ] && \
          ( \
            docker network connect '${network}' '$(shell hostname)' ${log} \
@@ -77,7 +77,7 @@ ifeq (${env},$(filter ${env},test development))
          ) \
          || ( [ -z '${sidecar}' ] || ${fail} )
 else
-	@${compose} up -d --scale app=$${instances:-1} ${services} ${log} || ${fail}
+	@${compose} up --detach --scale app=$${instances:-1} ${services} ${log} || ${fail}
 endif
 	@$(call printrawln,' ${green}started${reset} ${tick}')
 	@$(call println,'${yellow}Waiting for services to become available${reset} ...')
