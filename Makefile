@@ -1,8 +1,8 @@
 .PHONY: test
 test:
 	./bin/rspec
-	./bin/rubocop
-	./bin/strong_versions
+	bundle exec rubocop
+	bundle exec strong_versions
 
 .PHONY: manifest
 manifest:

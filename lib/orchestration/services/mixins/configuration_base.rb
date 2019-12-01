@@ -37,8 +37,8 @@ module Orchestration
       def configured?
         port
         true
-      rescue KeyError => error
-        @error = error
+      rescue KeyError => e
+        @error = e
         false
       end
 

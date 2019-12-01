@@ -43,10 +43,15 @@ ifeq (,$(project_name))
   project_name = ${docker_repository}_${env}
 endif
 
+ifdef sidecar
+  sidecar_compose := sidecar=1
+endif
+
 compose_base=env HOST_UID=$(shell id -u) \
              DOCKER_ORGANIZATION="${docker_organization}" \
              DOCKER_REPOSITORY="${docker_repository}" \
              COMPOSE_PROJECT_NAME="${project_name}" \
+	     ${sidecar_compose} \
              docker-compose \
              -f "${orchestration_dir}/docker-compose.yml"
 

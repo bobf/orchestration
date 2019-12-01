@@ -3,6 +3,8 @@
 module Orchestration
   module DockerCompose
     class DatabaseService
+      include ComposeHelpers
+
       def initialize(config, environment)
         @environment = environment
         @config = config
@@ -33,7 +35,7 @@ module Orchestration
       def ports
         return {} unless %i[development test].include?(@environment)
 
-        { 'ports' => ["#{Orchestration.random_local_port}:#{remote_port}"] }
+        { 'ports' => ["#{sidecar_port}#{remote_port}"] }
       end
 
       def volumes

@@ -336,6 +336,8 @@ To do this automatically, pass the `sidecar` parameter to the `start` or `test` 
 make test sidecar=1
 ```
 
+When running in sidecar mode, dependencies will bind to an ephemeral host port (chosen by _Docker_) since the host port will not be used in container-to-container communication. This allows running multiple builds on the same host.
+
 <a name="rabbitmq-configuration"></a>
 ## RabbitMQ Configuration
 

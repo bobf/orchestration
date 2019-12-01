@@ -5,6 +5,7 @@ module Orchestration
   end
 end
 
+require 'orchestration/docker_compose/compose_helpers'
 require 'orchestration/docker_compose/install_generator'
 require 'orchestration/docker_compose/configuration'
 require 'orchestration/docker_compose/compose_configuration'

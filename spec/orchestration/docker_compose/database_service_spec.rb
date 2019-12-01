@@ -23,6 +23,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
 
   describe '#definition' do
     subject(:definition) { database_service.definition }
+    before { allow(Orchestration).to receive(:random_local_port) { 12_345 } }
 
     context 'postgresql' do
       let(:adapter) { 'postgresql' }
@@ -73,15 +74,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
       let(:adapter) { 'postgresql' }
       before { hide_const('Mysql2') }
       its(['volumes']) { is_expected.to be_nil }
-      describe 'local port' do
-        subject(:port) { definition['ports'].first.partition(':').first.to_i }
-        it { is_expected.to be_positive } # Randomly generated
-      end
-
-      describe 'remote port' do
-        subject(:port) { definition['ports'].first.partition(':').last.to_i }
-        it { is_expected.to eql 5432 }
-      end
+      its(['ports']) { is_expected.to eql ['${12345:-sidecar}5432'] }
     end
 
     context 'development' do
@@ -89,15 +82,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
       let(:adapter) { 'mysql2' }
       before { hide_const('PG') }
       it { is_expected.to include 'volumes' }
-      describe 'local port' do
-        subject(:port) { definition['ports'].first.partition(':').first.to_i }
-        it { is_expected.to be_positive } # Randomly generated
-      end
-
-      describe 'remote port' do
-        subject(:port) { definition['ports'].first.partition(':').last.to_i }
-        it { is_expected.to eql 3306 }
-      end
+      its(['ports']) { is_expected.to eql ['${12345:-sidecar}3306'] }
     end
   end
 end

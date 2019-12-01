@@ -21,6 +21,7 @@ spec/dummy/Makefile
 spec/dummy/orchestration/*
 spec/dummy/config/unicorn.rb
 spec/dummy/config/*.bak
+spec/dummy/tmp/*
 
 orchestration-*.gem
 
@@ -32,3 +33,5 @@ docker/.build/
 docker/.context.tar
 
 .DS_Store
+
+.ruby-version

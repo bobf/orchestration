@@ -11,7 +11,7 @@ require 'paint'
 begin
   require 'rails'
 rescue LoadError
-  STDERR.puts('[orchestration] Rails not detected; skipping.')
+  warn('[orchestration] Rails not detected; skipping.')
 end
 
 I18n.load_path += Dir[File.join(File.expand_path('..', __dir__),
@@ -40,8 +40,8 @@ module Orchestration
   end
 
   def self.error(key, options = {})
-    STDERR.puts('# Orchestration Error')
-    STDERR.puts('# ' + I18n.t("orchestration.#{key}", options))
+    warn('# Orchestration Error')
+    warn('# ' + I18n.t("orchestration.#{key}", options))
   end
 
   def self.random_local_port
