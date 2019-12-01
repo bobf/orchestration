@@ -1,0 +1,17 @@
+listen '0.0.0.0:8080', :tcp_nopush => true
+
+pid '/application/tmp/pids/unicorn.pid'
+
+preload_app ENV.fetch('UNICORN_PRELOAD_APP', '1') == '1'
+
+timeout ENV.fetch('UNICORN_TIMEOUT', 60).to_i
+
+worker_processes ENV.fetch('UNICORN_WORKER_PROCESSES', 8).to_i
+
+before_fork do |_server, _worker|
+  ActiveRecord::Base.connection.disconnect! if defined?(ActiveRecord)
+end
+
+after_fork do |_server, _worker|
+  ActiveRecord::Base.establish_connection if defined?(ActiveRecord)
+end

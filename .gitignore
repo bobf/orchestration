@@ -21,5 +21,6 @@ spec/dummy/.gitignore
 spec/dummy/Makefile
 spec/dummy/docker/*
 spec/dummy/docker-compose.yml
+spec/dummy/config/unicorn.rb
 
 .byebug_history

@@ -70,6 +70,12 @@ module Orchestration
       write_file(path, docker_compose.structure.to_yaml)
     end
 
+    def unicorn
+      content = template('unicorn.rb')
+      path = @env.root.join('config', 'unicorn.rb')
+      write_file(path, content, overwrite: false)
+    end
+
     private
 
     def configuration(service)

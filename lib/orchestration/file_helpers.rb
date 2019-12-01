@@ -82,7 +82,7 @@ module Orchestration
     end
 
     def read_template(template)
-      File.read(templates_path.join("#{template}.tt"))
+      File.read(templates_path.join("#{template}.erb"))
     end
   end
 end

@@ -3,7 +3,7 @@
 RSpec.describe Orchestration::InstallGenerator do
   let(:install_generator) { described_class.new }
 
-  describe '#dockerfile' do
+  describe '#entrypoint' do
     subject(:entrypoint) { install_generator.entrypoint }
 
     let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
