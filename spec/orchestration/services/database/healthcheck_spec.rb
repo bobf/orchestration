@@ -8,6 +8,7 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
       environment: 'test',
       database_url: nil,
       database_configuration_path: database_config_path,
+      docker_compose_config?: true,
       docker_compose_config: {
         'services' => { 'database' => { 'ports' => ['5499:5499'] } }
       }

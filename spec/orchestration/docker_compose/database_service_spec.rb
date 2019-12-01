@@ -9,6 +9,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
       'Environment',
       environment: 'test',
       database_url: nil,
+      docker_compose_config?: false,
       database_configuration_path: fixture_path(adapter)
     )
   end

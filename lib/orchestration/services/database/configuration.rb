@@ -37,6 +37,7 @@ module Orchestration
                             'scheme' => base['adapter'],
                             'port' => DockerCompose::DatabaseService::PORT
                           )
+          @settings.merge!('port' => local_port) if @env.docker_compose_config?
         end
 
         def parse(content)

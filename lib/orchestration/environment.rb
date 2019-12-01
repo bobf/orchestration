@@ -40,6 +40,10 @@ module Orchestration
       YAML.safe_load(File.read(docker_compose_configuration_path))
     end
 
+    def docker_compose_config?
+      docker_compose_configuration_path.file?
+    end
+
     def application_name
       Rails.application.class.parent.name.underscore
     end

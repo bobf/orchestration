@@ -12,8 +12,12 @@ RSpec.describe Orchestration::Services::Application::Configuration do
       database_url: nil,
       application_name: 'testapp',
       settings: instance_double(Orchestration::Settings),
+      docker_compose_config?: true,
       docker_compose_config: {
-        'services' => { 'nginx-proxy' => { 'ports' => ['3000:80'] } }
+        'services' => {
+          'nginx-proxy' => { 'ports' => ['3000:80'] },
+          'database' => { 'ports' => ['3360:3354'] }
+        }
       }
     )
   end
