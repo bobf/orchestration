@@ -66,6 +66,13 @@ module Orchestration
           'deploy' => {
             'mode' => 'replicated',
             'replicas' => '${REPLICAS}'
+          },
+          'logging' => {
+            'driver' => 'json-file',
+            'options' => {
+              'max-size' => '10m',
+              'max-file' => '5'
+            }
           }
         }
       end
