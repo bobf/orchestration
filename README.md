@@ -150,7 +150,7 @@ make push
 
 ### Development
 
-An [`.env`](https://docs.docker.com/compose/env-file/) is created automatically in your project root. This file is _not_ stored in version control. Set all application environment variables in this file.
+An [`.env` file](https://docs.docker.com/compose/env-file/) is created automatically in your project root. This file is _not_ stored in version control. Set all application environment variables in this file.
 
 #### Launching a development server
 
