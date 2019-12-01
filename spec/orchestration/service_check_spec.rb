@@ -28,7 +28,8 @@ RSpec.describe Orchestration::ServiceCheck do
         connection_errors: [connection_error],
         configuration: double(
           'Configuration',
-          friendly_config: 'friendly config'
+          friendly_config: 'friendly config',
+          configured?: true
         ),
         # Any class will do here; we're only testing text transformation on the
         # class name:

@@ -3,7 +3,7 @@
 module Orchestration
   module Services
     module ConfigurationBase
-      attr_reader :service_name, :env
+      attr_reader :service_name, :env, :error
 
       def self.included(base)
         base.extend(ClassMethods)
@@ -31,6 +31,14 @@ module Orchestration
         return '127.0.0.1' if %w[test development].include?(@env.environment)
 
         @service_name
+      end
+
+      def configured?
+        port
+        true
+      rescue KeyError => error
+        @error = error
+        false
       end
 
       def port
