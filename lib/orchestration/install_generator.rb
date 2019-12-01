@@ -58,6 +58,7 @@ module Orchestration
       return if File.exist?(path)
 
       docker_compose = DockerCompose::Services.new(
+        application: configuration(:application),
         database: configuration(:database),
         mongo: configuration(:mongo),
         rabbitmq: configuration(:rabbitmq)

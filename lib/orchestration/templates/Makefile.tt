@@ -45,6 +45,7 @@ docker-build:
 	git archive --format tar.gz -o docker/.build/context.tar.gz master
 	docker build --build-arg BUNDLE_GITHUB__COM \
 	             --build-arg BUNDLE_BITBUCKET__ORG \
+		     -t $(shell bundle exec rake orchestration:docker:username)/<%= app_id %> \
 		     -t $(shell bundle exec rake orchestration:docker:username)/<%= app_id %>:$(shell git rev-parse --short --verify master) \
 		     ./docker/
 

@@ -34,11 +34,13 @@ module Orchestration
 
       def database_url
         settings = @config.database_settings
+        return nil if settings.fetch('adapter') == 'sqlite3'
+
         scheme = settings.fetch('scheme')
-        username = settings.fetch('username', nil)
-        password = settings.fetch('password', nil)
-        port = settings.fetch('port', nil)
-        database = settings.fetch('database', nil)
+        database = settings.fetch('database')
+        username = settings.fetch('username')
+        password = settings.fetch('password')
+        port = DatabaseService::PORT
 
         "#{scheme}://#{username}:#{password}@database:#{port}/#{database}"
       end
