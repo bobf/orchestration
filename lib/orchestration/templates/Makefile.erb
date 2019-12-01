@@ -1,5 +1,3 @@
-.PHONY: start stop migrate bundle docker build push start logs compose config test-setup <%= wait_commands.join(' ') %>
-
 ### Environment setup ###
 
 docker_username:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_username)
@@ -31,6 +29,7 @@ rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
 
 ### Container management commands ###
 
+.PHONY: start
 start:
 	@echo "Starting containers..."
 ifeq (${env},$(filter ${env},test development))
@@ -40,25 +39,31 @@ else
 endif
 	@$(MAKE) wait
 
+.PHONY: stop
 stop:
 	@echo "Stopping containers..."
 	@${compose} down
 	@echo "All containers stopped."
 
+.PHONY: logs
 logs:
 	@${compose} logs -f
 
+.PHONY: config
 config:
 	@${compose} config
 
+.PHONY: compose
 compose:
 	@${compose} $$cmd
 
+.PHONY: test-setup
 test-setup:
 	@$(MAKE) start wait migrate env=test
 
 ### Deployment utility commands ###
 
+.PHONY: bundle
 bundle:
 	@echo 'Building deployment bundle...'
 	@rm -rf <%= env.orchestration_dir_name %>/.deploy/
@@ -77,6 +82,7 @@ bundle:
 
 ### Database utility commands ###
 
+.PHONY: migrate
 migrate:
 	@echo "Running migrations..."
 ifeq (${env},$(filter ${env},test development))
@@ -88,21 +94,27 @@ endif
 
 ### Service healthcheck commands ###
 
+.PHONY: wait
 wait: <%= wait_commands.join(' ') %>
 	@echo "All Containers ready."
 
+.PHONY: <%= wait_commands.join(' ') %>
+
 ## Test/development wait commands
 
+.PHONY: wait-database
 wait-database:
 ifeq (${env},$(filter ${env},test development))
 	@${rake} orchestration:database:wait
 endif
 
+.PHONY: wait-mongo
 wait-mongo:
 ifeq (${env},$(filter ${env},test development))
 	@${rake} orchestration:mongo:wait
 endif
 
+.PHONY: wait-rabbitmq
 wait-rabbitmq:
 ifeq (${env},$(filter ${env},test development))
 	@${rake} orchestration:rabbitmq:wait
@@ -110,11 +122,13 @@ endif
 
 ## Production wait commands
 
+.PHONY: wait-nginx_proxy
 wait-nginx_proxy:
 ifneq (${env},$(filter ${env},test development))
 	@${rake} orchestration:nginx_proxy:wait LISTEN_PORT=${LISTEN_PORT}
 endif
 
+.PHONY: wait-app
 wait-app:
 ifneq (${env},$(filter ${env},test development))
 	@${rake} orchestration:app:wait LISTEN_PORT=${LISTEN_PORT}
@@ -122,8 +136,7 @@ endif
 
 ### Docker build commands ###
 
-docker: build push
-
+.PHONY: build
 build:
 	@echo "Preparing build from ${git_branch}"
 	@mkdir -p ./<%= env.orchestration_dir_name %>/.build
@@ -141,5 +154,6 @@ build:
 		     ./<%= env.orchestration_dir_name %>/
 	@echo "Build complete."
 
+.PHONY: push
 push:
 	docker push ${docker_username}/${docker_repository}:${git_version}
