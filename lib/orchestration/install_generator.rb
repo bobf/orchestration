@@ -54,7 +54,7 @@ module Orchestration
 
     def gitignore
       path = @env.root.join('.gitignore')
-      entries = %w[.build/ Gemfile Gemfile.lock *.gemspec].map do |entry|
+      entries = %w[.build/ .deploy/ Gemfile Gemfile.lock].map do |entry|
         "#{@env.orchestration_dir_name}/#{entry}"
       end
 
@@ -73,6 +73,10 @@ module Orchestration
 
     def env
       simple_copy('env', @env.root.join('.env'), overwrite: false)
+    end
+
+    def deploy_mk
+      simple_copy('deploy.mk', @env.orchestration_root.join('deploy.mk'))
     end
 
     def docker_compose

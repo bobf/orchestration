@@ -31,15 +31,17 @@ module Orchestration
 
         def setup
           @adapter = adapter_for(base['adapter'])
-          @settings = base.merge(@adapter.credentials)
-                          .merge(
-                            'scheme' => base['adapter'],
-                            'port' => DockerCompose::DatabaseService::PORT
-                          )
+          @settings = merged_settings
           return if @adapter.name == 'sqlite3'
           return unless %w[test development].include?(@env.environment)
 
           @settings.merge!('port' => local_port) if @env.docker_compose_config?
+        end
+
+        def merged_settings
+          base.merge(@adapter.credentials)
+              .merge('scheme' => base['adapter'],
+                     'port' => DockerCompose::DatabaseService::PORT)
         end
 
         def parse(content)

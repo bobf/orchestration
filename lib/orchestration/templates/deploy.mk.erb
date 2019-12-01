@@ -1,0 +1,34 @@
+.PHONY: deploy stop start config pull logs migrate
+
+COMPOSE_BASE:=HOST_UID=$(shell id -u) \
+              DOCKER_USERNAME=%%USERNAME%% \
+              DOCKER_REPOSITORY=%%REPOSITORY%%:%%VERSION%% \
+              docker-compose \
+              -p %%REPOSITORY%% \
+              -f docker-compose.yml
+
+COMPOSE:=${COMPOSE_BASE} -f docker-compose.production.yml -f docker-compose.override.yml
+
+deploy:
+	@echo "Deploying application to Docker swarm..."
+	@${COMPOSE} config | docker stack deploy -c - %%REPOSITORY%%
+
+stop:
+	@echo "Stopping containers..."
+	@${COMPOSE} down
+
+start:
+	@echo "Launching application..."
+	@${COMPOSE} up -d
+
+config:
+	@${COMPOSE} config
+
+pull:
+	@${COMPOSE} pull
+
+logs:
+	@${COMPOSE} logs -f
+
+migrate:
+	@${COMPOSE} run --rm app bundle exec rake db:migrate
