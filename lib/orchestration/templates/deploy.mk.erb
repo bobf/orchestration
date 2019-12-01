@@ -11,7 +11,7 @@ ifndef LISTEN_PORT
 endif
 
 compose_base:=HOST_UID=$(shell id -u) \
-              DOCKER_USERNAME=%%USERNAME%% \
+              DOCKER_ORGANIZATION=%%ORGANIZATION%% \
               DOCKER_REPOSITORY=%%REPOSITORY%%:%%VERSION%% \
               docker-compose \
               -p %%REPOSITORY%% \
