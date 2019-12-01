@@ -79,6 +79,11 @@ RSpec.describe Orchestration::Services::RabbitMQ::Healthcheck do
         let(:error) { AMQ::Protocol::EmptyResponseError }
         it_behaves_like 'an error handler'
       end
+
+      context 'connection reset' do
+        let(:error) { Errno::ECONNRESET }
+        it_behaves_like 'an error handler'
+      end
     end
   end
 end
