@@ -184,6 +184,13 @@ Note that _Orchestration_ will wait for all services to become fully available (
 
 _(See [sidecar containers](#sidecar-containers) if you are running your test/development server inside _Docker_)_.
 
+Dependencies will be launched and then tested for readiness. The retry limit and interval time for readiness tests can be controlled by the following environment variables:
+
+```
+ORCHESTRATION_RETRY_LIMIT # default: 10
+ORCHESTRATION_RETRY_INTERVAL # default: 3 [seconds]
+```
+
 ### (Local) Production
 
 Run a production environment locally to simulate your deployment platform:
