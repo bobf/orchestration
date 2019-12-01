@@ -43,7 +43,7 @@ start:
 	@echo "Starting containers..."
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up -d
-	@docker network connect ${docker_repository}_${env}_default $${hostname} || :
+	@docker network connect ${docker_repository}_${env}_default $${hostname} 2>/dev/null || :
 else
 	@${compose} up -d --scale app=$${instances:-1}
 endif

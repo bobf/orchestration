@@ -24,7 +24,7 @@ module Orchestration
         def friendly_config
           return "[#{@adapter.name}]" if @adapter.name == 'sqlite3'
 
-          "[#{@adapter.name}] #{host}:#{local_port}"
+          "[#{@adapter.name}] #{@settings['host']}:#{@settings['port']}"
         end
 
         private
@@ -34,15 +34,15 @@ module Orchestration
           @settings = merged_settings
           return if @adapter.name == 'sqlite3'
           return unless %w[test development].include?(@env.environment)
-          return if @settings.key?('port')
+          return if environment.key?('port') || url_config['port']
 
           @settings.merge!('port' => local_port) if @env.docker_compose_config?
         end
 
         def merged_settings
+          port = base['port'] || DockerCompose::DatabaseService::PORT
           base.merge(@adapter.credentials)
-              .merge('scheme' => base['adapter'],
-                     'port' => DockerCompose::DatabaseService::PORT)
+              .merge('scheme' => base['adapter'], 'port' => port)
         end
 
         def parse(content)
