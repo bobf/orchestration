@@ -53,16 +53,22 @@ module Orchestration
         def url_config
           return nil unless ENV.key?('MONGO_URL')
 
-          host, _, port = ENV['MONGO_URL'].partition(':')
-          { host: host, port: port.empty? ? '27017' : port }
+          host, _, port = ENV['MONGO_URL'].rpartition('/').first.partition(':')
+          _, _, database = ENV['MONGO_URL'].rpartition('/')
+          { host: host, port: port.empty? ? '27017' : port, database: database }
         end
 
         def database
+          return url_config[:database] unless url_config.nil?
+
           env_config = config.fetch(@env.environment)
           return env_config.fetch('database') if env_config.key?('database')
 
           bad_config_error if clients_key.nil?
+          merged_config(env_config)
+        end
 
+        def merged_config(env_config)
           env_config
             .fetch(clients_key)
             .fetch('default')
