@@ -72,7 +72,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
       let(:environment) { :test }
       let(:adapter) { 'postgresql' }
       before { hide_const('Mysql2') }
-      its(['volumes']) { is_expected.to be_empty }
+      its(['volumes']) { is_expected.to be_nil }
       describe 'local port' do
         subject(:port) { definition['ports'].first.partition(':').first.to_i }
         it { is_expected.to be_positive } # Randomly generated
