@@ -34,31 +34,31 @@ module Orchestration
       update_file(dest, template(template_name))
     end
 
-    def write_file(path, content, options = {})
+    def create_file(path, content, options = {})
       relpath = relative_path(path)
       overwrite = options.fetch(:overwrite, true)
       present = File.exist?(path)
       return @terminal.write(:skip, relpath) if present && !overwrite
 
-      File.write(path, content)
+      write_file(path, content)
       @terminal.write(:create, relative_path(path))
     end
 
     def update_file(path, content)
       present = File.exist?(path)
-      return write_file(path, content) unless present
+      return create_file(path, content) unless present
 
       previous_content = File.read(path) if present
-      File.write(path, content)
       if present && previous_content == content
         return @terminal.write(:skip, relative_path(path))
       end
 
+      File.write(path, content)
       @terminal.write(:update, relative_path(path))
     end
 
     def append_file(path, content, echo: true)
-      return write_file(path, content) unless File.exist?(path)
+      return create_file(path, content) unless File.exist?(path)
 
       File.write(path, content, File.size(path), mode: 'a')
       @terminal.write(:update, relative_path(path)) if echo
@@ -94,6 +94,11 @@ module Orchestration
 
     def read_template(template)
       File.read(templates_path.join("#{template}.erb"))
+    end
+
+    def write_file(path, content)
+      FileUtils.mkdir_p(File.dirname(path))
+      File.write(path, content)
     end
   end
 end
