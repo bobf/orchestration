@@ -1,5 +1,11 @@
 # Orchestration
 
+```
+I've got two tickets to the game
+It'd be great if I could take you to it this Sunday
+                                       --Nickelback
+```
+
 ## Overview
 
 _Orchestration_ aims to provide a convenient and consistent process for working with _Rails_ and _Docker_ without obscuring underlying components.
@@ -176,6 +182,8 @@ make test
 
 Note that _Orchestration_ will wait for all services to become fully available (i.e. running and providing valid responses) before attempting to run tests. This is specifically intended to facilitate testing in continuous integration environments.
 
+_(See [sidecar containers](#sidecar-containers) if you are running your test/development server inside _Docker_)_.
+
 ### Deployment to Docker Swarm
 
 To deploy your application to a local _Docker Swarm_ use:
@@ -285,6 +293,17 @@ An [entrypoint](https://docs.docker.com/engine/reference/builder/#entrypoint) sc
 * Creates various required temporary directories and removes stale `pid` files;
 * Adds a route `host.docker.internal` to the host machine running the container (mimicking the same route provided by _Docker_ itself on _Windows_ and _OS
   X_).
+
+<a name="sidecar-containers"></a>
+## Sidecar Containers
+
+If you need to start dependency services (databases, etc.) and connect to them from a _Docker_ container (an example use case of this would be running tests in _Jenkins_ using its _Docker_ agent) then the container that runs your tests must join the same _Docker_ network as your dependency services.
+
+To do this automatically, pass the `sidecar` parameter to the `start` or `test` targets:
+
+```bash
+make test sidecar=1
+```
 
 <a name="rabbitmq-configuration"></a>
 ## RabbitMQ Configuration
