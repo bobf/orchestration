@@ -30,19 +30,20 @@ module Orchestration
         {
           'RAILS_LOG_TO_STDOUT' => '1',
           'RAILS_SERVE_STATIC_FILES' => '1',
-          'UNICORN_PRELOAD_APP' => '1',
-          'UNICORN_TIMEOUT' => '60',
-          'UNICORN_WORKER_PROCESSES' => '8'
-        }.merge(inherited_environment)
+          'WEB_PRELOAD_APP' => '1'
+        }.merge(Hash[inherited_environment.map { |key| [key, nil] }])
       end
 
       def inherited_environment
-        {
-          'DATABASE_URL' => nil,
-          'HOST_UID' => nil,
-          'RAILS_ENV' => nil,
-          'SECRET_KEY_BASE' => nil
-        }
+        [
+          'DATABASE_URL',
+          'HOST_UID',
+          'RAILS_ENV',
+          'SECRET_KEY_BASE',
+          'WEB_CONCURRENCY',
+          'WEB_TIMEOUT',
+          'WEB_WORKER_PROCESSES'
+        ]
       end
 
       def ports
