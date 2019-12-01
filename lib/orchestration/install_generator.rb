@@ -65,7 +65,8 @@ module Orchestration
         application: configuration(:application),
         database: configuration(:database),
         mongo: configuration(:mongo),
-        rabbitmq: configuration(:rabbitmq)
+        rabbitmq: configuration(:rabbitmq),
+        nginx_proxy: configuration(:nginx_proxy)
       )
       write_file(path, docker_compose.structure.to_yaml)
     end
@@ -83,7 +84,8 @@ module Orchestration
         application: Services::Application::Configuration,
         database: Services::Database::Configuration,
         mongo: Services::Mongo::Configuration,
-        rabbitmq: Services::RabbitMQ::Configuration
+        rabbitmq: Services::RabbitMQ::Configuration,
+        nginx_proxy: Services::NginxProxy::Configuration
       }.fetch(service).new(@env)
     end
 
@@ -92,7 +94,8 @@ module Orchestration
         configuration(:database).settings.nil? ? nil : 'wait-database',
         configuration(:mongo).settings.nil? ? nil : 'wait-mongo',
         configuration(:rabbitmq).settings.nil? ? nil : 'wait-rabbitmq',
-        'wait-application' # No-op unless in development mode
+        'wait-nginx-proxy',
+        'wait-application'
       ].compact.join(' ')
     end
 

@@ -8,6 +8,7 @@ require 'mongoid'
 require 'mysql2'
 require 'pg'
 require 'sqlite3'
+require 'webmock/rspec'
 
 require 'orchestration'
 require File.join(__dir__, 'dummy/config/environment.rb')
@@ -15,6 +16,8 @@ require File.join(__dir__, 'dummy/config/environment.rb')
 ENV['RACK_ENV'] = 'test'
 
 Dir[File.join(__dir__, 'support', '**', '*.rb')].each { |path| require path }
+
+WebMock.disable_net_connect!(allow_localhost: false)
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

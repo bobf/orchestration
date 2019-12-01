@@ -3,11 +3,8 @@
 module Orchestration
   module DockerCompose
     class ApplicationService
-      PORT = 3000
-
       def initialize(config)
         @config = config
-        @env = config.environment
       end
 
       def definition
@@ -18,41 +15,34 @@ module Orchestration
             bundle exec unicorn -c /application/config/unicorn.rb
           ],
           'environment' => environment,
-          'ports' => ["#{PORT}:#{PORT}"]
+          'expose' => [8080]
         }
       end
 
       private
 
       def image
-        "#{@env.settings.get('docker.username')}/#{@env.application_name}"
+        "#{@config.docker_username}/#{@config.application_name}"
       end
 
       def environment
         {
-          # `nil` values will inherit from environment or `.env` file.
-          'HOST_UID' => nil,
-          'RAILS_ENV' => nil,
-          'SECRET_KEY_BASE' => nil,
-          'DATABASE_URL' => database_url,
+          'DATABASE_URL' => @config.database_url,
           'RAILS_LOG_TO_STDOUT' => '1',
           'UNICORN_PRELOAD_APP' => '1',
           'UNICORN_TIMEOUT' => '60',
-          'UNICORN_WORKER_PROCESSES' => '8'
-        }
+          'UNICORN_WORKER_PROCESSES' => '8',
+          'VIRTUAL_PORT' => '8080',
+          'VIRTUAL_HOST' => 'localhost'
+        }.merge(inherited_environment)
       end
 
-      def database_url
-        settings = @config.database_settings
-        return nil if settings.fetch('adapter') == 'sqlite3'
-
-        scheme = settings.fetch('scheme')
-        database = settings.fetch('database')
-        username = settings.fetch('username')
-        password = settings.fetch('password')
-        port = DatabaseService::PORT
-
-        "#{scheme}://#{username}:#{password}@database:#{port}/#{database}"
+      def inherited_environment
+        {
+          'HOST_UID' => nil,
+          'RAILS_ENV' => nil,
+          'SECRET_KEY_BASE' => nil
+        }
       end
     end
   end

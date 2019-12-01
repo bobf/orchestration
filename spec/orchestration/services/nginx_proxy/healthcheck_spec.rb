@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
-RSpec.describe Orchestration::Services::Mongo::Healthcheck do
+RSpec.describe Orchestration::Services::NginxProxy::Healthcheck do
   subject(:healthcheck) { described_class.new(env) }
 
   let(:env) do
-    double(
-      'Environment',
-      environment: 'test',
-      mongoid_configuration_path: fixture_path('mongoid')
+    instance_double(
+      Orchestration::Environment,
+      settings: settings,
+      docker_compose_configuration_path: fixture_path('docker-compose')
     )
   end
+
+  let(:settings) { instance_double(Orchestration::Settings) }
 
   it { is_expected.to be_a described_class }
 
@@ -20,29 +22,26 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
     let(:options) { {} }
 
     before do
-      allow(Mongoid).to receive(:default_client) { double(database_names: [1]) }
       allow(terminal).to receive(:write)
     end
 
-    it 'outputs a message' do
+    it 'outputs a waiting message' do
       expect(terminal)
         .to receive(:write)
-        .with(:waiting, 'Waiting for Mongo: [mongoid] localhost:27017')
-
+        .with(:waiting, 'Waiting for Nginx proxy: [nginx-proxy]')
       start
     end
 
-    it 'outputs a message' do
-      expect(terminal)
+    it 'outputs a ready message' do
       expect(terminal)
         .to receive(:write)
-        .with(:ready, 'Mongo is ready.')
-
+        .with(:waiting, 'Waiting for Nginx proxy: [nginx-proxy]')
+        .with(:ready, 'Nginx proxy is ready.')
       start
     end
 
-    it 'connects to mongo' do
-      expect(Mongoid).to receive(:default_client)
+    it 'attempts to connect to application' do
+      expect(Net::HTTP).to receive(:start)
 
       start
     end
@@ -54,7 +53,7 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
 
       shared_examples 'an error handler' do
         before do
-          allow(Mongoid).to receive(:default_client) { raise error }
+          allow(Net::HTTP).to receive(:start) { raise error }
         end
 
         it 'handles connection errors' do
@@ -62,15 +61,8 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
         end
       end
 
-      context 'no server available' do
-        let(:error_info) do
-          double(
-            server_selection_timeout: nil,
-            local_threshold: nil
-          )
-        end
-
-        let(:error) { ::Mongo::Error::NoServerAvailable.new(error_info) }
+      context 'connection refused' do
+        let(:error) { Errno::ECONNREFUSED }
         it_behaves_like 'an error handler'
       end
     end

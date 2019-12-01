@@ -11,13 +11,11 @@ namespace :orchestration do
   namespace :application do
     desc 'Wait for application to become available'
     task :wait do
-      if Rails.env.development?
-        Orchestration::Services::Application::Healthcheck.start
-      end
+      Orchestration::Services::Application::Healthcheck.start
     end
   end
 
-  namespace :db do
+  namespace :database do
     desc 'Wait for database to become available'
     task :wait do
       Orchestration::Services::Database::Healthcheck.start
@@ -28,6 +26,13 @@ namespace :orchestration do
     desc 'Wait for mongo to become available'
     task :wait do
       Orchestration::Services::Mongo::Healthcheck.start
+    end
+  end
+
+  namespace :nginx_proxy do
+    desc 'Wait for Nginx proxy to become available'
+    task :wait do
+      Orchestration::Services::NginxProxy::Healthcheck.start
     end
   end
 

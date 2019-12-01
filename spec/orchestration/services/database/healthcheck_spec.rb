@@ -31,10 +31,15 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
       allow(terminal).to receive(:write)
     end
 
-    it 'outputs a message' do
+    it 'outputs a waiting message' do
       expect(terminal)
         .to receive(:write)
         .with(:waiting, 'Waiting for database: [sqlite3]')
+
+      start
+    end
+
+    it 'outputs a ready message' do
       expect(terminal)
         .to receive(:write)
         .with(:ready, 'Database is ready.')
