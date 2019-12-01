@@ -1,0 +1,97 @@
+pwd:=$(shell pwd)
+orchestration_dir:=${pwd}/<%= env.orchestration_dir_name %>
+is_container:=$(shell [ -f './.orchestration_container_flag' ] && echo -n '1' || echo -n '0')
+
+ifdef env_file
+  custom_env_file ?= 1
+else
+  custom_env_file ?= 0
+endif
+
+TERM ?= 'dumb'
+stdout=${pwd}/log/orchestration.stdout.log
+stderr=${pwd}/log/orchestration.stderr.log
+log_path_length=$(shell echo "${stdout}" | wc -c)
+log:= >>${stdout} 2>>${stderr}
+red:=$(shell tput setaf 1)
+green:=$(shell tput setaf 2)
+yellow:=$(shell tput setaf 3)
+blue:=$(shell tput setaf 4)
+magenta:=$(shell tput setaf 5)
+cyan:=$(shell tput setaf 6)
+gray:=$(shell tput setaf 7)
+reset:=$(shell tput sgr0)
+tick=[${green}✓${reset}]
+cross=[${red}✘${reset}]
+warn=[${yellow}!${reset}]
+hr=path=${stdout} ; echo "${gray}$(shell head -c ${log_path_length} < /dev/zero | tr '\0' '=')${reset}"
+managed_env_tag:=\# -|- ORCHESTRATION
+standard_env_path:=${pwd}/.env
+backup_env_path:=${pwd}/.env.orchestration.backup
+is_managed_env:=$$(test -f '${standand_env_path}' && tail -n 1 '${standard_env_path}') == "${managed_env_tag}"*
+
+back_up_env:=( \
+               [ ! -f '${standard_env_path}' ] \
+             || \
+               ( \
+                 [ -f '${standard_env_path}' ] \
+                 && cp '${standard_env_path}' '${backup_env_path}' \
+               ) \
+             )
+
+replace_env:=( \
+               ( [ "${custom_env_file}" == "0" ] ) \
+             || \
+               ( \
+                 [ "${custom_env_file}" == "1" ] \
+                 && ${back_up_env} \
+                 && cp ${env_file} '${standard_env_path}' \
+                 && printf '\n${managed_env_tag}' >> '${standard_env_path}' \
+               ) \
+             )
+
+restore_env:=( \
+               ( \
+                 [ ! -f '${backup_env_path}' ] \
+                 && [[ ! ${is_managed_env} ]] \
+               ) \
+             || \
+               ( \
+                 [ -f '${backup_env_path}' ] \
+                 && [[ ${is_managed_env} ]] \
+                 && mv '${backup_env_path}' '${standard_env_path}' \
+               ) \
+             )
+
+key_chars:=[a-zA-Z0-9_]
+censored:=**********
+censor=sed 's/\(^${key_chars}*$(1)${key_chars}*\)=\(.*\)$$/\1=${censored}/'
+censor_urls:=sed 's|\([a-zA-Z0-9_+]\+://.*:\).*\(@.*\)$$|\1${censored}\2|'
+format_env:=$(call censor,SECRET) | \
+            $(call censor,PASSWORD) | \
+            $(call censor,TOKEN) | \
+            $(call censor,PRIVATE) | \
+            $(call censor,KEY) | \
+            ${censor_urls} | \
+            sed 's/\(^[a-zA-Z0-9_]\+\)=/${blue}\1${reset}=/' | \
+            sed 's/^/  /' | \
+            sed 's/=\(.*\)$$/=${yellow}\1${reset}/'
+
+fail=( \
+       ${restore_env} ; \
+       echo ; \
+       echo ; \
+       echo ; \
+       echo "${yellow}${stdout}${reset}" ; \
+       ${hr} ; \
+       [ -f "${stdout}" ] && cat "${stdout}" ; \
+       echo ; \
+       echo "${yellow}${stderr}${reset}" ; \
+       ${hr} ; \
+       [ -f "${stderr}" ] && ( \
+         printf "${red}" ; cat "${stderr}" ; printf "${reset}" \
+       ) ; \
+       echo ; echo "Failed. ${cross}" ; \
+       exit 1 \
+    )
+

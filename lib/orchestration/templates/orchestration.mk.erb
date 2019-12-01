@@ -1,8 +1,16 @@
 ### Environment setup ###
-
 SHELL:=/bin/bash
 
--include .env
+<%= macros %>
+_:=$(shell echo > ${stdout})
+_:=$(shell echo > ${stderr})
+
+ifdef env_file
+  -include ${env_file}
+else
+  -include .env
+endif
+
 export
 
 ifneq (,$(env))
@@ -21,35 +29,41 @@ else
   rake:=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
 endif
 
-docker_organization:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_organization)
-docker_repository:=$(shell bash ./<%= env.orchestration_dir_name %>/yaml.bash docker_repository)
+docker_organization:=$(shell bash ${orchestration_dir}/yaml.bash docker_organization)
+docker_repository:=$(shell bash ${orchestration_dir}/yaml.bash docker_repository)
 
 compose_base:=env HOST_UID=$(shell id -u) \
-              DOCKER_ORGANIZATION=${docker_organization} \
-              DOCKER_REPOSITORY=${docker_repository} \
+              DOCKER_ORGANIZATION="${docker_organization}" \
+              DOCKER_REPOSITORY="${docker_repository}" \
               docker-compose \
-              -p ${docker_repository}_${env} \
-              -f <%= env.orchestration_dir_name %>/docker-compose.yml \
+              -p "${docker_repository}_${env}" \
+              -f "${orchestration_dir}/docker-compose.yml"
 
 git_branch:=$(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
 git_version:=$(shell git rev-parse --short --verify ${git_branch})
+docker_image:=${docker_organization}/${docker_repository}:${git_version}
 
-compose:=${compose_base} -f <%= env.orchestration_dir_name %>/docker-compose.${env}.yml -f <%= env.orchestration_dir_name %>/docker-compose.override.yml
+compose:=${compose_base} -f ${orchestration_dir}/docker-compose.${env}.yml -f ${orchestration_dir}/docker-compose.override.yml
 
-ifneq (,$(wildcard <%= env.orchestration_dir_name %>/docker-compose.local.yml))
-  compose:=${compose} -f <%= env.orchestration_dir_name %>/docker-compose.local.yml
+ifneq (,$(wildcard ${orchestration_dir}/docker-compose.local.yml))
+  compose:=${compose} -f ${orchestration_dir}/docker-compose.local.yml
 endif
 
 ### Container management commands ###
 
 .PHONY: start
+start: network := ${docker_repository}_${env}_default
 start:
-	@echo "Starting containers..."
+	@echo '${yellow}Starting containers${reset} ...'
 ifeq (${env},$(filter ${env},test development))
-	@# If our hostname is also known to Docker as a container ID then join
-	@# the same network as our dependencies. This allows us to run side-car
-	@# dependencies if we are running in a container (e.g. in Jenkins).
-	@(docker ps --format "{{.ID}}" | grep -q $(shell hostname) && ${compose} up -d --force-recreate && docker network connect ${docker_repository}_${env}_default $(shell hostname)) || ${compose} up -d --force-recreate
+	@${compose} up -d --force-recreate ${log} || ${fail}
+	@[ '${is_container}' == '1' ] && \
+         ( \
+           docker network connect '${network}' '$(shell hostname)' ${log} \
+           || \
+           echo '${yellow}Warning${reset}: Unable to join network: "${yellow}${network}${reset}". Container will not be able to connect to dependency services.' \
+         ) \
+         || ( [ '${is_container}' == '0' ] || ${fail} )
 else
 	@${compose} up -d --scale app=$${instances:-1}
 endif
@@ -57,15 +71,16 @@ endif
 
 .PHONY: stop
 stop:
-	@echo "Stopping containers..."
+	@printf '${yellow}Stopping containers${reset} ... '
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
           then \
-            ${compose} down && \
-            docker network connect ${docker_repository}_${env}_default $(shell hostname) ; \
+            ( ${compose} down ${log} || ${fail} ) \
+            && \
+            ( docker network connect ${docker_repository}_${env}_default $(shell hostname) ${log} || : ) ; \
           else \
-            ${compose} down ; \
+            ${compose} down ${log} || ${fail} ; \
           fi
-	@echo "All containers stopped."
+	@echo '${green}stopped${reset}. ${tick}'
 
 .PHONY: logs
 logs:
@@ -79,12 +94,27 @@ config:
 compose:
 	@echo ${compose}
 
-.PHONY: verify
-verify: output := $(shell mktemp)
-verify:
-	@echo "Verifying compose file(s) ..."
-	@${compose} config > "${output}" 2>&1 || ( cat "${output}" ; exit 1 )
-	@echo "Verification successful."
+### Development/Test Utility Commands
+
+.PHONY: serve
+serve: env_file ?= ./.env
+serve: rails := bundle exec rails server
+serve: _verify_env
+	@if [ "${custom_env_file}" == "1" ] && [ ! -f "${env_file}" ] ; \
+         then \
+           echo "${red}Error${reset}: Environment file '${yellow}${env_file}${reset}' not found. ${cross}" ; \
+           ${fail} ; \
+         fi
+	@if [ -f "${env_file}" ] ; \
+         then ( \
+                echo "${green}Launching Rails environment:${reset}" && \
+                cat "${env_file}" | ${format_env} && \
+                echo && \
+                set -a && . "${env_file}" && set +a && \
+                ${rails} \
+            ) ; \
+         else ${rails} ; \
+         fi
 
 .PHONY: test-setup
 test-setup:
@@ -94,70 +124,82 @@ test-setup:
 
 .PHONY: bundle
 bundle:
-	@echo 'Building deployment bundle...'
-	@rm -rf <%= env.orchestration_dir_name %>/.deploy/
-	@mkdir -p <%= env.orchestration_dir_name %>/.deploy/${docker_repository}/
+ifndef path
+	@$(warning Missing `path` parameter; using `./bundle.tar`. Set a custom path with `make bundle path=/tmp/bundle.tar`)
+endif
+	@rm -rf ${orchestration_dir}/.deploy/
+	@mkdir -p ${orchestration_dir}/.deploy/${docker_repository}/
 	@sed -e "s/%%VERSION%%/${git_version}/g" \
              -e "s/%%REPOSITORY%%/${docker_repository}/g" \
              -e "s/%%ORGANIZATION%%/${docker_organization}/g" \
-             <%= env.orchestration_dir_name %>/deploy.mk > \
-             <%= env.orchestration_dir_name %>/.deploy/${docker_repository}/Makefile
-	@cp <%= env.orchestration_dir_name %>/docker-compose.yml \
-            <%= env.orchestration_dir_name %>/docker-compose.production.yml \
-            <%= env.orchestration_dir_name %>/docker-compose.override.yml \
-            <%= env.orchestration_dir_name %>/.deploy/${docker_repository}/
-	@tar -C <%= env.orchestration_dir_name %>/.deploy -cf ./deploy.tar ./${docker_repository}
-	@echo 'Deployment bundle written to ./deploy.tar'
+             ${orchestration_dir}/deploy.mk > \
+             ${orchestration_dir}/.deploy/${docker_repository}/Makefile
+	@cp ${orchestration_dir}/docker-compose.yml \
+            ${orchestration_dir}/docker-compose.production.yml \
+            ${orchestration_dir}/docker-compose.override.yml \
+            ${orchestration_dir}/.deploy/${docker_repository}/
+	@bundle_path="${path}" ; tar -C '${orchestration_dir}/.deploy' -cf "$${bundle_path:-./bundle.tar}" ./${docker_repository}
 
 .PHONY: deploy
-deploy:
 ifndef manager
 	@$(error Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`)
-else
-	@echo 'Deploying stack via ${manager}...'
 endif
+deploy: project_name := ${docker_repository}_${env}
+deploy: path := $(shell mktemp -d)
+deploy: env ?= production
+deploy:
+	@echo "${yellow}Deploying stack via${reset} ${green}${manager}${reset} ..." && \
+          ( \
+            $(MAKE) _verify_compose env_file=${env_file} env=${env} && \
+            $(MAKE) bundle path='${path}/bundle.tar' ${log} && \
+            cd '${path}' ${log} && \
+            tar xf './bundle.tar' ${log} && \
+            cd '${docker_repository}' ${log} && \
+               ( [ -z '${env_file}' ] || cp '${env_file}' './.env' ${log} ) && \
+               echo '${yellow}Deployment environment${reset}:' && \
+               cat '.env' | ${format_env} && \
+               echo 'DOCKER_ORGANIZATION=${docker_organization}' >> './.env' && \
+               echo 'DOCKER_REPOSITORY=${docker_repository}' >> './.env' && \
+               echo 'DOCKER_TAG=${git_version}' >> ./.env && \
+               printf '\n${yellow}Application image${reset}: ${cyan}${docker_image}${reset}\n' && \
+               docker-compose config 2>${stderr} | ssh "${manager}" 'docker stack deploy --prune --with-registry-auth -c - "${project_name}"' ${log} && \
+            ( [ -z "${path}" ] || rm -rf "${path}" ${log} ) \
+          ) \
+          || ${fail}
 
-ifndef env_file
-	$(MAKE) bundle \
-     && workdir=$$(mktemp -d) \
-     && mv deploy.tar $${workdir}/ \
-     && cd $${workdir} \
-     && tar xf deploy.tar \
-     && cd ${docker_repository} \
-     && tar -cf - . | ssh ${manager} 'cd $$(mktemp -d) && chmod 0700 . && cat - | tar -x && make deploy-stack && rm -r $$(pwd)'
-else
-	$(MAKE) bundle \
-     && workdir=$$(mktemp -d) \
-     && mv deploy.tar $${workdir}/ \
-     && cd $${workdir} \
-     && tar xf deploy.tar \
-     && cd ${docker_repository} \
-     && cp "${env_file}" ./.env \
-     && tar -cf - . | ssh ${manager} 'cd $$(mktemp -d) && chmod 0700 . && cat - | tar -x && make deploy-stack && rm -r $$(pwd)'
-endif
+	@echo "Deployment complete. ${tick}"
 
 ### Database utility commands ###
 
 .PHONY: migrate
+migrate: success := echo "${green}complete${reset}. ${tick}"
 migrate:
-	@echo "Running migrations..."
-	@(${rake} db:create && ${rake} db:migrate) || ${rake} db:migrate
-	@echo "Migrations complete."
-
-.PHONY: migrate-container
-migrate-container:
-	@echo "[app] Running migrations..."
-ifdef env_file
-	@cp ${env_file} ./.env
+ifeq (,$(wildcard config/database.yml))
+	@echo "${yellow}No database configuration found${reset}: ${cyan}skipping migrations${reset} ... ${tick}"
+else ifeq (${env},$(filter ${env},test development))
+	@$(MAKE) _verify_env env=${env} env_file=${env_file} || ${fail}
+	@printf "${yellow}Running migrations${reset} ... "
+	@$(MAKE) _migrate env=${env} ${log} || ${fail}
+	@${success}
+else
+	@$(MAKE) _verify_compose env=${env} env_file=${env_file} || ${fail}
+	@printf "[${green}app${reset}] ${yellow}Running migrations${reset} ... "
+	@${replace_env}
+	@${compose} run \
+                    -v '${orchestration_dir}/Makefile:/tmp/orchestration.mk:ro' \
+                    --rm \
+                    app \
+                    make -f /tmp/orchestration.mk _migrate env=${env} \
+                    ${log} || ${fail}
+	@${restore_env}
+	@${success}
 endif
-	${compose} run --rm app make migrate
-	@echo "[app] Migrations complete."
 
 ### Service healthcheck commands ###
 
 .PHONY: wait
 wait: <%= wait_commands.join(' ') %>
-	@echo "All Containers ready."
+	@echo 'All containers ${green}started${reset}. ${tick}'
 
 ## Generic Listener healthcheck for TCP services ##
 
@@ -191,23 +233,53 @@ wait-app:
 ### Docker build commands ###
 
 .PHONY: build
+build: context := ${orchestration_dir}/.build/context.tar
 build:
-	@echo "Preparing build from ${git_branch}"
-	@mkdir -p ./<%= env.orchestration_dir_name %>/.build
-	@git show ${git_branch}:./Gemfile > ./<%= env.orchestration_dir_name %>/.build/Gemfile
-	@git show ${git_branch}:./Gemfile.lock > ./<%= env.orchestration_dir_name %>/.build/Gemfile.lock
-<% if defined?(Webpacker) %>	@git show ${git_branch}:./package.json > ./<%= env.orchestration_dir_name %>/.build/package.json<% end %>
-<% if defined?(Webpacker) %>	@git show ${git_branch}:./yarn.lock > ./<%= env.orchestration_dir_name %>/.build/yarn.lock<% end %>
-	@echo "Building..."
-	@git archive --format tar.gz -o ./<%= env.orchestration_dir_name %>/.build/context.tar.gz ${git_branch}
+	@printf "${yellow}Preparing build context from${reset} ${cyan}${git_branch}${reset} ... "
+	@mkdir -p ${orchestration_dir}/.build ${log} || ${fail}
+	@git show ${git_branch}:./Gemfile > ${orchestration_dir}/.build/Gemfile 2>${stderr} || ${fail}
+	@git show ${git_branch}:./Gemfile.lock > ${orchestration_dir}/.build/Gemfile.lock 2>${stderr} || ${fail}
+<% if defined?(Webpacker) %>	@git show ${git_branch}:./package.json > ${orchestration_dir}/.build/package.json 2>${stderr} || ${fail}<% end %>
+<% if defined?(Webpacker) %>	@git show ${git_branch}:./yarn.lock > ${orchestration_dir}/.build/yarn.lock 2>${stderr} || ${fail}<% end %>
+	@git archive --format 'tar' -o '${context}' '${git_branch}' ${log} || ${fail}
+	@temp=$$(mktemp -d) ; ( cd "$${temp}" && touch './.orchestration_container_flag' && tar -uvf '${context}' . ) ${log} || ${fail}
+	@echo "${green}complete.${reset} ${tick}"
+	@printf "${yellow}Building image${reset} ... "
 	@docker build \
 	             --build-arg BUNDLE_GITHUB__COM \
 	             --build-arg BUNDLE_BITBUCKET__ORG \
 		     -t ${docker_organization}/${docker_repository} \
 		     -t ${docker_organization}/${docker_repository}:${git_version} \
-		     ./<%= env.orchestration_dir_name %>/
-	@echo "Build complete."
+		     ${orchestration_dir}/ ${log} || ${fail}
+	@echo "${green}complete${reset}. ${tick}"
+	@echo "[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}${reset}"
+	@echo "[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset}"
 
 .PHONY: push
 push:
-	docker push ${docker_organization}/${docker_repository}:${git_version}
+	@printf '${yellow}Pushing${reset} ${cyan}${docker_image}${reset} ... '
+	@docker push ${docker_image} ${log} || ${fail}
+	@echo '${green}complete${reset}. ${tick}'
+
+### Internal Commands ###
+
+.PHONY: _verify_compose
+_verify_compose: _verify_env
+	@printf "${yellow}Verifying compose file(s)${reset} ... "
+	@${replace_env}
+	@${compose} config ${log} || ${fail}
+	@${restore_env}
+	@echo '${green}success${reset}. ${tick}'
+
+.PHONY: _verify_env
+_verify_env:
+	@if [ "${custom_env_file}" == "1" ] && [ ! -f "${env_file}" ] ; \
+         then \
+           echo '${red}Error${reset}: Environment file "${yellow}${env_file}${reset}" not found. ${cross}' ; \
+           exit 1 ; \
+         fi
+
+.PHONY: _migrate
+_migrate:
+	@${rake} --trace db:create || :
+	@${rake} --trace db:migrate

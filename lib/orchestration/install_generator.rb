@@ -98,7 +98,9 @@ module Orchestration
     end
 
     def makefile_environment
-      { env: @env, wait_commands: wait_commands }
+      macros = template('makefile_macros.mk', env: @env)
+
+      { env: @env, wait_commands: wait_commands, macros: macros }
     end
 
     def wait_commands
