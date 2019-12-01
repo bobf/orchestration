@@ -5,6 +5,9 @@ default: &default
   username: postgres
   password: ''
   port: 5432
+  <% if ENV.key?('TEST_DATABASE_URL') %>
+  url: <%= ENV['TEST_DATABASE_URL'] %>
+  <% end %>
 
 test:
   <<: *default

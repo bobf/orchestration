@@ -6,10 +6,16 @@ default: &default
 development:
   <<: *default
   database: db/development.sqlite3
+  <% if ENV.key?('DATABASE_URL') %>
+  url: <%= ENV['DATABASE_URL'] %>
+  <% end %>
 
 test:
   <<: *default
   database: db/test.sqlite3
+  <% if ENV.key?('TEST_DATABASE_URL') %>
+  url: <%= ENV['TEST_DATABASE_URL'] %>
+  <% end %>
 
 production:
   <<: *default

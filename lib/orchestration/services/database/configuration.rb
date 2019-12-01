@@ -64,9 +64,10 @@ module Orchestration
         end
 
         def url_config
-          return {} if env.database_url.nil?
+          url = file_config['url'] || env.database_url
+          return {} if url.nil?
 
-          config = DatabaseUrl.to_active_record_hash(env.database_url)
+          config = DatabaseUrl.to_active_record_hash(url)
                              &.transform_keys(&:to_s)
 
           # A quirk of DatabaseUrl is that if no "/path" is present then the
