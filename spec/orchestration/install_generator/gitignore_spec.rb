@@ -29,7 +29,7 @@ RSpec.describe Orchestration::InstallGenerator do
       content = File.read(gitignore_path)
       expect(
         content
-      ).to include "\ndocker/.build/context.tar.gz # Orchestration\n"
+      ).to include "\ndocker/.build/\n"
     end
 
     it 'does not add content more than once' do

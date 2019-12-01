@@ -49,11 +49,11 @@ module Orchestration
     def gitignore
       path = @env.root.join('.gitignore')
       entries = [
-        'docker/.build/context.tar.gz',
+        'docker/.build/',
         'docker/Gemfile',
         'docker/Gemfile.lock',
         'docker/*.gemspec'
-      ].map { |entry| "#{entry} # Orchestration" }
+      ]
       ensure_lines_in_file(path, entries)
     end
 
