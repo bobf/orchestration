@@ -1,3 +1,15 @@
+-include .env
+export
+
+verify-environment:
+ifndef VIRTUAL_HOST
+        @$(error VIRTUAL_HOST must be defined in environment)
+endif
+
+ifndef LISTEN_PORT
+        @$(error LISTEN_PORT must be defined in environment)
+endif
+
 compose_base:=HOST_UID=$(shell id -u) \
               DOCKER_USERNAME=%%USERNAME%% \
               DOCKER_REPOSITORY=%%REPOSITORY%%:%%VERSION%% \
@@ -12,29 +24,29 @@ deploy:
 	@echo "Deploying application to Docker swarm..."
 	@${compose} config | docker stack deploy -c - %%REPOSITORY%%
 
-.PHONY: deploy
+.PHONY: stop
 stop:
 	@echo "Stopping containers..."
 	@${compose} down
 
-.PHONY: deploy
+.PHONY: start
 start:
 	@echo "Launching application..."
 	@${compose} up -d --scale app=$${instances:-1}
 
-.PHONY: deploy
+.PHONY: config
 config:
 	@${compose} config
 
-.PHONY: deploy
+.PHONY: pull
 pull:
 	@${compose} pull
 
-.PHONY: deploy
+.PHONY: logs
 logs:
 	@${compose} logs -f
 
-.PHONY: deploy
+.PHONY: migrate
 migrate:
 	@${compose} run --rm app bundle exec rake db:migrate
 
