@@ -35,7 +35,7 @@ The below screenshot demonstrates _Orchestration_ being installed in a brand new
 Add _Orchestration_ to your Gemfile:
 
 ```ruby
-gem 'orchestration', '~> 0.4.9'
+gem 'orchestration', '~> 0.4.10'
 ```
 
 Install:
