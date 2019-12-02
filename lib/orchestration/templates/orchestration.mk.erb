@@ -51,7 +51,9 @@ ifneq (,${sidecar_suffix})
 endif
 
 ifdef sidecar
-  sidecar_compose = sidecar=1
+  # Set the variable to an empty string so that "#{sidecar-1234}" will evaluate
+  # to "1234" in port mappings.
+  sidecar_compose = sidecar=''
   ifeq (,${sidecar_suffix})
     sidecar_suffix := $(call token)
     _ignore := $(shell echo ${sidecar_suffix} > ${orchestration_dir}/.sidecar)
