@@ -74,7 +74,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
       let(:adapter) { 'postgresql' }
       before { hide_const('Mysql2') }
       its(['volumes']) { is_expected.to be_nil }
-      its(['ports']) { is_expected.to eql ['${12345:-sidecar}5432'] }
+      its(['ports']) { is_expected.to eql ['${sidecar-12345:}5432'] }
     end
 
     context 'development' do

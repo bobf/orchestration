@@ -45,14 +45,22 @@ module Orchestration
       def port
         return @env.app_port if @service_name == 'app'
 
-        local, _, remote = @env.docker_compose_config
-                               .fetch('services')
-                               .fetch(@service_name)
-                               .fetch('ports')
-                               .first
-                               .partition(':')
+        service = @env.docker_compose_config
+                      .fetch('services')
+                      .fetch(@service_name)
 
+        local, remote = parse_port(service)
         (@env.environment == 'production' ? remote : local).to_i
+      end
+
+      def parse_port(service)
+        # Remove our sidecar variable for easier parsing
+        # '{sidecar-27018:}27017' => '27018:27017'
+        local, _, remote = service.fetch('ports')
+                                  .first
+                                  .sub(/\${sidecar-(\d+):}/, '\1:')
+                                  .partition(':')
+        [local, remote]
       end
 
       def yaml(content)

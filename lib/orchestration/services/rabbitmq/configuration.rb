@@ -17,20 +17,18 @@ module Orchestration
         end
 
         def host
-          return from_url['host'] unless @env.rabbitmq_url.nil?
-
-          super
+          from_url['host'] || super
         end
 
         def port
-          return from_url['port'] unless @env.rabbitmq_url.nil?
-
-          super
+          from_url['port'] || super
         end
 
         private
 
         def from_url
+          return {} if @env.rabbitmq_url.nil?
+
           uri = URI.parse(@env.rabbitmq_url)
           { 'host' => uri.host, 'port' => uri.port || 5672 }
         end

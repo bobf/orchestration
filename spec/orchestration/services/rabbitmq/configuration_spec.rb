@@ -12,7 +12,7 @@ RSpec.describe Orchestration::Services::RabbitMQ::Configuration do
       rabbitmq_configuration_path: config,
       rabbitmq_url: nil,
       docker_compose_config: {
-        'services' => { 'rabbitmq' => { 'ports' => ['5673:5672'] } }
+        'services' => { 'rabbitmq' => { 'ports' => ['${sidecar-5673:}5672'] } }
       }
     )
   end

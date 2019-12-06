@@ -11,7 +11,7 @@ module Orchestration
         # "50123:3306"
         # otherwise it will be:
         # "3306" (docker will use an ephemeral host port which we will not use)
-        "${#{port}\:-sidecar}"
+        "${sidecar-#{port}:}"
       end
     end
   end

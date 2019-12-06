@@ -11,7 +11,7 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
       mongoid_configuration_path: '/path/to/nowhere.yml',
       mongo_url: nil,
       docker_compose_config: {
-        'services' => { 'mongo' => { 'ports' => ['27018:27017'] } }
+        'services' => { 'mongo' => { 'ports' => ['${sidecar-27018:}27017'] } }
       }
     )
   end

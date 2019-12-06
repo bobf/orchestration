@@ -41,7 +41,7 @@ RSpec.describe Orchestration::DockerCompose::MongoService do
     context 'test' do
       let(:environment) { :test }
       it { is_expected.to_not include 'volumes' }
-      its(['ports']) { is_expected.to eql ['${12345:-sidecar}27017'] }
+      its(['ports']) { is_expected.to eql ['${sidecar-12345:}27017'] }
     end
 
     context 'development' do

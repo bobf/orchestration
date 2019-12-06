@@ -22,7 +22,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       database_configuration_path: config_path,
       docker_compose_config?: true,
       docker_compose_config: {
-        'services' => { 'database' => { 'ports' => ['3354:3354'] } }
+        'services' => { 'database' => { 'ports' => ['${sidecar-3354:}3354'] } }
       }
     )
   end

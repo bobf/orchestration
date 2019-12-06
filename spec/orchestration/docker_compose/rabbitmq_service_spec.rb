@@ -23,7 +23,7 @@ RSpec.describe Orchestration::DockerCompose::RabbitMQService do
 
     context 'test' do
       let(:environment) { :test }
-      its(['ports']) { is_expected.to eql ['${12345:-sidecar}5672'] }
+      its(['ports']) { is_expected.to eql ['${sidecar-12345:}5672'] }
     end
 
     context 'development' do
