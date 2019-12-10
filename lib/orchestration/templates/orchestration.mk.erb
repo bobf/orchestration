@@ -158,22 +158,15 @@ compose:
 .PHONY: serve
 serve: env_file ?= ./.env
 serve: rails = RAILS_ENV='${env}' bundle exec rails server ${server}
-serve: _verify_env
-	@if [ "${custom_env_file}" == "1" ] && [ ! -f "${env_file}" ] ; \
-         then \
-           $(call println_error,'${red}Error${reset}: Environment file "${yellow}${env_file}${reset}" not found. ${cross}') ; \
-           ${fail} ; \
-         fi
+serve:
 	@if [ -f "${env_file}" ] ; \
          then ( \
                 $(call println,'${yellow}Environment${reset}: ${green}${env_file}${reset}') && \
                 cat '${env_file}' | ${format_env} && \
-                $(call println,'') && \
-                set -a && . '${env_file}' && set +a && \
-                ${rails} \
+                $(call println,'') \
             ) ; \
-         else ${rails} ; \
-         fi
+        fi
+	${rails}
 
 .PHONY: test-setup
 test-setup: env := test
@@ -248,7 +241,6 @@ ifndef manager
 endif
 	@$(call println,'${yellow}Deploying stack via${reset} ${green}${manager}${reset} ...') && \
           ( \
-            $(call make,_verify_compose env_file=${env_file} env=${env}) && \
             $(call make,bundle path='${path}/bundle.tar') ${log} && \
             cd '${path}' ${log} && \
             tar xf 'bundle.tar' ${log} && \
@@ -332,7 +324,12 @@ build:
 	@git archive --format 'tar' -o '${context}' '${git_branch}' ${log} || ${fail}
 	@temp=$$(mktemp -d) ; ( cd "$${temp}" && tar -uvf '${context}' . ) ${log} || ${fail}
 	@$(call printrawln,'${green}complete.${reset} ${tick}')
+ifdef sidecar
+        # Assume we are in a line-buffered environment (e.g. Jenkins)
+	@$(call println,'${yellow}Building image${reset} ...')
+else
 	@$(call print,'${yellow}Building image${reset} ...')
+endif
 	@docker build \
                         --build-arg BUNDLE_GITHUB__COM \
                         --build-arg BUNDLE_BITBUCKET__ORG \
@@ -352,26 +349,6 @@ push:
 
 ### Internal Commands ###
 #
-.PHONY: _verify_app_image
-_verify_app_image:
-	@docker inspect '${docker_image}'
-
-.PHONY: _verify_compose
-_verify_compose: _verify_env
-	@$(call print,'${yellow}Verifying compose file(s)${reset} ... ')
-	@${replace_env}
-	@${compose} config ${log} || ${fail}
-	@${restore_env}
-	@$(call printrawln,'${green}success${reset}. ${tick}')
-
-.PHONY: _verify_env
-_verify_env:
-	@if [ "${custom_env_file}" == "1" ] && [ ! -f "${env_file}" ] ; \
-         then \
-           $(call print_error,'${red}Error${reset}: Environment file "${yellow}${env_file}${reset}" not found. ${cross}') ; \
-           exit 1 ; \
-         fi
-
 .PHONY: _clean-logs
 _clean-logs:
 	@rm -f '${stdout}' '${stderr}'

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dotenv'
 require 'erb'
 require 'pathname'
 require 'socket'
