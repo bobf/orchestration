@@ -160,6 +160,11 @@ To load all variables from `.env` and launch a development server, run the follo
 make serve
 ```
 
+To load a _Rails_ console:
+```bash
+make console
+```
+
 The application environment will be output on launch for convenience.
 
 To pass extra commands to the _Rails_ server:
