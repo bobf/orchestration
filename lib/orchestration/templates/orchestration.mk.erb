@@ -7,7 +7,7 @@ ifdef env_file
   -include ${env_file}
 else
 ifneq (${env},test)
-ifneq ($(MAKECMDGOALS),test)
+ifneq (,$(filter $(MAKECMDGOALS),test,test-setup))
   -include .env
 endif
 endif
