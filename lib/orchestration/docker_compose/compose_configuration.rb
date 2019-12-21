@@ -69,7 +69,10 @@ module Orchestration
       end
 
       def short_format_ports(mapping)
-        local, _, remote = mapping.partition(':')
+        # Remove our sidecar variable for easier parsing
+        # '{sidecar-27018:}27017' => '27018:27017'
+        local, _, remote = mapping.sub(/\${sidecar-(\d+):}/, '\1:')
+                                  .partition(':')
         { local: local, remote: remote }
       end
     end
