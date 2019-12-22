@@ -69,12 +69,12 @@ module Orchestration
     end
 
     def default_app_name
-      default = root.basename.to_s
+      default = docker_filter(root.basename.to_s)
       return default unless defined?(Rails)
       # Edge case if Rails is used as a dependency but we are not a Rails app:
       return default if rails_application == Object
 
-      rails_application.name.underscore
+      docker_filter(rails_application.name.underscore)
     end
 
     def rabbitmq_url
@@ -124,6 +124,12 @@ module Orchestration
       return app_class.module_parent if app_class.respond_to?(:module_parent)
 
       app_class.parent
+    end
+
+    def docker_filter(string)
+      # Filter out characters not accepted by Docker Hub
+      permitted = [('0'..'9'), ('a'..'z')].map(&:to_a).flatten
+      string.split('').select { |char| permitted.include?(char) }.join
     end
   end
 end
