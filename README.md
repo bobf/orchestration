@@ -276,6 +276,11 @@ A convenience `Makefile` target `dump` is provided which will output all consume
 make dump
 ```
 
+All commands also support the `verbose` flag which will output all logs immediately to the console:
+```bash
+make build verbose=1
+```
+
 <a name="build-environment"></a>
 ## Build Environment
 
