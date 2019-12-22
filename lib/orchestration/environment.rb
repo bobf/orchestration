@@ -72,9 +72,9 @@ module Orchestration
       default = root.basename.to_s
       return default unless defined?(Rails)
       # Edge case if Rails is used as a dependency but we are not a Rails app:
-      return default if Rails.application.class.parent == Object
+      return default if rails_application == Object
 
-      Rails.application.class.parent.name.underscore
+      rails_application.name.underscore
     end
 
     def rabbitmq_url
@@ -113,6 +113,17 @@ module Orchestration
 
     def mongo_volume
       'mongo'
+    end
+
+    private
+
+    def rails_application
+      app_class = Rails.application.class
+      # Avoid deprecation warning in Rails 6:
+      # `Module#parent` has been renamed to `module_parent`. `parent`
+      return app_class.module_parent if app_class.respond_to?(:module_parent)
+
+      app_class.parent
     end
   end
 end
