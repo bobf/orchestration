@@ -202,7 +202,7 @@ endif
 
 .PHONY: dump
 dump:
-	ifndef verbose
+ifndef verbose
 	@$(call println)
 	@$(call println,'${yellow}Captured${reset} ${green}stdout${reset} ${yellow}and${reset} ${red}stderr${reset} ${yellow}log data${reset}:')
 	@$(call println)
@@ -223,7 +223,7 @@ dump:
           echo ; cat '${stderr}' ; echo ; \
           $(call hr,${red}) ; \
         )
-	endif
+endif
 
 .PHONY: image
 image:
