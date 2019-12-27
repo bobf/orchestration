@@ -185,6 +185,12 @@ To launch all dependency containers, run database migrations, and run tests:
 make test
 ```
 
+If you prefer to run tests manually (e.g. if you want to run tests for a specific file) then the `test-setup` target can be used:
+```
+make test-setup
+bundle exec rspec spec/my_class_spec.rb
+```
+
 Note that _Orchestration_ will wait for all services to become fully available (i.e. running and providing valid responses) before attempting to run tests. This is specifically intended to facilitate testing in continuous integration environments.
 
 _(See [sidecar containers](#sidecar-containers) if you are running your test/development server inside _Docker_)_.
