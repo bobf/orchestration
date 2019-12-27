@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
     File.readlines('MANIFEST').map(&:chomp)
   end
   spec.bindir = 'bin'
-  spec.executables = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.executables = []
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'database_url', '~> 0.1.2'
