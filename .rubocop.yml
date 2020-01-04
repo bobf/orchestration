@@ -6,6 +6,11 @@ Metrics/BlockLength:
     - 'spec/**/*'
     - '*.gemspec'
     - 'lib/tasks/orchestration.rake'
+    - 'spec/**/*'
+
+Metrics/ModuleLength:
+  Exclude:
+    - 'lib/orchestration/file_helpers.rb'
 
 AllCops:
   Exclude:

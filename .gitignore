@@ -17,6 +17,7 @@ Gemfile.lock
 spec/dummy/log/*
 !spec/dummy/log/.keep
 spec/dummy/.gitignore
+spec/dummy/Gemfile
 spec/dummy/Makefile
 spec/dummy/orchestration/*
 spec/dummy/config/unicorn.rb

@@ -87,6 +87,8 @@ module Orchestration
       content = template('unicorn.rb')
       path = @env.root.join('config', 'unicorn.rb')
       create_file(path, content, backup: true)
+      regex = /gem\s+['"]unicorn['"]/
+      ensure_line_in_file(gemfile_path, "gem 'unicorn'", regex: regex)
     end
 
     def database_yml

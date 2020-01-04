@@ -99,21 +99,30 @@ module Orchestration
       @terminal.write(:skip, relpath)
     end
 
-    def ensure_line_in_file(path, line, echo: true)
-      return if line_in_file?(path, line)
+    def ensure_line_in_file(path, line, echo: true, regex: nil)
+      return if line_in_file?(path, line: line, regex: regex)
 
       append_file(path, "\n#{line.chomp}\n", echo: echo)
       true
     end
 
-    def line_in_file?(path, line)
+    def line_in_file?(path, line: nil, regex: nil)
       return false unless File.exist?(path)
+      return regex_in_file?(path, regex) unless regex.nil?
 
       File.readlines(path).map(&:chomp).include?(line.chomp)
     end
 
+    def regex_in_file?(path, regex)
+      File.readlines(path).map(&:chomp).any? { |line| regex.match(line) }
+    end
+
     def templates_path
       Orchestration.root.join('lib', 'orchestration', 'templates')
+    end
+
+    def gemfile_path
+      @env.root.join('Gemfile')
     end
 
     def read_template(template)
