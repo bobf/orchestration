@@ -27,9 +27,7 @@ endif
 
 DOCKER_TAG ?= latest
 
-ifneq (,$(wildcard ./bin/rake))
-  rake=RACK_ENV=${env} RAILS_ENV=${env} bin/rake
-else ifneq (,$(wildcard ./Gemfile))
+ifneq (,$(wildcard ./Gemfile))
   rake=RACK_ENV=${env} RAILS_ENV=${env} bundle exec rake
 else
   rake=RACK_ENV=${env} RAILS_ENV=${env} rake
