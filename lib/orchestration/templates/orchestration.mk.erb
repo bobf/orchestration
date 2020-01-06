@@ -49,24 +49,28 @@ else
   project_base := $(project_name)
 endif
 
-sidecar_suffix := $(shell test -f ${orchestration_dir}/.sidecar && cat ${orchestration_dir}/.sidecar)
-ifneq (,${sidecar_suffix})
-  sidecar := 1
-endif
-
-ifdef sidecar
-  # Set the variable to an empty string so that "#{sidecar-1234}" will evaluate
-  # to "1234" in port mappings.
-  sidecar_compose = sidecar=''
-  ifeq (,${sidecar_suffix})
-    sidecar_suffix := $(call token)
-    _ignore := $(shell echo ${sidecar_suffix} > ${orchestration_dir}/.sidecar)
+ifneq (,$(findstring deploy,$(MAKECMDGOALS)))
+  sidecar_suffix := $(shell test -f ${orchestration_dir}/.sidecar && cat ${orchestration_dir}/.sidecar)
+  ifneq (,${sidecar_suffix})
+    sidecar := 1
   endif
 
-  ifeq (,${sidecar_suffix})
-    $(warning Unable to generate project suffix; project name collisions may occur.)
+  ifdef sidecar
+    # Set the variable to an empty string so that "#{sidecar-1234}" will
+    # evaluate to "1234" in port mappings.
+    sidecar_compose = sidecar=''
+    ifeq (,${sidecar_suffix})
+      sidecar_suffix := $(call token)
+      _ignore := $(shell echo ${sidecar_suffix} > ${orchestration_dir}/.sidecar)
+    endif
+
+    ifeq (,${sidecar_suffix})
+      $(warning Unable to generate project suffix; project name collisions may occur.)
+    endif
+    compose_project_name = ${project_base}_${sidecar_suffix}
+  else
+    compose_project_name = ${project_base}
   endif
-  compose_project_name = ${project_base}_${sidecar_suffix}
 else
   compose_project_name = ${project_base}
 endif
@@ -133,7 +137,7 @@ start-<%= service %>:
 
 .PHONY: stop
 stop: network := ${compose_project_name}_default
-stop: _clean-logs
+stop:
 	@$(call print,'${yellow}Stopping containers${reset} ...')
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
           then \
