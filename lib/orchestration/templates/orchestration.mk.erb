@@ -47,7 +47,7 @@ else
   project_base := $(project_name)
 endif
 
-ifneq (,$(findstring deploy,$(MAKECMDGOALS)))
+ifeq (,$(findstring deploy,$(MAKECMDGOALS)))
   sidecar_suffix := $(shell test -f ${orchestration_dir}/.sidecar && cat ${orchestration_dir}/.sidecar)
   ifneq (,${sidecar_suffix})
     sidecar := 1
