@@ -29,6 +29,7 @@ module Orchestration
       end
 
       def host
+        return @service_name if @env.environment == 'test' && @options[:sidecar]
         return '127.0.0.1' if %w[test development].include?(@env.environment)
 
         @service_name
@@ -42,15 +43,23 @@ module Orchestration
         false
       end
 
+      def image
+        service['image']
+      end
+
       def port
         return @env.app_port if @service_name == 'app'
 
-        service = @env.docker_compose_config
-                      .fetch('services')
-                      .fetch(@service_name)
+        local, remote = parse_port(service).map(&:to_i)
+        return remote if @env.environment == 'test' && @options[:sidecar]
 
-        local, remote = parse_port(service)
-        (@env.environment == 'production' ? remote : local).to_i
+        (@env.environment == 'production' ? remote : local)
+      end
+
+      def service
+        @service ||= @env.docker_compose_config
+                         .fetch('services')
+                         .fetch(@service_name)
       end
 
       def parse_port(service)

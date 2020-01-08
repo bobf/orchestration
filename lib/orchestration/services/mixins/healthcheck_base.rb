@@ -37,7 +37,8 @@ module Orchestration
 
       def initialize(env, service_name = nil, options = {})
         @options = options
-        @configuration = configuration_class.new(env, service_name, options)
+        @options[:sidecar] = options[:sidecar] && !options[:sidecar].empty?
+        @configuration = configuration_class.new(env, service_name, @options)
       end
 
       def service_name

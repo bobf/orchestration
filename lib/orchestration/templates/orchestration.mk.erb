@@ -309,7 +309,7 @@ endif
 ## Generic Listener healthcheck for TCP services ##
 
 wait-listener:
-	@${rake} orchestration:listener:wait service=${service}
+	@${rake} orchestration:listener:wait service=${service} sidecar=${sidecar}
 
 ## Test/development wait commands
 
