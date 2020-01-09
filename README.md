@@ -276,10 +276,10 @@ The output from most underlying components is hidden in an effort to make contin
 tail -f log/orchestration*.log
 ```
 
-A convenience `Makefile` target `dump` is provided which will output all consumed _stdout_ and _stderr_:
+A convenience `Makefile` target `dump` is provided. The following command will output all consumed _stdout_, _stderr_, and _Docker Compose_ container logs for the test environment:
 
 ```bash
-make dump
+make dump env=test
 ```
 
 All commands also support the `verbose` flag which will output all logs immediately to the console:

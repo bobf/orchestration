@@ -226,6 +226,14 @@ ifndef verbose
           $(call hr,${red}) ; \
         )
 endif
+	@echo ; \
+        $(call hr,${yellow}) ; \
+        $(call println,'${gray}docker-compose logs${reset}') ; \
+        $(call hr,${yellow}) ; \
+        echo
+	@${compose} logs
+	@echo ; \
+        $(call hr,${yellow})
 
 .PHONY: image
 image:
