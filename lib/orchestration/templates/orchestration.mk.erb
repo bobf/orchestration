@@ -116,15 +116,11 @@ ifeq (${env},$(filter ${env},test development))
          ) \
          || ( [ -z '${sidecar}' ] || ${fail} )
 else
-	@${compose} up --detach --scale app=$${instances:-1} ${services} ${log} || ${fail}
+	@${compose} up --detach --scale app=$${instances:-1} ${log} || ${fail}
 endif
 	@$(call printrawln,' ${green}started${reset} ${tick}')
 	@$(call println,'${yellow}Waiting for services to become available${reset} ...')
-ifdef services
-	@$(call make,wait services='${services}') 2>${stderr} || ${fail}
-else
 	@$(call make,wait) 2>${stderr} || ${fail}
-endif
 
 <% services.each do |service| %>
 .PHONY: start-<%= service %>
@@ -304,40 +300,14 @@ endif
 ### Service healthcheck commands ###
 
 .PHONY: wait
-<% services.each do |service| %>
-ifneq (,$(findstring <%= service %>,${services}))
-wait: wait-<%= service %>
-endif
-<% end %>
-ifndef services
-wait: <%= services.map { |command| "wait-#{command}" }.join(' ') %>
-endif
+wait:
+	@${rake} orchestration:wait
 	@$(call println,'${yellow}All services${reset} ${green}ready${reset}. ${tick}')
 
 ## Generic Listener healthcheck for TCP services ##
 
 wait-listener:
 	@${rake} orchestration:listener:wait service=${service} sidecar=${sidecar}
-
-## Test/development wait commands
-
-<% services.each do |service| %>
-<% next if service.to_sym == :app %>
-.PHONY: wait-<%= service %>
-ifdef config
-wait-<%= service %>: configvar := config=$(config)
-endif
-ifdef service
-wait-<%= service %>: servicevar := service=$(service)
-endif
-wait-<%= service %>:
-	@${rake} orchestration:<%= service %>:wait $(configvar) $(servicevar)
-
-<% end %>
-
-.PHONY: wait-app
-wait-app:
-	@# no-op
 
 ### Docker build commands ###
 

@@ -25,11 +25,7 @@ RSpec.describe Orchestration::InstallGenerator do
     it 'includes correct wait commands' do
       makefile
       content = File.read(makefile_path)
-      expect(content).to include %w[
-        wait-database
-        wait-mongo
-        wait-rabbitmq
-      ].join(' ')
+      expect(content).to include 'wait:'
     end
   end
 end

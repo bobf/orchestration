@@ -15,6 +15,31 @@ namespace :orchestration do
     end
   end
 
+  task :wait do
+    env = Orchestration::Environment.new
+    services = Orchestration::Services
+    env.docker_compose_config['services'].each do |name, service|
+      path = nil
+
+      adapter = if name == 'database'
+                  services::Database
+                elsif name.include?('database')
+                  path = "config/database.#{name.sub('database-', '')}.yml"
+                  services::Database
+                elsif name == 'mongo'
+                  services::Mongo
+                elsif name == 'rabbitmq'
+                  services::RabbitMQ
+                else
+                  services::Listener
+                end
+
+      adapter::Healthcheck.start(
+        nil, nil, config_path: path, service_name: name, sidecar: ENV['sidecar']
+      )
+    end
+  end
+
   namespace :app do
     desc I18n.t('orchestration.rake.app.wait')
     task :wait do
