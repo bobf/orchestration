@@ -18,7 +18,7 @@ namespace :orchestration do
   task :wait do
     env = Orchestration::Environment.new
     services = Orchestration::Services
-    env.docker_compose_config['services'].each do |name, service|
+    env.docker_compose_config['services'].each do |name, _service|
       path = nil
 
       adapter = if name == 'database'
