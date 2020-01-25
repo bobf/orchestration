@@ -1,3 +1,7 @@
+.PHONY: bundle
+bundle:
+  bundle _1.16.0_ install --path=.bundle/
+
 .PHONY: test
 test:
 	bundle exec rspec

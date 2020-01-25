@@ -15,7 +15,7 @@ At its core _Orchestration_ is simply a `Makefile` and a set of `docker-compose.
 A typical _Rails_ application can be tested, built, pushed to _Docker Hub_, and deployed to _Docker Swarm_ with the following commands:
 
 ```bash
-make test build push
+make bundle test build push
 make deploy manager=user@swarm.example.com env_file=/var/configs/myapp.env
 ```
 
