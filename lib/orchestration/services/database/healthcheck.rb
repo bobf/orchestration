@@ -26,7 +26,7 @@ module Orchestration
         end
 
         def settings
-          @configuration.settings
+          @configuration.settings(healthcheck: true)
         end
       end
     end

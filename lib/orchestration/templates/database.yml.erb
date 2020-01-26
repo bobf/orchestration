@@ -8,7 +8,7 @@ development:
   port: <%= compose.call('development').local_port('database') %>
   username: <%= compose.call(nil).database_adapter.credentials['username'] %>
   password: <%= compose.call(nil).database_adapter.credentials['password'] %>
-  database: <%= compose.call(nil).database_adapter.credentials['database'] %>
+  database: development
   <%% if ENV.key?('DEVELOPMENT_DATABASE_URL') %>
   url: <%%= ENV['DEVELOPMENT_DATABASE_URL'] %>
   <%% end %>
@@ -21,7 +21,7 @@ test:
   port: <%= compose.call('test').local_port('database') %>
   username: <%= compose.call(nil).database_adapter.credentials['username'] %>
   password: <%= compose.call(nil).database_adapter.credentials['password'] %>
-  database: <%= compose.call(nil).database_adapter.credentials['database'] %>
+  database: test
   # Useful for certain continuous integration environments (e.g. Jenkins in
   # Docker) where the DB hostname may be a service name rather than `127.0.0.1`:
   <%% if ENV.key?('TEST_DATABASE_URL') %>

@@ -103,7 +103,7 @@ endif
 start: _clean-logs
 	@$(call print,'${yellow}Starting containers${reset} ...')
 ifeq (${env},$(filter ${env},test development))
-	@${compose} up --detach --force-recreate --renew-anon-volumes ${services} ${log} || ${fail}
+	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${fail}
 	@[ -n '${sidecar}' ] && \
          ( \
            $(call printraw,' ${yellow}(joining dependency network ${green}${network}${yellow})${reset} ... ') ; \

@@ -49,7 +49,9 @@ RSpec.describe Orchestration::Services::Database::Configuration do
   end
 
   describe '#settings' do
-    subject(:settings) { configuration.settings }
+    subject(:settings) { configuration.settings(healthcheck: healthcheck) }
+
+    let(:healthcheck) { false }
 
     context 'sqlite3' do
       let(:config_path) { fixture_path('sqlite3') }
@@ -70,6 +72,10 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       its(['username']) { is_expected.to eql 'postgres' }
       its(['password']) { is_expected.to eql 'password' }
       its(['port']) { is_expected.to eql 5432 }
+      context 'healthcheck' do
+        let(:healthcheck) { true }
+        its(['database']) { is_expected.to eql 'postgres' }
+      end
     end
 
     context 'mysql2' do
@@ -80,6 +86,11 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       its(['database']) { is_expected.to eql 'test_db' }
       its(['username']) { is_expected.to eql 'root' }
       its(['password']) { is_expected.to eql 'password' }
+
+      context 'healthcheck' do
+        let(:healthcheck) { true }
+        its(['database']) { is_expected.to eql 'mysql' }
+      end
     end
 
     context 'from DATABASE_URL environment variable' do

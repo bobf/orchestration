@@ -18,14 +18,14 @@ module Orchestration
           "[#{adapter.name}] #{host}:#{port}"
         end
 
-        def settings
+        def settings(healthcheck: false)
           {
             adapter: adapter.name,
             host: host,
             port: port,
             username: username,
             password: password,
-            database: database
+            database: healthcheck ? adapter.credentials['database'] : database
           }.transform_keys(&:to_s)
         end
 
