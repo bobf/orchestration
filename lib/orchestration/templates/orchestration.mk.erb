@@ -38,8 +38,9 @@ ifneq (,$(wildcard ${env_file}))
   rake=. ${env_file} && ${rake_cmd}
 endif
 
-docker_organization=$(shell bash ${orchestration_dir}/yaml.bash docker_organization)
-docker_repository=$(shell bash ${orchestration_dir}/yaml.bash docker_repository)
+docker_config:=$(shell ${rake} orchestration:config)
+docker_organization=$(word 1,$(docker_config))
+docker_repository=$(word 2,$(docker_config))
 
 ifeq (,$(project_name))
   project_base = ${docker_repository}_${env}
@@ -79,13 +80,13 @@ compose_base=env HOST_UID=$(shell id -u) \
              COMPOSE_PROJECT_NAME="${compose_project_name}" \
 	     ${sidecar_compose} \
              docker-compose \
-             -f "${orchestration_dir}/docker-compose.yml"
+             -f ${orchestration_dir}/docker-compose.${env}.yml
 
 git_branch ?= $(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
 git_version ?= $(shell git rev-parse --short --verify ${git_branch})
 docker_image=${docker_organization}/${docker_repository}:${git_version}
 
-compose=${compose_base} -f ${orchestration_dir}/docker-compose.${env}.yml -f ${orchestration_dir}/docker-compose.override.yml
+compose=${compose_base}
 random_str=cat /dev/urandom | LC_ALL=C tr -dc 'a-z' | head -c $1
 
 ifneq (,$(wildcard ${orchestration_dir}/docker-compose.local.yml))
@@ -249,9 +250,7 @@ endif
              -e "s/%%ORGANIZATION%%/${docker_organization}/g" \
              ${orchestration_dir}/deploy.mk > \
              ${orchestration_dir}/.deploy/${docker_repository}/Makefile
-	@cp ${orchestration_dir}/docker-compose.yml \
-            ${orchestration_dir}/docker-compose.production.yml \
-            ${orchestration_dir}/docker-compose.override.yml \
+	@cp ${orchestration_dir}/docker-compose.production.yml \
             ${orchestration_dir}/.deploy/${docker_repository}/
 	@bundle_path="${path}" ; tar -C '${orchestration_dir}/.deploy' -cf "$${bundle_path:-./bundle.tar}" ./${docker_repository}
 

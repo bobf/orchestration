@@ -97,7 +97,7 @@ RSpec.describe Orchestration::Environment do
 
     context 'default' do
       let(:env) { nil }
-      it { is_expected.to end_with('docker-compose.yml') }
+      it { is_expected.to end_with('docker-compose.development.yml') }
     end
 
     context 'test' do
@@ -108,11 +108,6 @@ RSpec.describe Orchestration::Environment do
     context 'production' do
       let(:env) { :production }
       it { is_expected.to end_with('docker-compose.production.yml') }
-    end
-
-    context 'override' do
-      let(:env) { :override }
-      it { is_expected.to end_with('docker-compose.override.yml') }
     end
   end
 

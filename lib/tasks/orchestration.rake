@@ -15,6 +15,18 @@ namespace :orchestration do
     end
   end
 
+  desc I18n.t('orchestration.rake.config')
+  task :config do
+    config = YAML.safe_load(File.read('.orchestration.yml'))
+    puts "#{config['docker']['organization']} #{config['docker']['repository']}"
+  end
+
+  desc I18n.t('orchestration.rake.healthcheck')
+  task :healthcheck do
+    Orchestration::Healthcheck.execute
+  end
+
+  desc I18n.t('orchestration.rake.wait')
   task :wait do
     env = Orchestration::Environment.new
     services = Orchestration::Services
@@ -36,52 +48,6 @@ namespace :orchestration do
 
       adapter::Healthcheck.start(
         nil, nil, config_path: path, service_name: name, sidecar: ENV['sidecar']
-      )
-    end
-  end
-
-  namespace :app do
-    desc I18n.t('orchestration.rake.app.wait')
-    task :wait do
-      Orchestration::Services::App::Healthcheck.start(
-        nil, nil, config_path: ENV['config'], service_name: ENV['service']
-      )
-    end
-  end
-
-  namespace :database do
-    desc I18n.t('orchestration.rake.database.wait')
-    task :wait do
-      Orchestration::Services::Database::Healthcheck.start(
-        nil, nil, config_path: ENV['config'], service_name: ENV['service']
-      )
-    end
-  end
-
-  namespace :mongo do
-    desc I18n.t('orchestration.rake.mongo.wait')
-    task :wait do
-      Orchestration::Services::Mongo::Healthcheck.start(
-        nil, nil, config_path: ENV['config'], service_name: ENV['service']
-      )
-    end
-  end
-
-  namespace :rabbitmq do
-    desc I18n.t('orchestration.rake.rabbitmq.wait')
-    task :wait do
-      Orchestration::Services::RabbitMQ::Healthcheck.start(
-        nil, nil, config_path: ENV['config'], service_name: ENV['service']
-      )
-    end
-  end
-
-  namespace :listener do
-    desc I18n.t('orchestration.rake.listener.wait')
-    task :wait do
-      Orchestration::Services::Listener::Healthcheck.start(
-        nil, nil, service_name: ENV.fetch('service'),
-                  sidecar: ENV['sidecar']
       )
     end
   end

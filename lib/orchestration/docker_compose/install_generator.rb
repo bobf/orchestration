@@ -10,10 +10,6 @@ module Orchestration
         @terminal = terminal
       end
 
-      def docker_compose_yml
-        create_compose_file
-      end
-
       def docker_compose_test_yml
         create_compose_file(:test)
       end
@@ -22,20 +18,8 @@ module Orchestration
         create_compose_file(:development)
       end
 
-      def docker_compose_local_yml
-        create_compose_file(:local)
-      end
-
       def docker_compose_production_yml
         create_compose_file(:production)
-      end
-
-      def docker_compose_override_yml
-        simple_copy(
-          'docker-compose.override.yml',
-          @env.docker_compose_path(:override),
-          overwrite: false
-        )
       end
 
       def enabled_services(environment)

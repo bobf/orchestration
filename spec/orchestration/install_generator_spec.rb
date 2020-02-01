@@ -8,13 +8,6 @@ RSpec.describe Orchestration::InstallGenerator do
   let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
   let(:orchestration_path) { dummy_path.join('orchestration') }
 
-  it 'creates yaml.bash' do
-    path = orchestration_path.join('yaml.bash')
-    FileUtils.rm_f(path)
-    install_generator.yaml_bash
-    expect(File).to exist(path)
-  end
-
   it 'creates deploy.mk' do
     path = orchestration_path.join('deploy.mk')
     FileUtils.rm_f(path)

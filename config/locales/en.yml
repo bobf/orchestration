@@ -19,10 +19,6 @@ en:
       ready: "Mongo is ready."
       bad_config: "Unable to parse Mongo config: %{path}. Expected section for one of: %{expected}"
 
-    haproxy:
-      waiting: "Waiting for HAProxy: %{config}"
-      ready: "HAProxy is ready."
-
     rabbitmq:
       waiting: "Waiting for RabbitMQ: %{config}"
       ready: "RabbitMQ is ready."
@@ -42,24 +38,8 @@ en:
           prompt: "project name"
 
     rake:
-      app:
-        wait: "Wait for app to become available"
-        unknown_web_server: "Unrecognised web server '%{server}'. Expected: %{expected}"
-
-      database:
-        wait: "Wait for database to become available"
-
-      listener:
-        wait: "Wait for a locally-bound service to accept connections (pass `service=NAME`)"
-
-      mongo:
-        wait: "Wait for Mongo to become available"
-
-      haproxy:
-        wait: "Wait for HAProxy to become available"
-
-      rabbitmq:
-        wait: "Wait for RabbitMQ to become available"
-
+      config: "Parse and output Orchestration config (internal use)"
+      healthcheck: "Execute healthcheck; used for HEALTHCHECK command in Docker image"
       install: "Install Orchestration tools"
       install_makefile: "(Re)create orchestration/Makefile"
+      wait: "Wait for development/test dependencies to be available"

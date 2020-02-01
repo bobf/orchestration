@@ -27,8 +27,8 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
 
   before { allow(terminal).to receive(:write) }
 
-  describe '#docker_compose' do
-    subject(:docker_compose_yml) { install_generator.docker_compose_yml }
+  describe '#docker_compose_test_yml' do
+    subject(:docker_compose_yml) { install_generator.docker_compose_test_yml }
 
     let(:docker_compose_path) do
       dummy_path.join('orchestration', 'docker-compose.yml')
@@ -168,22 +168,6 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
           ).to eql 'library/rabbitmq'
         end
       end
-
-      context 'override' do
-        let(:env) { :override }
-
-        it 'creates docker-compose.override.yml' do
-          install_generator.docker_compose_override_yml
-          expect(File).to exist(path)
-        end
-      end
-    end
-
-    it 'does not replace an existing docker-compose.yml' do
-      File.write(docker_compose_path, 'some docker compose commands')
-      docker_compose_yml
-      content = File.read(docker_compose_path)
-      expect(content).to eql 'some docker compose commands'
     end
   end
 end

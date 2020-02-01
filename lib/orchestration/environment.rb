@@ -53,7 +53,7 @@ module Orchestration
     end
 
     def docker_compose_path(env = nil)
-      return orchestration_root.join('docker-compose.yml') if env.nil?
+      env ||= 'development'
 
       orchestration_root.join("docker-compose.#{env}.yml")
     end

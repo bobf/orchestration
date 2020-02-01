@@ -65,12 +65,9 @@ module Orchestration
     end
 
     def docker_compose
-      @docker_compose.docker_compose_yml
       @docker_compose.docker_compose_test_yml
       @docker_compose.docker_compose_development_yml
-      @docker_compose.docker_compose_local_yml
       @docker_compose.docker_compose_production_yml
-      @docker_compose.docker_compose_override_yml
     end
 
     def puma
@@ -110,14 +107,6 @@ module Orchestration
       return unless defined?(Bunny)
 
       service_config('rabbitmq.yml', Services::RabbitMQ::Configuration)
-    end
-
-    def healthcheck
-      simple_copy('healthcheck.rb')
-    end
-
-    def yaml_bash
-      simple_copy('yaml.bash')
     end
 
     def env

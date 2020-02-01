@@ -27,7 +27,7 @@ module Orchestration
 
         def healthcheck
           {
-            'test' => ['ruby', "/app/#{orchestration}/healthcheck.rb"],
+            'test' => ['bundle', 'exec', 'rake', 'orchestration:healthcheck'],
             # Defaults according to
             # https://docs.docker.com/engine/reference/builder/#healthcheck
             # Except start_period which cannot be set to 0s
