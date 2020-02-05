@@ -187,16 +187,18 @@ console:
 .PHONY: test-setup
 test-setup: env := test
 test-setup:
+ifndef light
 	@$(call make,start env=test)
-ifneq (,$(wildcard config/database.yml))
+  ifneq (,$(wildcard config/database.yml))
 	${rake} db:create || :
-  ifneq (,$(wildcard db/structure.sql))
+    ifneq (,$(wildcard db/structure.sql))
 	${rake} db:structure:load
-  else ifneq (,$(wildcard db/schema.rb))
+    else ifneq (,$(wildcard db/schema.rb))
 	${rake} db:schema:load
-  endif
+    endif
 
 	${rake} db:migrate
+  endif
 endif
 
 .PHONY: dump
