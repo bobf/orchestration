@@ -2,7 +2,7 @@
 HOST_UID=${HOST_UID:-$(id -u)}
 set -e
 id owner >/dev/null 2>&1 || useradd -u ${HOST_UID} -m -o owner
-mkdir -p /app/tmp/pids
+mkdir -p /app/tmp/pids /app/log /app/db
 chown -Rf owner:owner /app/tmp /app/log /app/db
 rm -f /app/tmp/pids/server.pid
 
