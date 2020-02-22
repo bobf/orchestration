@@ -2,6 +2,7 @@ en:
   orchestration:
     attempt_limit: "Unable to reconnect after %{limit} attempts. Aborting."
     default: "default"
+    auto_update: "Orchestration Makefile was automatically updated to the latest version."
 
     app:
       waiting: "Waiting for app: %{config}"

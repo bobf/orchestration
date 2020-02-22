@@ -27,6 +27,16 @@ module Orchestration
       @terminal.write(:skip, relpath)
     end
 
+    def verify_makefile
+      content = template('orchestration.mk', makefile_environment)
+      path = @env.orchestration_root.join('Makefile')
+      return if path.exist? && content == File.read(path)
+
+      write_file(path, content)
+      @terminal.write(:update, 'Makefile')
+      @terminal.write(:status, t(:auto_update))
+    end
+
     def orchestration_makefile
       content = template('orchestration.mk', makefile_environment)
       path = @env.orchestration_root.join('Makefile')

@@ -321,7 +321,6 @@ wait-listener:
 build: context = ${orchestration_dir}/.build/context.tar
 build: check-local-changes
 	@$(call print,'${yellow}Preparing build context from${reset} ${cyan}${git_branch}:${git_version}${reset} ... ')
-	@rm -rf ${orchestration_dir}/.build ${log} || ${fail}
 	@mkdir -p ${orchestration_dir}/.build ${log} || ${fail}
 ifndef dev
 	@git show ${git_branch}:./Gemfile > ${orchestration_dir}/.build/Gemfile 2>${stderr} || ${fail}

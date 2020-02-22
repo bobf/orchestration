@@ -66,9 +66,8 @@ module Orchestration
     end
 
     def skip?(present, content, previous_content, options)
-      overwrite = options.fetch(:overwrite, true)
       return false unless present
-      return true unless overwrite || force?
+      return true unless options.fetch(:overwrite, true) || force?
 
       previous_content == content
     end
