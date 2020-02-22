@@ -83,7 +83,12 @@ compose_base=env HOST_UID=$(shell id -u) \
              -f ${orchestration_dir}/docker-compose.${env}.yml
 
 git_branch ?= $(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
-git_version ?= $(shell git rev-parse --short --verify ${git_branch})
+ifndef dev
+  git_version ?= $(shell git rev-parse --short --verify ${git_branch})
+else
+  git_version = dev
+endif
+
 docker_image=${docker_organization}/${docker_repository}:${git_version}
 
 compose=${compose_base}
@@ -314,15 +319,19 @@ wait-listener:
 
 .PHONY: build
 build: context = ${orchestration_dir}/.build/context.tar
-build:
+build: check-local-changes
 	@$(call print,'${yellow}Preparing build context from${reset} ${cyan}${git_branch}:${git_version}${reset} ... ')
+	@rm -rf ${orchestration_dir}/.build ${log} || ${fail}
 	@mkdir -p ${orchestration_dir}/.build ${log} || ${fail}
+ifndef dev
 	@git show ${git_branch}:./Gemfile > ${orchestration_dir}/.build/Gemfile 2>${stderr} || ${fail}
 	@git show ${git_branch}:./Gemfile.lock > ${orchestration_dir}/.build/Gemfile.lock 2>${stderr} || ${fail}
 <% if defined?(Webpacker) %>	@git show ${git_branch}:./package.json > ${orchestration_dir}/.build/package.json 2>${stderr} || ${fail}<% end %>
 <% if defined?(Webpacker) %>	@git show ${git_branch}:./yarn.lock > ${orchestration_dir}/.build/yarn.lock 2>${stderr} || ${fail}<% end %>
 	@git archive --format 'tar' -o '${context}' '${git_branch}' ${log} || ${fail}
-	@temp=$$(mktemp -d) ; ( cd "$${temp}" && tar -uvf '${context}' . ) ${log} || ${fail}
+else
+	@tar -cvf '${context}' . ${log} || ${fail}
+endif
 	@$(call printrawln,'${green}complete.${reset} ${tick}')
 ifdef sidecar
         # Assume we are in a line-buffered environment (e.g. Jenkins)
@@ -346,6 +355,17 @@ push:
 	@$(call print,'${yellow}Pushing${reset} ${cyan}${docker_image}${reset} ...')
 	@docker push ${docker_image} ${log_progress} || ${fail}
 	@$(call printrawln,' ${green}complete${reset}. ${tick}')
+
+.PHONY: check-local-changes
+check-local-changes:
+ifndef dev
+	@if [[ ! -z "$$(git status --porcelain)" ]] ; \
+         then \
+           $(call println,'${red}You have uncommitted changes which will not be included in your build:${reset}') ; \
+           git status --porcelain ; \
+           $(call println,'${yellow}Use ${cyan}make build dev=1${reset} ${yellow}to include these files.${reset}\n') ; \
+         fi
+endif
 
 ### Internal Commands ###
 #
