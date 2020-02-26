@@ -27,7 +27,11 @@ module Orchestration
       @terminal.write(:skip, relpath)
     end
 
-    def verify_makefile
+    def verify_makefile(skip = true)
+      # Only run when called explicitly [from Rake tasks].
+      # (I know this is hacky).
+      return if skip
+
       content = template('orchestration.mk', makefile_environment)
       path = @env.orchestration_root.join('Makefile')
       return if path.exist? && content == File.read(path)
@@ -37,16 +41,16 @@ module Orchestration
       @terminal.write(:status, t(:auto_update))
     end
 
-    def orchestration_makefile
-      content = template('orchestration.mk', makefile_environment)
-      path = @env.orchestration_root.join('Makefile')
-      path.exist? ? update_file(path, content) : create_file(path, content)
-    end
-
     def application_makefile
       path = @env.root.join('Makefile')
       simple_copy('application.mk', path) unless File.exist?(path)
       inject_if_missing(path, 'include orchestration/Makefile')
+    end
+
+    def orchestration_makefile
+      content = template('orchestration.mk', makefile_environment)
+      path = @env.orchestration_root.join('Makefile')
+      path.exist? ? update_file(path, content) : create_file(path, content)
     end
 
     def dockerfile
@@ -62,16 +66,6 @@ module Orchestration
       path = orchestration_dir.join('entrypoint.sh')
       create_file(path, content, overwrite: false)
       FileUtils.chmod('a+x', path)
-    end
-
-    def gitignore
-      path = @env.root.join('.gitignore')
-      globs = %w[.build/ .deploy/ Gemfile Gemfile.lock docker-compose.local.yml]
-      lines = %w[orchestration/.sidecar .env deploy.tar] + globs.map do |line|
-        "#{@env.orchestration_dir_name}/#{line}"
-      end
-
-      ensure_lines_in_file(path, lines)
     end
 
     def docker_compose
@@ -121,6 +115,16 @@ module Orchestration
 
     def env
       simple_copy('env', @env.root.join('.env'), overwrite: false)
+    end
+
+    def gitignore
+      path = @env.root.join('.gitignore')
+      globs = %w[.build/ .deploy/ Gemfile Gemfile.lock docker-compose.local.yml]
+      lines = %w[orchestration/.sidecar .env deploy.tar] + globs.map do |line|
+        "#{@env.orchestration_dir_name}/#{line}"
+      end
+
+      ensure_lines_in_file(path, lines)
     end
 
     def deploy_mk

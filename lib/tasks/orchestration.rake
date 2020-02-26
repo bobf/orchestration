@@ -28,7 +28,7 @@ namespace :orchestration do
 
   desc I18n.t('orchestration.rake.wait')
   task :wait do
-    Orchestration::InstallGenerator.new.verify_makefile
+    Orchestration::InstallGenerator.new.verify_makefile(false)
     env = Orchestration::Environment.new
     services = Orchestration::Services
     env.docker_compose_config['services'].each do |name, _service|

@@ -34,7 +34,7 @@ endif
 
 .PHONY: deploy-stack
 deploy-stack:
-	@${compose} config | docker stack deploy --prune --with-registry-auth -c - ${project_name}
+	${compose} config | docker stack deploy --prune --with-registry-auth -c - ${project_name}
 
 .PHONY: console
 service := app

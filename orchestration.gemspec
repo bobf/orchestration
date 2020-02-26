@@ -16,8 +16,11 @@ Gem::Specification.new do |spec|
   spec.homepage = url
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    File.readlines('MANIFEST').map(&:chomp)
+    `git ls-files -z`.split("\x0").reject do |f|
+      f.match(%r{^(test|spec|features)/})
+    end
   end
+
   spec.bindir = 'bin'
   spec.executables = []
   spec.require_paths = ['lib']

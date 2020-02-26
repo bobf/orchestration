@@ -257,8 +257,6 @@ endif
              -e "s/%%ORGANIZATION%%/${docker_organization}/g" \
              ${orchestration_dir}/deploy.mk > \
              ${orchestration_dir}/.deploy/${docker_repository}/Makefile
-	@cp ${orchestration_dir}/docker-compose.production.yml \
-            ${orchestration_dir}/.deploy/${docker_repository}/
 	@bundle_path="${path}" ; tar -C '${orchestration_dir}/.deploy' -cf "$${bundle_path:-./bundle.tar}" ./${docker_repository}
 
 .PHONY: deploy
