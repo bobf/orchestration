@@ -23,7 +23,7 @@ namespace :orchestration do
 
   desc I18n.t('orchestration.rake.healthcheck')
   task :healthcheck do
-    Orchestration::Healthcheck.execute
+    Orchestration::DockerHealthcheck.execute
   end
 
   desc I18n.t('orchestration.rake.wait')
