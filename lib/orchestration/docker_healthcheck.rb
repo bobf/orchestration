@@ -25,7 +25,7 @@ module Orchestration
 
     private
 
-    def request
+    def run
       client = Net::HTTP.new(
         ENV.fetch('WEB_HOST', 'localhost'),
         ENV.fetch('WEB_PORT', '8080').to_i
