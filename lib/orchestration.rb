@@ -22,6 +22,7 @@ require 'orchestration/file_helpers'
 require 'orchestration/docker_compose'
 require 'orchestration/environment'
 require 'orchestration/errors'
+require 'orchestration/docker_healthcheck'
 require 'orchestration/install_generator'
 require 'orchestration/railtie' if defined?(Rails)
 require 'orchestration/service_check'
