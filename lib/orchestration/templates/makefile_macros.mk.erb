@@ -87,17 +87,19 @@ restore_env:=( \
 
 key_chars:=[a-zA-Z0-9_]
 censored:=**********
-censor=sed 's/\(^${key_chars}*$(1)${key_chars}*\)=\(.*\)$$/\1=${censored}/'
-censor_urls:=sed 's|\([a-zA-Z0-9_+]\+://.*:\).*\(@.*\)$$|\1${censored}\2|'
-format_env:=$(call censor,SECRET) | \
-            $(call censor,PASSWORD) | \
-            $(call censor,TOKEN) | \
-            $(call censor,PRIVATE) | \
-            $(call censor,KEY) | \
-            ${censor_urls} | \
-            sed 's/\(^[a-zA-Z0-9_]\+\)=/${blue}\1${reset}=/' | \
-            sed 's/^/  /' | \
-            sed 's/=\(.*\)$$/=${yellow}\1${reset}/'
+censor=s/\(^${key_chars}*$(1)${key_chars}*\)=\(.*\)$$/\1=${censored}/
+censor_urls:=s|\([a-zA-Z0-9_+]\+://.*:\).*\(@.*\)$$|\1${censored}\2|
+format_env:=sed '$(call censor,SECRET); \
+                 $(call censor,TOKEN); \
+                 $(call censor,PRIVATE); \
+                 $(call censor,KEY); \
+                 $(censor_urls); \
+                 /^\s*$$/d; \
+                 /^\s*\#/d; \
+                 s/\(^[a-zA-Z0-9_]\+\)=/${blue}\1${reset}=/; \
+                 s/^/  /; \
+                 s/=\(.*\)$$/=${yellow}\1${reset}/' | \
+            sort
 
 fail=( \
        $(call printraw,' ${cross}') ; \

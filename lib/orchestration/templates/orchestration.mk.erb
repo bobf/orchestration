@@ -171,7 +171,7 @@ serve:
          then ( \
                 $(call println,'${yellow}Environment${reset}: ${green}${env_file}${reset}') && \
                 cat '${env_file}' | ${format_env} && \
-                $(call println,'') \
+                $(call printrawln,'') \
             ) ; \
         fi
 	${rails}
@@ -184,7 +184,7 @@ console:
          then ( \
                 $(call println,'${yellow}Environment${reset}: ${green}${env_file}${reset}') && \
                 cat '${env_file}' | ${format_env} && \
-                $(call println,'') \
+                $(call printrawln,'') \
             ) ; \
         fi
 	${rails} console
