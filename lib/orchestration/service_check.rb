@@ -16,7 +16,7 @@ module Orchestration
     end
 
     def run
-      return echo_missing unless @service.configuration.configured?
+      return unless @service.configuration.configured?
 
       echo_start
       success = attempt_connection
@@ -37,14 +37,6 @@ module Orchestration
       echo_error(e)
       echo_failure
       false
-    end
-
-    def echo_missing
-      @terminal.write(
-        @service_name.to_sym,
-        "#{@service.configuration.error} (skipping)",
-        :error
-      )
     end
 
     def echo_start
