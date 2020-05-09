@@ -74,7 +74,9 @@ else
   compose_project_name = ${project_base}
 endif
 
-compose_base=env HOST_UID=$(shell id -u) \
+compose_base=env -i \
+             PATH=$(PATH) \
+             HOST_UID=$(shell id -u) \
              DOCKER_ORGANIZATION="${docker_organization}" \
              DOCKER_REPOSITORY="${docker_repository}" \
              COMPOSE_PROJECT_NAME="${compose_project_name}" \
@@ -107,7 +109,7 @@ ifndef network
 start: network := ${compose_project_name}_default
 endif
 start: _clean-logs
-	@$(call print,'${yellow}Starting containers${reset} ...')
+	@$(call print,'${yellow}Starting ${cyan}${env}${yellow} containers${reset} ...')
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${fail}
 	@[ -n '${sidecar}' ] && \
@@ -138,7 +140,7 @@ start-<%= service %>:
 .PHONY: stop
 stop: network := ${compose_project_name}_default
 stop:
-	@$(call print,'${yellow}Stopping containers${reset} ...')
+	@$(call print,'${yellow}Stopping ${cyan}${env}${yellow} containers${reset} ...')
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
           then \
             ( docker network disconnect ${network} $(shell hostname) ${log} || : ) \
@@ -210,7 +212,7 @@ endif
 dump:
 ifndef verbose
 	@$(call println)
-	@$(call println,'${yellow}Captured${reset} ${green}stdout${reset} ${yellow}and${reset} ${red}stderr${reset} ${yellow}log data${reset}:')
+	@$(call println,'${yellow}Captured${reset} ${green}stdout${reset} ${yellow}and${reset} ${red}stderr${reset} ${yellow}log data [${cyan}${env}${yellow}]${reset}:')
 	@$(call println)
 	@echo
 	@test -f '${stdout}' && ( \
