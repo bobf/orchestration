@@ -318,7 +318,8 @@ wait-listener:
 ### Docker build commands ###
 
 .PHONY: build
-build: context = ${orchestration_dir}/.build/context.tar
+build: build_dir = ${orchestration_dir}/.build
+build: context = ${build_dir}/context.tar
 build: check-local-changes
 	@$(call print,'${yellow}Preparing build context from${reset} ${cyan}${git_branch}:${git_version}${reset} ... ')
 	@mkdir -p ${orchestration_dir}/.build ${log} || ${fail}
@@ -332,6 +333,16 @@ else
 	@tar -cvf '${context}' . ${log} || ${fail}
 endif
 	@$(call printrawln,'${green}complete.${reset} ${tick}')
+ifdef include
+	@$(call print,'${yellow}Including files from:${reset} ${cyan}${include}${reset} ...')
+	@(while read line; do \
+            export line; \
+            include_dir="${build_dir}/$$(dirname "$${line}")/" && \
+            mkdir -p "$${include_dir}" && cp "$${line}" "$${include_dir}" \
+            && (cd '${orchestration_dir}/.build/' && tar rf 'context.tar' "$${line}"); \
+          done < '${include}') ${log} || ${fail}
+	@$(call printrawln,' ${green}complete.${reset} ${tick}')
+endif
 ifdef sidecar
         # Assume we are in a line-buffered environment (e.g. Jenkins)
 	@$(call println,'${yellow}Building image${reset} ...')

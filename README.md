@@ -1,13 +1,5 @@
 # Orchestration
 
-```
-I've got two tickets to the game
-It'd be great if I could take you to it this Sunday
-                                       --Nickelback
-```
-
-## Overview
-
 _Orchestration_ aims to provide a convenient and consistent process for working with _Rails_ and _Docker_ without obscuring underlying components.
 
 At its core _Orchestration_ is simply a `Makefile` and a set of `docker-compose.yml` files with sensible, general-purpose default settings. Users are encouraged to tailor the generated build-out to suit their application; once the build-out has been generated it belongs to the application.
@@ -35,7 +27,7 @@ The below screenshot demonstrates _Orchestration_ being installed in a brand new
 Add _Orchestration_ to your Gemfile:
 
 ```ruby
-gem 'orchestration', '~> 0.5.2'
+gem 'orchestration', '~> 0.5.3'
 ```
 
 Install:
@@ -143,7 +135,20 @@ Note that `git archive` is used to generate the build context. Any uncommitted c
 make build
 ```
 
-See [build environment](#build-environment) for more details.
+The `include` option can also be passed to provide a manifest file. Any files listed in this file will also be built into the _Docker_ image. Files **must** be located within the project directory.
+
+```bash
+make build include=manifest.txt
+```
+
+```bash
+# manifest.txt
+doc/api/swagger.json
+doc/api/soap.xml
+doc/api/doc.html
+```
+
+See also [build environment](#build-environment) if you use gems hosted on private _GitHub_/_Bitbucket_ repositories.
 
 #### Push latest image
 
