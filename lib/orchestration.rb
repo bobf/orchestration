@@ -11,7 +11,7 @@ require 'paint'
 begin
   require 'rails'
 rescue LoadError
-  warn('[orchestration] Rails not detected; skipping.')
+  warn('[orchestration] Running in non-Rails mode.')
 end
 
 I18n.load_path += Dir[File.join(File.expand_path('..', __dir__),

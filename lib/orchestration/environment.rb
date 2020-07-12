@@ -82,7 +82,7 @@ module Orchestration
     end
 
     def app_port
-      ENV.fetch('CONTAINER_PORT', ENV.fetch('WEB_PORT', '3000')).to_i
+      ENV.fetch('PUBLISH_PORT', ENV.fetch('WEB_PORT', '3000')).to_i
     end
 
     def app_name

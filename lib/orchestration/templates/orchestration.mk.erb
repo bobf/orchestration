@@ -114,7 +114,7 @@ all: build
 ifndef network
 start: network := ${compose_project_name}_default
 endif
-start: _clean-logs
+start: _create-log-directory _clean-logs
 	@$(call print,'${yellow}Starting ${cyan}${env}${yellow} containers${reset} ...')
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${fail}
@@ -276,7 +276,7 @@ deploy:
 ifndef manager
 	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`') ; exit 1
 endif
-	@$(call println,'${yellow}Deploying stack via${reset} ${green}${manager}${reset} ...') && \
+	@$(call println,'${yellow}Deploying ${green}${env}${reset} stack via${reset} ${green}${manager}${reset} ...') && \
           ( \
             $(call make,bundle path='${path}/bundle.tar') ${log} && \
             cd '${path}' ${log} && \
@@ -326,7 +326,7 @@ wait-listener:
 .PHONY: build
 build: build_dir = ${orchestration_dir}/.build
 build: context = ${build_dir}/context.tar
-build: check-local-changes
+build: _create-log-directory check-local-changes
 	@$(call print,'${yellow}Preparing build context from${reset} ${cyan}${git_branch}:${git_version}${reset} ... ')
 	@mkdir -p ${orchestration_dir}/.build ${log} || ${fail}
 ifndef dev
@@ -367,7 +367,7 @@ endif
 	@$(call println,'[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset}')
 
 .PHONY: push
-push:
+push: _create-log-directory
 	@$(call print,'${yellow}Pushing${reset} ${cyan}${docker_image}${reset} ...')
 	@docker push ${docker_image} ${log_progress} || ${fail}
 	@$(call printrawln,' ${green}complete${reset}. ${tick}')
@@ -389,3 +389,7 @@ endif
 _clean-logs:
 	@rm -f '${stdout}' '${stderr}'
 	@touch '${stdout}' '${stderr}'
+
+.PHONY: _create-log-directory
+_create-log-directory:
+	@mkdir -p log

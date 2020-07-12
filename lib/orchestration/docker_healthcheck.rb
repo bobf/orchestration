@@ -40,7 +40,7 @@ module Orchestration
     end
 
     def success_codes
-      ENV.fetch('WEB_HEALTHCHECK_SUCCESS_CODES', '200,202,204').split(',')
+      ENV.fetch('WEB_HEALTHCHECK_SUCCESS_CODES', '200,201,202,204').split(',')
     end
 
     def success?(code)

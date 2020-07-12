@@ -42,7 +42,7 @@ RSpec.describe Orchestration::DockerCompose::AppService do
     its(%w[environment RAILS_LOG_TO_STDOUT]) { is_expected.to eql '1' }
     its(['ports']) do
       is_expected.to eql [
-        '${CONTAINER_PORT:?CONTAINER_PORT must be provided}:8080'
+        '${PUBLISH_PORT:?PUBLISH_PORT must be provided}:8080'
       ]
     end
   end

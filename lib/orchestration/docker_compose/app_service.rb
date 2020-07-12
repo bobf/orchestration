@@ -113,7 +113,7 @@ module Orchestration
       end
 
       def ports
-        ['${CONTAINER_PORT:?CONTAINER_PORT must be provided}:8080']
+        ['${PUBLISH_PORT:?PUBLISH_PORT must be provided}:8080']
       end
     end
   end

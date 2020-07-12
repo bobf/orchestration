@@ -270,7 +270,7 @@ Note that the following two variables _must_ be set in the relevant `.env` file 
 
 ```
 # Published port for your application service:
-CONTAINER_PORT=3000
+PUBLISH_PORT=3000
 
 # Number of replicas of your application service:
 REPLICAS=5
