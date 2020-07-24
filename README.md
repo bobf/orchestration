@@ -227,6 +227,8 @@ To connect via _SSH_ to a remote swarm and deploy, pass the `manager` parameter:
 make deploy manager=user@manager.swarm.example.com
 ```
 
+The file `orchestration/docker-compose.production.yml` is created automatically. If your `RAILS_ENV` is set to something other than `production` then another file will need to be created (e.g. `orchestration/docker-compose.staging.yml`). In most cases this file can be a _symlink_ to the original `production` configuration and environment variables can be used to customise the content.
+
 #### Roll back a deployment
 
 Roll back the `app` service of your stack:
@@ -325,7 +327,7 @@ See related documentation:
 | `WEB_HEALTHCHECK_PATH` | Path expected to return a successful response | `/` |
 | `WEB_HEALTHCHECK_READ_TIMEOUT` | Number of seconds to wait for data before failing healthcheck | `10` |
 | `WEB_HEALTHCHECK_OPEN_TIMEOUT` | Number of seconds to wait for connection before failing healthcheck | `10` |
-| `WEB_HEALTHCHECK_SUCCESS_CODES` | Comma-separated list of HTTP status codes that will be deemed a success | `200,202,204` |
+| `WEB_HEALTHCHECK_SUCCESS_CODES` | Comma-separated list of HTTP status codes that will be deemed a success | `200,201,202,204` |
 
 If your application does not have a suitable always-available route to use as a healthcheck, the following one-liner may be useful:
 
