@@ -19,6 +19,18 @@ module Orchestration
           [ActiveRecord::ConnectionNotEstablished].concat(adapter_errors)
         end
 
+        def modify_environment
+          @database_url = ENV.delete('DATABASE_URL')
+          @development_database_url = ENV.delete('DEVELOPMENT_DATABASE_URL')
+          @test_database_url = ENV.delete('TEST_DATABASE_URL')
+        end
+
+        def unmodify_environment
+          ENV['DATABASE_URL'] = @database_url
+          ENV['DEVELOPMENT_DATABASE_URL'] = @development_database_url
+          ENV['TEST_DATABASE_URL'] = @test_database_url
+        end
+
         private
 
         def adapter_errors
