@@ -26,10 +26,6 @@ module Orchestration
           @dependencies = args
         end
 
-        def modify_environment; end
-
-        def unmodify_environment; end
-
         private
 
         def load_dependencies

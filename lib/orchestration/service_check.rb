@@ -18,11 +18,9 @@ module Orchestration
     def run
       return unless @service.configuration.configured?
 
-      @service.modify_environment
       echo_start
       success = attempt_connection
       echo_ready if success
-      @service.unmodify_environment
       success
     end
 
