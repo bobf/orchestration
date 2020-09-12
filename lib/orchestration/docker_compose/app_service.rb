@@ -77,7 +77,7 @@ module Orchestration
       def deploy
         {
           'mode' => 'replicated',
-          'replicas' => '${REPLICAS}'
+          'replicas' => '${REPLICAS:-3}'
         }
       end
 
