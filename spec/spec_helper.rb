@@ -15,7 +15,7 @@ require File.join(__dir__, 'dummy/config/environment.rb')
 
 ENV['RACK_ENV'] = 'test'
 
-Dir[File.join(__dir__, 'support', '**', '*.rb')].each { |path| require path }
+Dir[File.join(__dir__, 'support', '**', '*.rb')].sort.each { |path| require path }
 
 WebMock.disable_net_connect!(allow_localhost: false)
 

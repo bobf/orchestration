@@ -35,7 +35,7 @@ module Orchestration
       client.open_timeout = ENV.fetch('WEB_HEALTHCHECK_OPEN_TIMEOUT', '10').to_i
 
       client.start do |request|
-        request.get(ENV.fetch('WEB_HEALTHCHECK_PATH') { '/' })
+        request.get(ENV.fetch('WEB_HEALTHCHECK_PATH', '/'))
       end
     end
 

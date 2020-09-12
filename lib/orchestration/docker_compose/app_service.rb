@@ -64,7 +64,8 @@ module Orchestration
           'environment' => environment,
           'ports' => ports,
           'deploy' => deploy,
-          'logging' => logging
+          'logging' => logging,
+          'networks' => networks
         }
       end
 
@@ -75,10 +76,7 @@ module Orchestration
       end
 
       def deploy
-        {
-          'mode' => 'replicated',
-          'replicas' => '${REPLICAS:-3}'
-        }
+        { 'mode' => 'replicated', 'replicas' => '${REPLICAS:-3}' }
       end
 
       def logging
@@ -91,25 +89,30 @@ module Orchestration
         }
       end
 
+      def networks
+        { 'local' => {} }
+      end
+
       def environment
         {
           'RAILS_LOG_TO_STDOUT' => '1',
           'RAILS_SERVE_STATIC_FILES' => '1',
           'WEB_PRELOAD_APP' => '1',
-          'WEB_HEALTHCHECK_PATH' => '/'
+          'WEB_HEALTHCHECK_PATH' => '/',
+          'DATABASE_URL' => database_url
         }.merge(Hash[inherited_environment.map { |key| [key, nil] }])
       end
 
+      def database_url
+        {
+          'postgresql' => 'postgresql://postgres:password@database-local:5432/production',
+          'mysql2' => 'mysql2://root:password@database-local:3306/production',
+          'sqlite3' => 'sqlite3:db/production.sqlite3'
+        }.fetch(DockerCompose::ComposeConfiguration.database_adapter_name)
+      end
+
       def inherited_environment
-        %w[
-          DATABASE_URL
-          HOST_UID
-          RAILS_ENV
-          SECRET_KEY_BASE
-          WEB_CONCURRENCY
-          WEB_TIMEOUT
-          WEB_WORKER_PROCESSES
-        ]
+        %w[HOST_UID RAILS_ENV SECRET_KEY_BASE WEB_CONCURRENCY WEB_TIMEOUT WEB_WORKER_PROCESSES]
       end
 
       def ports

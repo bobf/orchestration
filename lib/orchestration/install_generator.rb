@@ -27,7 +27,7 @@ module Orchestration
       @terminal.write(:skip, relpath)
     end
 
-    def verify_makefile(skip = true)
+    def verify_makefile(skip: true)
       # Only run when called explicitly [from Rake tasks].
       # (I know this is hacky).
       return if skip

@@ -20,15 +20,15 @@ module Orchestration
       @settings = settings
     end
 
-    def write(desc, message, color_name = nil, newline = true)
+    def write(desc, message, color_name = nil, newline: true)
       output = newline ? "#{message}\n" : message.to_s
-      STDOUT.print colorize(desc, output, color_name)
-      STDOUT.flush
+      $stdout.print colorize(desc, output, color_name)
+      $stdout.flush
     end
 
     def read(message, default = nil)
-      write(:input, prompt(message, default), nil, false)
-      result = STDIN.gets.chomp.strip
+      write(:input, prompt(message, default), nil, newline: false)
+      result = $stdin.gets.chomp.strip
       return default if result.empty?
 
       result
@@ -57,7 +57,7 @@ module Orchestration
                 COLOR_MAP.fetch(color_name)
               end
 
-      Paint[desc.to_s.rjust(15), *color] + ' ' + message
+      "#{Paint[desc.to_s.rjust(15), *color]} #{message}"
     end
 
     def t(key)

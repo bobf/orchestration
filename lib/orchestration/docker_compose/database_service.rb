@@ -16,7 +16,8 @@ module Orchestration
 
         {
           'image' => adapter.image,
-          'environment' => adapter.environment
+          'environment' => adapter.environment,
+          'networks' => networks
         }.merge(ports).merge(volumes)
       end
 
@@ -30,6 +31,12 @@ module Orchestration
 
       def remote_port
         adapter.default_port
+      end
+
+      def networks
+        return {} unless @environment == :production
+
+        { 'local' => { 'aliases' => ['database-local'] } }
       end
 
       def ports

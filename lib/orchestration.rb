@@ -42,7 +42,7 @@ module Orchestration
 
   def self.error(key, options = {})
     warn('# Orchestration Error')
-    warn('# ' + I18n.t("orchestration.#{key}", options))
+    warn("# #{I18n.t("orchestration.#{key}", options)}")
   end
 
   def self.random_local_port

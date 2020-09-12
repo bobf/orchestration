@@ -40,6 +40,43 @@ RSpec.describe Orchestration::DockerCompose::AppService do
     its(['environment']) { is_expected.to include 'WEB_CONCURRENCY' }
     its(['environment']) { is_expected.to include 'WEB_WORKER_PROCESSES' }
     its(%w[environment RAILS_LOG_TO_STDOUT]) { is_expected.to eql '1' }
+
+    context 'PG gem present' do
+      before do
+        stub_const('PG', nil)
+        hide_const('Mysql2')
+        hide_const('SQLite3')
+      end
+
+      its(%w[environment DATABASE_URL]) do
+        is_expected.to eql 'postgresql://postgres:password@database-local:5432/production'
+      end
+    end
+
+    context 'Mysql2 gem present' do
+      before do
+        stub_const('Mysql2', nil)
+        hide_const('PG')
+        hide_const('SQLite3')
+      end
+
+      its(%w[environment DATABASE_URL]) do
+        is_expected.to eql 'mysql2://root:password@database-local:3306/production'
+      end
+    end
+
+    context 'SQLite3 gem present' do
+      before do
+        stub_const('SQLite3', nil)
+        hide_const('PG')
+        hide_const('Mysql2')
+      end
+
+      its(%w[environment DATABASE_URL]) do
+        is_expected.to eql 'sqlite3:db/production.sqlite3'
+      end
+    end
+
     its(['ports']) do
       is_expected.to eql [
         '${PUBLISH_PORT:?PUBLISH_PORT must be provided}:8080'

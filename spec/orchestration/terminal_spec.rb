@@ -10,12 +10,12 @@ RSpec.describe Orchestration::Terminal do
   describe '#write' do
     subject(:write) { terminal.write(*args) }
 
-    before { allow(STDOUT).to receive(:print) }
+    before { allow($stdout).to receive(:print) }
 
     context 'with description and message' do
       let(:args) { [:status, 'message'] }
       it 'writes colorised output to stdout' do
-        expect(STDOUT)
+        expect($stdout)
           .to receive(:print)
           .with("\e[34m         status\e[0m message\n")
         write
@@ -25,7 +25,7 @@ RSpec.describe Orchestration::Terminal do
     context 'with description, message, and custom colour reference' do
       let(:args) { [:status, 'message', :ready] }
       it 'writes colorised output to stdout' do
-        expect(STDOUT)
+        expect($stdout)
           .to receive(:print)
           .with("\e[32m         status\e[0m message\n")
         write
@@ -41,8 +41,8 @@ RSpec.describe Orchestration::Terminal do
     let(:prompt) { 'prompt' }
 
     before do
-      allow(STDIN).to receive(:gets) { input }
-      allow(STDOUT).to receive(:print)
+      allow($stdin).to receive(:gets) { input }
+      allow($stdout).to receive(:print)
     end
 
     it { is_expected.to eql 'input' }
@@ -77,7 +77,7 @@ RSpec.describe Orchestration::Terminal do
         let(:default) { nil }
 
         it 'writes a given prompt message' do
-          expect(STDOUT).to receive(:print).with(any_args) do |arg|
+          expect($stdout).to receive(:print).with(any_args) do |arg|
             expect(arg).to end_with '(prompt): '
           end
 
@@ -89,7 +89,7 @@ RSpec.describe Orchestration::Terminal do
         let(:default) { 'value' }
 
         it 'writes a given prompt message including default value' do
-          expect(STDOUT).to receive(:print).with(any_args) do |arg|
+          expect($stdout).to receive(:print).with(any_args) do |arg|
             expect(arg).to end_with '(prompt) [default: value]: '
           end
 
@@ -108,18 +108,18 @@ RSpec.describe Orchestration::Terminal do
     before do
       allow(settings).to receive(:get)
       allow(settings).to receive(:set)
-      allow(STDIN).to receive(:gets) { '' }
-      allow(STDOUT).to receive(:print)
+      allow($stdin).to receive(:gets) { '' }
+      allow($stdout).to receive(:print)
     end
 
     it 'stores a given setting' do
-      allow(STDIN).to receive(:gets) { 'input' }
+      allow($stdin).to receive(:gets) { 'input' }
       expect(settings).to receive(:set).with('foo', 'input')
       ask_setting
     end
 
     it 'uses default when blank input given' do
-      allow(STDIN).to receive(:gets) { '  ' }
+      allow($stdin).to receive(:gets) { '  ' }
       expect(settings).to receive(:set).with('foo', 'value')
       ask_setting
     end
@@ -140,7 +140,7 @@ RSpec.describe Orchestration::Terminal do
   shared_examples 'a recognised color reference' do |color_reference|
     subject(:write) { terminal.write(color_reference, 'message') }
     it 'is a recognised colour reference' do
-      expect(STDOUT).to receive(:print)
+      expect($stdout).to receive(:print)
       write
     end
   end

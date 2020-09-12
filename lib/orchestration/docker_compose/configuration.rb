@@ -21,6 +21,10 @@ module Orchestration
         {}.merge(database_volume).merge(mongo_volume)
       end
 
+      def networks
+        { 'local' => { 'name' => '${COMPOSE_PROJECT_NAME}' } }
+      end
+
       private
 
       def services_available

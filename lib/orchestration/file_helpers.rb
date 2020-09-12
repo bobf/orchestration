@@ -18,9 +18,7 @@ module Orchestration
 
     def inject_if_missing(path, content, index = 0)
       lines = File.exist?(path) ? File.readlines(path).map(&:chomp) : []
-      if lines.any? { |line| line == content }
-        return @terminal.write(:skip, relative_path(path))
-      end
+      return @terminal.write(:skip, relative_path(path)) if lines.any? { |line| line == content }
 
       lines.insert(index, content)
       update_file(path, lines.join("\n"))
@@ -56,9 +54,7 @@ module Orchestration
       return create_file(path, content) unless present
 
       previous_content = File.read(path) if present
-      if skip?(present, content, previous_content, options)
-        return @terminal.write(:skip, relative_path(path))
-      end
+      return @terminal.write(:skip, relative_path(path)) if skip?(present, content, previous_content, options)
 
       backup(path, previous_content) if options.fetch(:backup, false)
       File.write(path, content)

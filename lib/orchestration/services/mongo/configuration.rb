@@ -42,9 +42,7 @@ module Orchestration
 
         def url_config
           uri = URI.parse(@env.mongo_url)
-          unless uri.scheme == 'mongodb'
-            raise ArgumentError, 'MONGO_URL protocol must be mongodb://'
-          end
+          raise ArgumentError, 'MONGO_URL protocol must be mongodb://' unless uri.scheme == 'mongodb'
 
           url_config_structure(uri)
         end
