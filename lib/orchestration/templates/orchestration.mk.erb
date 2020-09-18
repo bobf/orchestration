@@ -238,6 +238,7 @@ ifndef verbose
           $(call hr,${red}) ; \
         )
 endif
+ifneq (,$(findstring deploy,$(MAKECMDGOALS)))
 	@echo ; \
         $(call hr,${yellow}) ; \
         $(call println,'${gray}docker-compose logs${reset}') ; \
@@ -246,6 +247,8 @@ endif
 	@${compose} logs
 	@echo ; \
         $(call hr,${yellow})
+endif
+	@$(NOOP)
 
 .PHONY: image
 image:
@@ -253,45 +256,40 @@ image:
 
 ### Deployment utility commands ###
 
-.PHONY: bundle
-bundle:
-ifndef path
-	@$(warning Missing `path` parameter; using `./bundle.tar`. Set a custom path with `make bundle path=/tmp/bundle.tar`)
-endif
-	@rm -rf ${orchestration_dir}/.deploy/
-	@mkdir -p ${orchestration_dir}/.deploy/${docker_repository}/
-	@sed -e "s/%%VERSION%%/${git_version}/g" \
-             -e "s/%%REPOSITORY%%/${docker_repository}/g" \
-             -e "s/%%ORGANIZATION%%/${docker_organization}/g" \
-             ${orchestration_dir}/deploy.mk > \
-             ${orchestration_dir}/.deploy/${docker_repository}/Makefile
-	@bundle_path="${path}" ; tar -C '${orchestration_dir}/.deploy' -cf "$${bundle_path:-./bundle.tar}" ./${docker_repository}
-
 .PHONY: deploy
-deploy: path := $(shell mktemp -d)
+ifdef env_file
+deploy: env_file_option = --env-file ${env_file}
+endif
 deploy: RAILS_ENV := ${env}
 deploy: RACK_ENV := ${env}
 deploy: DOCKER_TAG = ${git_version}
+deploy: base_vars = DOCKER_ORGANIZATION=${docker_organization} DOCKER_REPOSITORY=${docker_repository} DOCKER_TAG=${git_version}
+deploy: compose_deploy := ${base_vars} COMPOSE_PROJECT_NAME=${project_base} HOST_UID=$(shell id -u) docker-compose ${env_file_option} --project-name ${project_base} -f orchestration/docker-compose.${env}.yml
+deploy: compose_config := ${compose_deploy} config
+deploy: deploy_cmd := echo "$${config}" | ssh "${manager}" "/bin/bash -lc 'cat | docker stack deploy --prune --with-registry-auth -c - ${project_base}'"
+deploy: out_of_sequence_error := rpc error: code = Unknown desc = update out of sequence
+deploy: retry_message := ${yellow}Detected Docker RPC error: ${red}${out_of_sequence_error}${yellow}. Retrying in
 deploy:
 ifndef manager
 	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`') ; exit 1
 endif
-	@$(call println,'${yellow}Deploying ${green}${env}${reset} stack via${reset} ${green}${manager}${reset} ...') && \
+	@$(call println,'${yellow}Deploying ${green}${env} ${yellow}stack via ${green}${manager} ${yellow}as ${green}${project_base}${reset} ...') && \
           ( \
-            $(call make,bundle path='${path}/bundle.tar') ${log} && \
-            cd '${path}' ${log} && \
-            tar xf 'bundle.tar' ${log} && \
-            cd '${docker_repository}' ${log} && \
-               ( [ -z '${env_file}' ] || cp '${env_file}' './.env' ${log} ) && \
-               $(call println,'${yellow}Deployment environment${reset}:') && \
-               ( test -f '.env' && cat '.env' | ${format_env} || : ) && \
-               echo 'DOCKER_ORGANIZATION=${docker_organization}' >> './.env' && \
-               echo 'DOCKER_REPOSITORY=${docker_repository}' >> './.env' && \
-               echo 'DOCKER_TAG=${git_version}' >> ./.env && \
-               $(call println,'') && \
-               $(call println,'${yellow}Application image${reset}: ${cyan}${docker_image}${reset}') && \
-               ${compose} config 2>${stderr} | ssh "${manager}" 'docker stack deploy --prune --with-registry-auth -c - "${project_base}"' ${log} && \
-            ( [ -z "${path}" ] || rm -rf "${path}" ${log} ) \
+             $(call println,'${yellow}Deployment environment${reset}:') && \
+             ( test -f '${env_file}' && cat '${env_file}' | ${format_env} || : ) && \
+             $(call println,'') && \
+             $(call println,'${yellow}Application image${reset}: ${cyan}${docker_image}${reset}') && \
+             export config="$$(${compose_config} 2>${stderr})" ; \
+             config_exit_code=$$? ; \
+             if [[ "$${config_exit_code}" != "0" ]]; then exit ${config_exit_code}; fi ; \
+             output="$$(${deploy_cmd} | tee /dev/tty)" ; \
+             deploy_exit_code=$$? ; \
+             if [[ "$${deploy_exit_code}" == 0 ]] ; then exit 0 ; fi ; \
+             if ! echo "$${output}" | grep -q '${out_of_sequence_error}' ; then exit ${deploy_exit_code} ; fi ; \
+             retry_in="$$(( 10 + RANDOM % 50 ))" ; \
+             echo "${retry_message} ${green}$${retry_in} ${yellow}seconds.${reset}" ; \
+             sleep "$${retry_in}" ; \
+             ${deploy_cmd} \
           ) \
           || ${fail}
 

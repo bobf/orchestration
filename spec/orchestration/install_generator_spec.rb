@@ -8,13 +8,6 @@ RSpec.describe Orchestration::InstallGenerator do
   let(:dummy_path) { Orchestration.root.join('spec', 'dummy') }
   let(:orchestration_path) { dummy_path.join('orchestration') }
 
-  it 'creates deploy.mk' do
-    path = orchestration_path.join('deploy.mk')
-    FileUtils.rm_f(path)
-    install_generator.deploy_mk
-    expect(File).to exist(path)
-  end
-
   it 'creates Makefile' do
     path = dummy_path.join('Makefile')
     FileUtils.rm_f(path)

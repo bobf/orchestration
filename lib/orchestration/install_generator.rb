@@ -127,10 +127,6 @@ module Orchestration
       ensure_lines_in_file(path, lines)
     end
 
-    def deploy_mk
-      simple_copy('deploy.mk')
-    end
-
     private
 
     def t(key)

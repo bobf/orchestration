@@ -31,6 +31,7 @@ stdout=${pwd}/log/orchestration.stdout.log
 stderr=${pwd}/log/orchestration.stderr.log
 log_path_length=$(shell echo "${stdout}" | wc -c)
 ifndef verbose
+log_tee:= 2>&1 | tee -a ${stdout}
 log:= >>${stdout} 2>>${stderr}
 progress_point:=perl -e 'while( my $$line = <STDIN> ) { printf("."); select()->flush(); }'
 log_progress:= > >(tee -ai ${stdout} >&1 | ${progress_point}) 2> >(tee -ai ${stderr} 2>&1 | ${progress_point})
