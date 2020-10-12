@@ -14,6 +14,8 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
  && curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash \
  && . /root/.bashrc \
  && nvm install 10.13.0 \
+ && npm config set user 0 \
+ && npm config set unsafe-perm true \
  && npm install -g yarn<% end %>
 WORKDIR /app
 COPY .build/Gemfile .build/Gemfile.lock ./

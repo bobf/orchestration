@@ -41,7 +41,7 @@ endif
 ifeq (,$(findstring serve,$(MAKECMDGOALS)))
 ifeq (,$(findstring console,$(MAKECMDGOALS)))
 ifeq (,$(findstring test,$(MAKECMDGOALS)))
-  docker_config:=$(shell ${rake} orchestration:config)
+  docker_config:=$(shell RAILS_ENV=development bundle exec rake orchestration:config)
   docker_organization=$(word 1,$(docker_config))
   docker_repository=$(word 2,$(docker_config))
 endif
