@@ -282,7 +282,7 @@ endif
              export config="$$(${compose_config} 2>${stderr})" ; \
              config_exit_code=$$? ; \
              if [[ "$${config_exit_code}" != "0" ]]; then exit ${config_exit_code}; fi ; \
-             output="$$(${deploy_cmd} | tee /dev/tty)" ; \
+             output="$$(${deploy_cmd} | tee -tt)" ; \
              deploy_exit_code=$$? ; \
              if [[ "$${deploy_exit_code}" == 0 ]] ; then exit 0 ; fi ; \
              if ! echo "$${output}" | grep -q '${out_of_sequence_error}' ; then exit ${deploy_exit_code} ; fi ; \
