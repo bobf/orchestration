@@ -227,7 +227,7 @@ To connect via _SSH_ to a remote swarm and deploy, pass the `manager` parameter:
 make deploy manager=user@manager.swarm.example.com
 ```
 
-The file `orchestration/docker-compose.production.yml` is created automatically. If your `RAILS_ENV` is set to something other than `production` then another file will need to be created (e.g. `orchestration/docker-compose.staging.yml`). In most cases this file can be a _symlink_ to the original `production` configuration and environment variables can be used to customise the content.
+The file `orchestration/docker-compose.production.yml` is created automatically. This file will always be used for deployment, regardless of _Rails_ environment. Other environments should be configured using a separate [`.env` file](#env-file) for each environment.
 
 #### Roll back a deployment
 
@@ -262,6 +262,7 @@ networks:
 ```
 
 #### Use a custom `.env` file
+<a name="env-file"></a>
 
 Specify a path to a local `.env` file (see [Docker Compose documentation](https://docs.docker.com/compose/environment-variables/#the-env-file)):
 ```

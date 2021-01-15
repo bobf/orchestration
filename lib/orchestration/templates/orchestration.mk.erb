@@ -264,7 +264,7 @@ deploy: RAILS_ENV := ${env}
 deploy: RACK_ENV := ${env}
 deploy: DOCKER_TAG = ${git_version}
 deploy: base_vars = DOCKER_ORGANIZATION=${docker_organization} DOCKER_REPOSITORY=${docker_repository} DOCKER_TAG=${git_version}
-deploy: compose_deploy := ${base_vars} COMPOSE_PROJECT_NAME=${project_base} HOST_UID=$(shell id -u) docker-compose ${env_file_option} --project-name ${project_base} -f orchestration/docker-compose.${env}.yml
+deploy: compose_deploy := ${base_vars} COMPOSE_PROJECT_NAME=${project_base} HOST_UID=$(shell id -u) docker-compose ${env_file_option} --project-name ${project_base} -f orchestration/docker-compose.production.yml
 deploy: compose_config := ${compose_deploy} config
 deploy: deploy_cmd := echo "$${config}" | ssh "${manager}" "/bin/bash -lc 'cat | docker stack deploy --prune --with-registry-auth -c - ${project_base}'"
 deploy: out_of_sequence_error := rpc error: code = Unknown desc = update out of sequence
@@ -282,7 +282,7 @@ endif
              export config="$$(${compose_config} 2>${stderr})" ; \
              config_exit_code=$$? ; \
              if [[ "$${config_exit_code}" != "0" ]]; then exit ${config_exit_code}; fi ; \
-             output="$$(${deploy_cmd} | tee -tt)" ; \
+             output="$$(${deploy_cmd} | tee)" ; \
              deploy_exit_code=$$? ; \
              if [[ "$${deploy_exit_code}" == 0 ]] ; then exit 0 ; fi ; \
              if ! echo "$${output}" | grep -q '${out_of_sequence_error}' ; then exit ${deploy_exit_code} ; fi ; \
