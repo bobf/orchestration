@@ -62,6 +62,7 @@ module Orchestration
           .fetch(service)
           .new(config, @environment)
           .definition
+          &.merge('networks' => { 'local' => {} })
       end
     end
   end

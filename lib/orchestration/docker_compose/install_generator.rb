@@ -42,7 +42,7 @@ module Orchestration
           'version' => compose_config(environment).version,
           'services' => services(environment),
           'volumes' => volumes(environment),
-          'networks' => networks(environment)
+          'networks' => compose_config(environment).networks
         }
       end
 
@@ -54,12 +54,6 @@ module Orchestration
         return {} if environment.nil? || environment == :test
 
         compose_config(environment).volumes
-      end
-
-      def networks(environment)
-        return {} unless environment == :production
-
-        compose_config(environment).networks
       end
 
       def compose_config(environment)
