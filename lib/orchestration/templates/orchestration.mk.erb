@@ -112,7 +112,7 @@ all: build
 
 .PHONY: start
 ifndef network
-start: network := ${compose_project_name}_default
+start: network := ${compose_project_name}
 endif
 start: _create-log-directory _clean-logs
 	@$(call print,'${yellow}Starting ${cyan}${env}${yellow} containers${reset} ...')

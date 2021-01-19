@@ -191,12 +191,20 @@ make serve server='-p 3001 -b 192.168.0.1'
 A default `test` target is provided in your application's main `Makefile`. You are encouraged to modify this target to suit your application's requirements.
 
 To launch all dependency containers, run database migrations, and run tests:
-```
+```bash
 make test
 ```
 
-If you prefer to run tests manually (e.g. if you want to run tests for a specific file) then the `test-setup` target can be used:
+The default `test` command can (and should) be extended. This command is defined in the root `Makefile` in the project and, by defaults, runs `rspec` and `rubocop`.
+
+To run only the `test` command, without test setup (i.e. without restarting containers etc.), pass the `light` option:
+
+```bash
+make test light=1
 ```
+
+If you prefer to run tests manually (e.g. if you want to run tests for a specific file) then the `test-setup` target can be used:
+```bash
 make test-setup
 bundle exec rspec spec/my_class_spec.rb
 ```
