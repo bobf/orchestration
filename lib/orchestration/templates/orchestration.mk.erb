@@ -144,7 +144,7 @@ start-<%= service %>:
 <% end %>
 
 .PHONY: stop
-stop: network := ${compose_project_name}_default
+stop: network := ${compose_project_name}
 stop:
 	@$(call print,'${yellow}Stopping ${cyan}${env}${yellow} containers${reset} ...')
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
