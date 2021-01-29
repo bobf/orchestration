@@ -1,6 +1,6 @@
 environment ENV.fetch('RAILS_ENV') { 'development' }
 
-port ENV.fetch('WEB_PORT') { 3000 }
+port ENV.fetch('WEB_PORT') { 8080 }
 workers ENV.fetch('WEB_CONCURRENCY') { 4 }
 threads_count = ENV.fetch('RAILS_MAX_THREADS') { 8 }
 
