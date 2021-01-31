@@ -82,37 +82,31 @@ module Orchestration
         end
 
         def host
-          url_config['host'] || file_config['host'] || super
+          chained_config('host') || super
         end
 
         def port
           return nil if sqlite?
 
-          url_config['port'] || file_config['port'] || super
+          chained_config('port') || super
         end
 
         def username
-          (
-            url_config['username'] ||
-            file_config['username'] ||
-            (adapter && adapter.credentials['username'])
-          )
+          chained_config('username') || (adapter && adapter.credentials['username'])
         end
 
         def password
-          (
-            url_config['password'] ||
-            file_config['password'] ||
-            (adapter && adapter.credentials['password'])
-          )
+          chained_config('password') || (adapter && adapter.credentials['password'])
         end
 
         def database
-          (
-            url_config['database'] ||
-            file_config['database'] ||
-            (adapter && adapter.credentials['database'])
-          )
+          chained_config('database') || (adapter && adapter.credentials['database'])
+        end
+
+        def chained_config(key)
+          return url_config[key] || file_config[key] if @env.environment == 'test'
+
+          file_config[key] || url_config[key]
         end
 
         def adapter_by_name(name)
