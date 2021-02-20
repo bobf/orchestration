@@ -402,12 +402,15 @@ _Orchestration_ generates the following `config/rabbitmq.yml`:
 ```
 development:
   url: amqp://127.0.0.1:51070
+  management_url: http://127.0.0.1:5069
 
 test:
   url: amqp://127.0.0.1:51068
+  management_url: http://127.0.0.1:5067
 
 production:
   url: <%= ENV['RABBITMQ_URL'] %>
+  management_url: <%= ENV['RABBITMQ_MANAGEMENT_URL'] %>
 ```
 
 Using this approach, the environment variable `RABBITMQ_URL` can be used to configure _Bunny_ in production (similar to `DATABASE_URL` and `MONGO_URL`).
