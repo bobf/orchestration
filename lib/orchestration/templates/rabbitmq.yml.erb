@@ -1,13 +1,13 @@
 <% if compose.call('development').services.key?('rabbitmq') %>
 development:
   url: <%= "#{'<' + '%' + '='} ENV.fetch('RABBITMQ_URL', 'amqp://127.0.0.1:#{compose.call('development').local_port('rabbitmq', 5672)}') #{'%' + '>'}" %>
-  management_url: <%= "#{'<' + '%' + '='} ENV.fetch('RABBITMQ_MANAGEMENT_URL', 'http://127.0.0.1:#{compose.call('development').local_port('rabbitmq', 15672)}') #{'%' + '>'}" %>
+  management_url: <%= "#{'<' + '%' + '='} ENV.fetch('RABBITMQ_MANAGEMENT_URL', 'http://guest:guest@127.0.0.1:#{compose.call('development').local_port('rabbitmq', 15672)}') #{'%' + '>'}" %>
 <% end %>
 
 <% if compose.call('test').services.key?('rabbitmq') %>
 test:
   url: <%= "#{'<' + '%' + '='} ENV.fetch('RABBITMQ_URL', 'amqp://127.0.0.1:#{compose.call('test').local_port('rabbitmq', 5672)}') #{'%' + '>'}" %>
-  management_url: <%= "#{'<' + '%' + '='} ENV.fetch('RABBITMQ_MANAGEMENT_URL', 'http://127.0.0.1:#{compose.call('test').local_port('rabbitmq', 15672)}') #{'%' + '>'}" %>
+  management_url: <%= "#{'<' + '%' + '='} ENV.fetch('RABBITMQ_MANAGEMENT_URL', 'http://guest:guest@127.0.0.1:#{compose.call('test').local_port('rabbitmq', 15672)}') #{'%' + '>'}" %>
 <% end %>
 
 production:
