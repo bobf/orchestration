@@ -100,7 +100,13 @@ module Orchestration
           'WEB_PRELOAD_APP' => '1',
           'WEB_HEALTHCHECK_PATH' => '/',
           'DATABASE_URL' => database_url
-        }.merge(Hash[inherited_environment.map { |key| [key, nil] }])
+        }.merge(Hash[inherited_environment.map { |key| [key, nil] }]).merge(rabbitmq_urls)
+      end
+
+      def rabbitmq_urls
+        return {} unless Services::RabbitMQ::Configuration.new(Environment.new).enabled?
+
+        { 'RABBITMQ_URL' => 'amqp://rabbitmq:5672', 'RABBITMQ_MANAGER_URL' => 'amqp://rabbitmq:15672' }
       end
 
       def database_url
