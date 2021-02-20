@@ -96,7 +96,7 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
           config = YAML.safe_load(File.read(path))
           expect(
             config['services']['rabbitmq']['image']
-          ).to eql 'library/rabbitmq:manager'
+          ).to eql 'library/rabbitmq:management'
         end
 
         it 'includes app service' do
@@ -134,7 +134,7 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
           config = YAML.safe_load(File.read(path))
           expect(
             config['services']['rabbitmq']['image']
-          ).to eql 'library/rabbitmq:manager'
+          ).to eql 'library/rabbitmq:management'
         end
       end
 
@@ -165,7 +165,7 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
           config = YAML.safe_load(File.read(path))
           expect(
             config['services']['rabbitmq']['image']
-          ).to eql 'library/rabbitmq:manager'
+          ).to eql 'library/rabbitmq:management'
         end
       end
     end

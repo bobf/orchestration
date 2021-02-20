@@ -14,7 +14,7 @@ RSpec.describe Orchestration::DockerCompose::RabbitMQService do
 
     before { allow(Orchestration).to receive(:random_local_port) { 12_345 } }
 
-    its(['image']) { is_expected.to eql('library/rabbitmq:manager') }
+    its(['image']) { is_expected.to eql('library/rabbitmq:management') }
 
     context 'production' do
       let(:environment) { :production }

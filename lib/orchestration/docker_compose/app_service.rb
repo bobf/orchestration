@@ -106,7 +106,7 @@ module Orchestration
       def rabbitmq_urls
         return {} unless Services::RabbitMQ::Configuration.new(Environment.new).enabled?
 
-        { 'RABBITMQ_URL' => 'amqp://rabbitmq:5672', 'RABBITMQ_MANAGER_URL' => 'amqp://rabbitmq:15672' }
+        { 'RABBITMQ_URL' => 'amqp://rabbitmq:5672', 'RABBITMQ_MANAGEMENT_URL' => 'amqp://rabbitmq:15672' }
       end
 
       def database_url
