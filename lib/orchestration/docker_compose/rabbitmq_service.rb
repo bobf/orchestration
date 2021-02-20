@@ -13,15 +13,17 @@ module Orchestration
       def definition
         return nil unless @config.enabled?
 
-        { 'image' => 'library/rabbitmq' }.merge(ports)
+        { 'image' => 'library/rabbitmq:manager' }.merge(ports)
       end
 
       def ports
         return {} unless %i[development test].include?(@environment)
 
         container_port = Orchestration::Services::RabbitMQ::PORT
+        manager_port = Orchestration::Services::RabbitMQ::MANAGER_PORT
 
-        { 'ports' => ["#{sidecar_port(@environment)}#{container_port}"] }
+        { 'ports' => ["#{sidecar_port(@environment)}#{container_port}",
+                      "#{sidecar_port(@environment)}#{manager_port}"] }
       end
     end
   end

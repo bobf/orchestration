@@ -15,7 +15,7 @@ module Orchestration
         def friendly_config
           return "[#{adapter.name}]" if sqlite?
 
-          "[#{adapter.name}] #{host}:#{port}"
+          "[#{adapter.name}] #{adapter.name}://#{username}:#{password}@#{host}:#{port}/#{database}"
         end
 
         def settings(healthcheck: false)

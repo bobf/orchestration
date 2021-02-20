@@ -39,12 +39,12 @@ RSpec.describe Orchestration::Services::Database::Configuration do
 
     context 'postgresql' do
       let(:config_path) { fixture_path('postgresql') }
-      it { is_expected.to eql '[postgresql] localhost:5432' }
+      it { is_expected.to eql '[postgresql] postgresql://postgres:password@localhost:5432/test_db' }
     end
 
     context 'mysql' do
       let(:config_path) { fixture_path('mysql2') }
-      it { is_expected.to eql '[mysql2] localhost:3354' }
+      it { is_expected.to eql '[mysql2] mysql2://root:password@localhost:3354/test_db' }
     end
   end
 
