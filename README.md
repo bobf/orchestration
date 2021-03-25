@@ -27,7 +27,7 @@ The below screenshot demonstrates _Orchestration_ being installed in a brand new
 Add _Orchestration_ to your Gemfile:
 
 ```ruby
-gem 'orchestration', '~> 0.5.13'
+gem 'orchestration', '~> 0.5.14'
 ```
 
 Install:
@@ -216,8 +216,8 @@ _(See [sidecar containers](#sidecar-containers) if you are running your test/dev
 Dependencies will be launched and then tested for readiness. The retry limit and interval time for readiness tests can be controlled by the following environment variables:
 
 ```
-ORCHESTRATION_RETRY_LIMIT # default: 10
-ORCHESTRATION_RETRY_INTERVAL # default: 5 [seconds]
+ORCHESTRATION_RETRY_LIMIT # default: 15
+ORCHESTRATION_RETRY_INTERVAL # default: 10 [seconds]
 ```
 
 ### (Local) Production

@@ -2,8 +2,8 @@
 
 module Orchestration
   class ServiceCheck
-    ATTEMPT_LIMIT = ENV.fetch('ORCHESTRATION_RETRY_LIMIT', '10').to_i
-    RETRY_INTERVAL = ENV.fetch('ORCHESTRATION_RETRY_INTERVAL', '6').to_i
+    ATTEMPT_LIMIT = ENV.fetch('ORCHESTRATION_RETRY_LIMIT', '15').to_i
+    RETRY_INTERVAL = ENV.fetch('ORCHESTRATION_RETRY_INTERVAL', '10').to_i
 
     def initialize(service, terminal, options = {})
       @service = service
