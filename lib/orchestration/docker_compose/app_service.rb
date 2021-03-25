@@ -100,7 +100,7 @@ module Orchestration
           'WEB_PRELOAD_APP' => '1',
           'WEB_HEALTHCHECK_PATH' => '/',
           'DATABASE_URL' => database_url
-        }.merge(Hash[inherited_environment.map { |key| [key, nil] }]).merge(rabbitmq_urls)
+        }.merge(inherited_environment.map { |key| [key, nil] }.to_h).merge(rabbitmq_urls)
       end
 
       def rabbitmq_urls

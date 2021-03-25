@@ -60,7 +60,7 @@ module Orchestration
         DockerCompose::Configuration.new(
           @env,
           environment,
-          Hash[configurations(environment)]
+          configurations(environment).to_h
         )
       end
 

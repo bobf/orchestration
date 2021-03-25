@@ -10,7 +10,7 @@ module Orchestration
           end
 
           def image
-            return mysql5_7 if gem_version < Gem::Version.new('0.4')
+            return mysql57 if gem_version < Gem::Version.new('0.4')
 
             'library/mysql'
           end
@@ -43,7 +43,7 @@ module Orchestration
 
           private
 
-          def mysql5_7
+          def mysql57
             'library/mysql:5.7'
           end
 

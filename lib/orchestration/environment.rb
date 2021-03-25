@@ -129,7 +129,7 @@ module Orchestration
     def docker_filter(string)
       # Filter out characters not accepted by Docker Hub
       permitted = [('0'..'9'), ('a'..'z')].map(&:to_a).flatten
-      string.split('').select { |char| permitted.include?(char) }.join
+      string.chars.select { |char| permitted.include?(char) }.join
     end
   end
 end

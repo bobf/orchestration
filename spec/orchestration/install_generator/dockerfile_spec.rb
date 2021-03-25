@@ -29,10 +29,7 @@ RSpec.describe Orchestration::InstallGenerator do
     end
 
     context 'with webpacker' do
-      before do
-        module Webpacker
-        end
-      end
+      before { Object.const_set('Webpacker', nil) }
 
       it 'includes webpacker build dependencies' do
         dockerfile

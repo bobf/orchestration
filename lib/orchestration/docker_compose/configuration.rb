@@ -14,7 +14,7 @@ module Orchestration
       end
 
       def services
-        Hash[services_enabled]
+        services_enabled.to_h
       end
 
       def volumes
