@@ -238,7 +238,6 @@ ifndef verbose
           $(call hr,${red}) ; \
         )
 endif
-ifneq (,$(findstring deploy,$(MAKECMDGOALS)))
 	@echo ; \
         $(call hr,${yellow}) ; \
         $(call println,'${gray}docker-compose logs${reset}') ; \
@@ -247,7 +246,6 @@ ifneq (,$(findstring deploy,$(MAKECMDGOALS)))
 	@${compose} logs
 	@echo ; \
         $(call hr,${yellow})
-endif
 	@$(NOOP)
 
 .PHONY: image
