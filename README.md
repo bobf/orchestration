@@ -7,7 +7,7 @@ At its core _Orchestration_ is simply a `Makefile` and a set of `docker-compose.
 A typical _Rails_ application can be tested, built, pushed to _Docker Hub_, and deployed to _Docker Swarm_ with the following commands:
 
 ```bash
-make test build push
+make setup test build push
 make deploy manager=user@swarm.example.com env_file=/var/configs/myapp.env
 ```
 
@@ -27,7 +27,7 @@ The below screenshot demonstrates _Orchestration_ being installed in a brand new
 Add _Orchestration_ to your Gemfile:
 
 ```ruby
-gem 'orchestration', '~> 0.5.14'
+gem 'orchestration', '~> 0.6.0'
 ```
 
 Install:
@@ -91,7 +91,7 @@ The default value for `env` is `development`.
 As with any `Makefile` targets can be chained together, e.g.:
 ```
 # Run tests, build, and push image
-make test build push
+make setup test build push
 ```
 
 ### Containers
@@ -192,21 +192,15 @@ A default `test` target is provided in your application's main `Makefile`. You a
 
 To launch all dependency containers, run database migrations, and run tests:
 ```bash
-make test
+make setup test
 ```
 
 The default `test` command can (and should) be extended. This command is defined in the root `Makefile` in the project and, by defaults, runs `rspec` and `rubocop`.
 
-To run only the `test` command, without test setup (i.e. without restarting containers etc.), pass the `light` option:
+To skip the setup step and just run tests (i.e. once test containers are up and running and ready for use) simply run:
 
 ```bash
-make test light=1
-```
-
-If you prefer to run tests manually (e.g. if you want to run tests for a specific file) then the `test-setup` target can be used:
-```bash
-make test-setup
-bundle exec rspec spec/my_class_spec.rb
+make test
 ```
 
 Note that _Orchestration_ will wait for all services to become fully available (i.e. running and providing valid responses) before attempting to run tests. This is specifically intended to facilitate testing in continuous integration environments.
@@ -370,7 +364,7 @@ If you need to start dependency services (databases, etc.) and connect to them f
 To do this automatically, pass the `sidecar` parameter to the `start` or `test` targets:
 
 ```bash
-make test sidecar=1
+make setup test sidecar=1
 ```
 
 When running in sidecar mode container-to-container networking is used so there is no benefit to binding dependency containers to a specific port on the host machine (only the target port will be used). For this reason a random, ephemeral port (chosen by _Docker_) will be used to allow multiple instances of each dependency to run alongside one another.
@@ -381,7 +375,7 @@ Note that a temporary file `orchestration/.sidecar` containing the random projec
 
 ```bash
 # Start dependencies and run tests in sidecar mode
-make test sidecar=1
+make setup test sidecar=1
 
 # Stop test dependencies in sidecar mode
 make stop env=test

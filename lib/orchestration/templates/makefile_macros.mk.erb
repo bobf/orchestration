@@ -1,10 +1,8 @@
 TERM ?= 'dumb'
 pwd:=$(shell pwd)
-ifdef mounted_orchestration
-  orchestration_dir=$(mounted_orchestration)
-else
-  orchestration_dir=${pwd}/<%= env.orchestration_dir_name %>
-endif
+
+orchestration_dir_name=<%= env.orchestration_dir_name %>
+orchestration_dir=${pwd}/<%= env.orchestration_dir_name %>
 
 ifdef env_file
   custom_env_file ?= 1
@@ -21,6 +19,7 @@ endif
 make=$(MAKE) $1
 orchestration_config_filename:=.orchestration.yml
 orchestration_config:=${pwd}/${orchestration_config_filename}
+echo=echo '${reset}[${blue}system${reset}] ${cyan}$1${reset}'
 print_error=printf '${red}\#${reset} '$1 | tee '${stderr}'
 println_error=$(call print_error,$1'\n')
 print=printf '${blue}\#${reset} '$1

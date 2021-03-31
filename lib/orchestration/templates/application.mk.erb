@@ -1,20 +1,36 @@
+include orchestration/Makefile
+
 #
 # Example test command
 #
-# This command will call `test-setup` before running your usual test pipeline.
+# Define your test tasks here. The default command runs RSpec and Rubocop but
+# you can feel free to add any other tasks you like.
 #
-# `test-setup` starts all containers specified in `docker-compose.test.yml`,
-# waits for them to be ready, and runs DB migrations.
+# Set up your test dependencies and run tests by calling: `make setup test`
 #
-# In your CI environment, simply run `make test`.
+# Subsequent test runs can skip the setup step and simply run: `make test`
 #
 .PHONY: test
-test: test-setup
+test:
 	bundle exec rspec
 	bundle exec rubocop
 
-# Start development containers and create/migrate/seed database
-.PHONY: develop
+#
+# Define any custom setup that needs to take place before running tests.
+# If the command exists, it will be called immediately after the `setup`
+# command (which starts containers and sets up the database).
+#
+# This command can be deleted if it is not needed.
+#
+.PHONY: post-setup
+post-setup:
+	# Setup tasks that are not already provided by Orchestration go here.
+
+#
+# Launch all dependencies needed for a development environment and set up the
+# development database.
+#
+.PHONY: setup
 develop:
 	bundle install
 	@$(MAKE) start env=test

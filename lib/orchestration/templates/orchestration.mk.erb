@@ -1,5 +1,6 @@
 ### Environment setup ###
 SHELL:=/bin/bash
+MAKE:=$(MAKE) --no-print-directory
 
 <%= macros %>
 
@@ -15,6 +16,10 @@ endif
 
 export
 
+ifneq (,$(findstring test,$(MAKECMDGOALS)))
+  env=test
+endif
+
 ifneq (,$(env))
   # `env` set by current shell.
 else ifneq (,$(RAILS_ENV))
@@ -28,7 +33,7 @@ endif
 DOCKER_TAG ?= latest
 
 ifneq (,$(wildcard ./Gemfile))
-  rake=RACK_ENV=${env} RAILS_ENV=${env} bundle exec rake
+  rake=DEVPACK_DISABLE=1 RACK_ENV=${env} RAILS_ENV=${env} bundle exec rake
 else
   rake=RACK_ENV=${env} RAILS_ENV=${env} rake
 endif
@@ -41,7 +46,7 @@ endif
 ifeq (,$(findstring serve,$(MAKECMDGOALS)))
 ifeq (,$(findstring console,$(MAKECMDGOALS)))
 ifeq (,$(findstring test,$(MAKECMDGOALS)))
-  docker_config:=$(shell RAILS_ENV=development bundle exec rake orchestration:config)
+  docker_config:=$(shell DEVPACK_DISABLE=1 RAILS_ENV=development bundle exec rake orchestration:config)
   docker_organization=$(word 1,$(docker_config))
   docker_repository=$(word 2,$(docker_config))
 endif
@@ -115,6 +120,7 @@ ifndef network
 start: network := ${compose_project_name}
 endif
 start: _create-log-directory _clean-logs
+	@$(call echo,'docker-compose -f ${orchestration_dir_name}/docker-compose.${env}.yml up --detach')
 	@$(call print,'${yellow}Starting ${cyan}${env}${yellow} containers${reset} ...')
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${fail}
@@ -197,22 +203,25 @@ console:
         fi
 	${rails} console
 
-.PHONY: test-setup
-test-setup: env := test
-test-setup:
-ifndef light
+.PHONY: setup
+setup:
 	@$(call make,start env=test)
-  ifneq (,$(wildcard config/database.yml))
-	${rake} db:create || :
-    ifneq (,$(wildcard db/structure.sql))
-	${rake} db:structure:load
-    else ifneq (,$(wildcard db/schema.rb))
-	${rake} db:schema:load
-    endif
-
-	${rake} db:migrate
+ifneq (,$(wildcard config/database.yml))
+	@$(call echo,'bundle exec rake db:create RAILS_ENV=${env}')
+	@${rake} db:create ${log} || : ${log}
+  ifneq (,$(wildcard db/structure.sql))
+	@$(call echo,'bundle exec rake db:structure:load RAILS_ENV=${env}')
+	@${rake} db:structure:load ${log} || ${fail}
+  else ifneq (,$(wildcard db/schema.rb))
+	@$(call echo,'bundle exec rake db:schema:load RAILS_ENV=${env}')
+	@${rake} db:schema:load ${log} || ${fail}
   endif
+	@$(call echo,'bundle exec rake db:migrate RAILS_ENV=${env}')
+	@${rake} db:migrate
 endif
+	@$(MAKE) -n post-setup >/dev/null 2>&1 \
+          && $(call echo,'make post-setup RAILS_ENV=${env}') \
+          && $(MAKE) post-setup RAILS_ENV=${env}
 
 .PHONY: dump
 dump:
@@ -371,7 +380,7 @@ push: _create-log-directory
 .PHONY: check-local-changes
 check-local-changes:
 ifndef dev
-	@if [[ ! -z "$$(git status --porcelain)" ]] ; \
+	@changes="$$(git status --porcelain)"; if [[ "${changes"} ! -z ]] && [[ "${changes}" != "?? orchestration/.sidecar" ]]; \
          then \
            $(call println,'${red}You have uncommitted changes which will not be included in your build:${reset}') ; \
            git status --porcelain ; \
