@@ -44,3 +44,11 @@ en:
       install: "Install Orchestration tools"
       install_makefile: "(Re)create orchestration/Makefile"
       wait: "Wait for development/test dependencies to be available"
+      db:
+        url: "Return the database URL for the current environment (RAILS_ENV)"
+        console: "Launch a database console for the current environment (RAILS_ENV)"
+
+    dbconsole:
+      postgresql: "PGPASSWORD='%<password>s' psql --username=%<username>s --host=%<host>s --port=%<port>s --dbname=%<database>s"
+      sqlite3: "sqlite3 %<database>s"
+      mysql2: "mysql --user=%<username>s --port=%<port>s --host=%<host>s --password=%<password>s --no-auto-rehash %<database>s"

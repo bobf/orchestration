@@ -5,6 +5,8 @@ module Orchestration
     module Database
       module Adapters
         class Postgresql
+          include AdapterBase
+
           def name
             'postgresql'
           end

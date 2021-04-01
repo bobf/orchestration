@@ -29,6 +29,31 @@ RSpec.describe Orchestration::Services::Database::Configuration do
 
   it { is_expected.to be_a described_class }
 
+  describe '#console_command' do
+    subject(:console_command) { configuration.console_command }
+
+    context 'sqlite3' do
+      let(:config_path) { fixture_path('sqlite3') }
+      it { is_expected.to eql 'sqlite3 db/test.sqlite3' }
+    end
+
+    context 'postgresql' do
+      let(:config_path) { fixture_path('postgresql') }
+      let(:expected) do
+        "PGPASSWORD='password' psql --username=postgres --host=localhost --port=5432 --dbname=test_db"
+      end
+      it { is_expected.to eql expected }
+    end
+
+    context 'mysql' do
+      let(:config_path) { fixture_path('mysql2') }
+      let(:expected) do
+        'mysql --user=root --port=3354 --host=127.0.0.1 --password=password --no-auto-rehash test_db'
+      end
+      it { is_expected.to eql expected }
+    end
+  end
+
   describe '#friendly_config' do
     subject(:friendly_config) { configuration.friendly_config }
 
@@ -44,7 +69,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
 
     context 'mysql' do
       let(:config_path) { fixture_path('mysql2') }
-      it { is_expected.to eql '[mysql2] mysql2://root:password@localhost:3354/test_db' }
+      it { is_expected.to eql '[mysql2] mysql2://root:password@127.0.0.1:3354/test_db' }
     end
   end
 
@@ -82,7 +107,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
       let(:config_path) { fixture_path('mysql2') }
 
       its(['adapter']) { is_expected.to eql 'mysql2' }
-      its(['host']) { is_expected.to eql 'localhost' }
+      its(['host']) { is_expected.to eql '127.0.0.1' }
       its(['database']) { is_expected.to eql 'test_db' }
       its(['username']) { is_expected.to eql 'root' }
       its(['password']) { is_expected.to eql 'password' }

@@ -33,6 +33,10 @@ module Orchestration
           sqlite? || super
         end
 
+        def console_command
+          adapter.console_command
+        end
+
         def adapter
           url_adapter = url_config['adapter']
           file_adapter = file_config['adapter']
@@ -115,7 +119,7 @@ module Orchestration
             'mysql' => adapters::Mysql2,
             'postgresql' => adapters::Postgresql,
             'sqlite3' => adapters::Sqlite3
-          }.fetch(name).new
+          }.fetch(name).new(self)
         rescue KeyError
           Orchestration.error('database.unknown_adapter', adapter: name.inspect)
           raise

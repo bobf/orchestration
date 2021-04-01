@@ -120,8 +120,7 @@ ifndef network
 start: network := ${compose_project_name}
 endif
 start: _create-log-directory _clean-logs
-	@$(call echo,'docker-compose -f ${orchestration_dir_name}/docker-compose.${env}.yml up --detach')
-	@$(call print,'${yellow}Starting ${cyan}${env}${yellow} containers${reset} ...')
+	@$(call system,'docker-compose -f ${orchestration_dir_name}/docker-compose.${env}.yml up --detach')
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${fail}
 	@[ -n '${sidecar}' ] && \
@@ -138,8 +137,8 @@ ifeq (${env},$(filter ${env},test development))
 else
 	@${compose} up --detach --scale app=$${instances:-1} ${log} || ${fail}
 endif
-	@$(call printrawln,' ${green}started${reset} ${tick}')
-	@$(call println,'${yellow}Waiting for services to become available${reset} ...')
+	@$(call echo,${cyan}${env}${reset} containers started ${tick})
+	@$(call echo,Waiting for services to become available)
 	@$(call make,wait) 2>${stderr} || ${fail}
 
 <% services.each do |service| %>
@@ -203,24 +202,29 @@ console:
         fi
 	${rails} console
 
+.PHONY: db-console
+db-console:
+	@${rake} orchestration:db:console RAILS_ENV=${env}
+
 .PHONY: setup
+setup: url = $(shell ${rake} orchestration:db:url RAILS_ENV=${env})
 setup:
-	@$(call make,start env=test)
+	@$(call make,start env=${env})
 ifneq (,$(wildcard config/database.yml))
-	@$(call echo,'bundle exec rake db:create RAILS_ENV=${env}')
-	@${rake} db:create ${log} || : ${log}
+	@$(call system,bundle exec rake db:create DATABASE_URL='${url}')
+	@${rake} db:create RAILS_ENV=${env} ${log} || : ${log}
   ifneq (,$(wildcard db/structure.sql))
-	@$(call echo,'bundle exec rake db:structure:load RAILS_ENV=${env}')
-	@${rake} db:structure:load ${log} || ${fail}
+	@$(call system,bundle exec rake db:structure:load DATABASE_URL='${url}')
+	@${rake} db:structure:load DATABASE_URL='${url}' ${log} || ${fail}
   else ifneq (,$(wildcard db/schema.rb))
-	@$(call echo,'bundle exec rake db:schema:load RAILS_ENV=${env}')
-	@${rake} db:schema:load ${log} || ${fail}
+	@$(call system,bundle exec rake db:schema:load DATABASE_URL='${url}')
+	@${rake} db:schema:load DATABASE_URL='${url}' ${log} || ${fail}
   endif
-	@$(call echo,'bundle exec rake db:migrate RAILS_ENV=${env}')
-	@${rake} db:migrate
+	@$(call system,bundle exec rake db:migrate DATABASE_URL='${url}')
+	@${rake} db:migrate RAILS_ENV=${env}
 endif
 	@$(MAKE) -n post-setup >/dev/null 2>&1 \
-          && $(call echo,'make post-setup RAILS_ENV=${env}') \
+          && $(call system,"make post-setup RAILS_ENV=${env}") \
           && $(MAKE) post-setup RAILS_ENV=${env}
 
 .PHONY: dump
@@ -319,7 +323,7 @@ endif
 .PHONY: wait
 wait:
 	@${rake} orchestration:wait
-	@$(call println,'${yellow}All services${reset} ${green}ready${reset}. ${tick}')
+	@$(call echo,${cyan}${env}${reset} services ${green}ready${reset} ${tick})
 
 ## Generic Listener healthcheck for TCP services ##
 

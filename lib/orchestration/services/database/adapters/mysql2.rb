@@ -5,6 +5,8 @@ module Orchestration
     module Database
       module Adapters
         class Mysql2
+          include AdapterBase
+
           def name
             'mysql2'
           end

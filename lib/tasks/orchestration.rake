@@ -21,6 +21,20 @@ namespace :orchestration do
     puts "#{config['docker']['organization']} #{config['docker']['repository']}"
   end
 
+  namespace :db do
+    desc I18n.t('orchestration.rake.db.url')
+    task :url do
+      puts DatabaseUrl.to_active_record_url(Rails.application.config_for(:database))
+    end
+
+    desc I18n.t('orchestration.rake.db.console')
+    task :console do
+      env = Orchestration::Environment.new
+      options = ENV['db'] ? { config_path: "config/database.#{ENV['db']}.yml" } : {}
+      sh Orchestration::Services::Database::Configuration.new(env, nil, options).console_command
+    end
+  end
+
   desc I18n.t('orchestration.rake.healthcheck')
   task :healthcheck do
     Orchestration::DockerHealthcheck.execute

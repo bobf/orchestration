@@ -5,6 +5,8 @@ module Orchestration
     module Database
       module Adapters
         class Sqlite3
+          include AdapterBase
+
           def name
             'sqlite3'
           end
