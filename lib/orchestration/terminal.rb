@@ -4,7 +4,6 @@ module Orchestration
   COLOR_MAP = {
     failure: %i[red bright],
     error: %i[red],
-    waiting: %i[yellow],
     ready: %i[green],
     create: %i[green],
     update: %i[yellow],
@@ -12,7 +11,9 @@ module Orchestration
     status: %i[blue],
     setup: %i[blue],
     input: %i[red],
-    skip: %i[yellow bright]
+    skip: %i[yellow bright],
+    waiting: %i[yellow],
+    config: %i[cyan]
   }.freeze
 
   class Terminal
@@ -20,7 +21,7 @@ module Orchestration
       @settings = settings
     end
 
-    def write(desc, message, color_name = nil, newline: true)
+    def write(desc, message = nil, color_name = nil, newline: true)
       output = newline ? "#{message}\n" : message.to_s
       $stdout.print colorize(desc, output, color_name)
       $stdout.flush

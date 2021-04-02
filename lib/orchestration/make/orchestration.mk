@@ -1,8 +1,96 @@
 ### Environment setup ###
 SHELL:=/bin/bash
-MAKE:=$(MAKE) --no-print-directory
+MAKE:=mkpath=${mkpath} make --no-print-directory
 
-<%= macros %>
+TERM ?= 'dumb'
+pwd:=$(shell pwd)
+
+orchestration_dir_name=orchestration
+orchestration_dir=orchestration
+
+ifdef env_file
+  custom_env_file ?= 1
+else
+  custom_env_file ?= 0
+endif
+
+ifneq (,$(wildcard ${pwd}/config/database.yml))
+  database_enabled = 1
+else
+  database_enabled = 0
+endif
+
+make=$(MAKE) $1
+orchestration_config_filename:=.orchestration.yml
+orchestration_config:=${pwd}/${orchestration_config_filename}
+system_prefix=${reset}[${cyan}exec${reset}]
+warn_prefix=${reset}[${yellow}warn${reset}]
+echo_prefix=${reset}[${blue}info${reset}]
+system=echo ${system_prefix} ${cyan}$1${reset}
+warn=echo ${warn_prefix} ${reset}$1${reset}
+echo=echo ${echo_prefix} ${reset}$1${reset}
+print_error=printf '${red}\#${reset} '$1 | tee '${stderr}'
+println_error=$(call print_error,$1'\n')
+print=printf '${blue}\#${reset} '$1
+println=$(call print,$1'\n')
+printraw=printf $1
+stdout=${pwd}/log/orchestration.stdout.log
+stderr=${pwd}/log/orchestration.stderr.log
+log_path_length=$(shell echo "${stdout}" | wc -c)
+ifndef verbose
+log_tee:= 2>&1 | tee -a ${stdout}
+log:= >>${stdout} 2>>${stderr}
+progress_point:=perl -e 'while( my $$line = <STDIN> ) { printf("."); select()->flush(); }'
+log_progress:= > >(tee -ai ${stdout} >&1 | ${progress_point}) 2> >(tee -ai ${stderr} 2>&1 | ${progress_point})
+endif
+red:=$(shell tput setaf 1)
+green:=$(shell tput setaf 2)
+yellow:=$(shell tput setaf 3)
+blue:=$(shell tput setaf 4)
+magenta:=$(shell tput setaf 5)
+cyan:=$(shell tput setaf 6)
+gray:=$(shell tput setaf 7)
+reset:=$(shell tput sgr0)
+tick=[${green}✓${reset}]
+cross=[${red}✘${reset}]
+hr=$(call println,"$1$(shell head -c ${log_path_length} < /dev/zero | tr '\0' '=')${reset}")
+managed_env_tag:=\# -|- ORCHESTRATION
+standard_env_path:=${pwd}/.env
+backup_env_path:=${pwd}/.env.orchestration.backup
+is_managed_env:=$$(test -f '${standard_env_path}' && tail -n 1 '${standard_env_path}') == "${managed_env_tag}"*
+token:=$(shell cat /dev/urandom | LC_CTYPE=C tr -dc 'a-z0-9' | fold -w8 | head -n1)
+back_up_env:=( \
+               [ ! -f '${standard_env_path}' ] \
+             || \
+               ( \
+                 [ -f '${standard_env_path}' ] \
+                 && cp '${standard_env_path}' '${backup_env_path}' \
+               ) \
+             )
+
+key_chars:=[a-zA-Z0-9_]
+censored:=**********
+censor=s/\(^${key_chars}*$(1)${key_chars}*\)=\(.*\)$$/\1=${censored}/
+censor_urls:=s|\([a-zA-Z0-9_+]\+://.*:\).*\(@.*\)$$|\1${censored}\2|
+format_env:=sed '$(call censor,SECRET); \
+                 $(call censor,TOKEN); \
+                 $(call censor,PRIVATE); \
+                 $(call censor,KEY); \
+                 $(censor_urls); \
+                 /^\s*$$/d; \
+                 /^\s*\#/d; \
+                 s/\(^[a-zA-Z0-9_]\+\)=/${blue}\1${reset}=/; \
+                 s/^/  /; \
+                 s/=\(.*\)$$/=${yellow}\1${reset}/' | \
+            sort
+
+fail=( \
+       $(call printraw,' ${cross}') ; \
+       $(call make,dump) ; \
+       echo ; \
+       $(call println,'Failed. ${cross}') ; \
+       exit 1 \
+    )
 
 ifdef env_file
   -include ${env_file}
@@ -30,6 +118,7 @@ else
   env=development
 endif
 
+printenv=${gray}${env}${reset}
 DOCKER_TAG ?= latest
 
 ifneq (,$(wildcard ./Gemfile))
@@ -105,6 +194,7 @@ endif
 docker_image=${docker_organization}/${docker_repository}:${git_version}
 
 compose=${compose_base}
+printcompose=docker-compose -f ${orchestration_dir_name}/docker-compose.${env}.yml
 random_str=cat /dev/urandom | LC_ALL=C tr -dc 'a-z' | head -c $1
 
 ifneq (,$(wildcard ${orchestration_dir}/docker-compose.local.yml))
@@ -120,38 +210,32 @@ ifndef network
 start: network := ${compose_project_name}
 endif
 start: _create-log-directory _clean-logs
-	@$(call system,'docker-compose -f ${orchestration_dir_name}/docker-compose.${env}.yml up --detach')
+	@$(call system,${printcompose} up --detach)
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${fail}
 	@[ -n '${sidecar}' ] && \
          ( \
-           $(call printraw,' ${yellow}(joining dependency network ${green}${network}${yellow})${reset} ... ') ; \
+           $(call echo,(joining dependency network ${cyan}${network}${reset}) ; \
+           $(call system,docker network connect '${network}') ; \
            docker network connect '${network}' '$(shell hostname)' ${log} \
            || ( \
-           $(call println,'') ; \
-           $(call println,'${yellow}Warning${reset}: Unable to join network: "${yellow}${network}${reset}". Container will not be able to connect to dependency services.') ; \
-           $(call print,'You may need to delete "${yellow}orchestration/.sidecar${reset}" to disable sidecar mode if this file was added by mistake.\n...') ; \
+           $(call warn,Unable to join network: "${cyan}${network}${reset}". Container will not be able to connect to dependency services) ; \
+           $(call info,Try deleting "${cyan}orchestration/.sidecar${reset}" if you do not want to use sidecar mode) ; \
            ) \
          ) \
          || ( [ -z '${sidecar}' ] || ${fail} )
 else
 	@${compose} up --detach --scale app=$${instances:-1} ${log} || ${fail}
 endif
-	@$(call echo,${cyan}${env}${reset} containers started ${tick})
+	@$(call echo,${printenv} containers started ${tick})
 	@$(call echo,Waiting for services to become available)
 	@$(call make,wait) 2>${stderr} || ${fail}
-
-<% services.each do |service| %>
-.PHONY: start-<%= service %>
-start-<%= service %>:
-	@$(call make,start services='<%= service %>')
-
-<% end %>
 
 .PHONY: stop
 stop: network := ${compose_project_name}
 stop:
-	@$(call print,'${yellow}Stopping ${cyan}${env}${yellow} containers${reset} ...')
+	@$(call echo,Stopping ${printenv} containers)
+	@$(call system,${printcompose} down)
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
           then \
             ( docker network disconnect ${network} $(shell hostname) ${log} || : ) \
@@ -160,7 +244,7 @@ stop:
           else \
             ${compose} down ${log} || ${fail} ; \
           fi
-	@$(call printrawln,' ${green}stopped${reset}. ${tick}')
+	@$(call echo,${printenv} containers stopped ${tick})
 
 .PHONY: logs
 logs:
@@ -182,9 +266,8 @@ serve: rails = RAILS_ENV='${env}' bundle exec rails server ${server}
 serve:
 	@if [ -f "${env_file}" ] ; \
          then ( \
-                $(call println,'${yellow}Environment${reset}: ${green}${env_file}${reset}') && \
-                cat '${env_file}' | ${format_env} && \
-                $(call printrawln,'') \
+                $(call echo,Environment${reset}: ${cyan}${env_file}${reset}) && \
+                cat '${env_file}' | ${format_env} \
             ) ; \
         fi
 	${rails}
@@ -195,9 +278,8 @@ console: rails = RAILS_ENV='${env}' bundle exec rails
 console:
 	@if [ -f "${env_file}" ] ; \
          then ( \
-                $(call println,'${yellow}Environment${reset}: ${green}${env_file}${reset}') && \
-                cat '${env_file}' | ${format_env} && \
-                $(call printrawln,'') \
+                $(call echo,Environment${reset}: ${cyan}${env_file}${reset}') && \
+                cat '${env_file}' | ${format_env} \
             ) ; \
         fi
 	${rails} console
@@ -209,23 +291,26 @@ db-console:
 .PHONY: setup
 setup: url = $(shell ${rake} orchestration:db:url RAILS_ENV=${env})
 setup:
+	@$(call echo,Setting up ${printenv} environment)
 	@$(call make,start env=${env})
 ifneq (,$(wildcard config/database.yml))
-	@$(call system,bundle exec rake db:create DATABASE_URL='${url}')
+	@$(call echo,Preparing ${printenv} database)
+	@$(call system,rake db:create DATABASE_URL='${url}')
 	@${rake} db:create RAILS_ENV=${env} ${log} || : ${log}
   ifneq (,$(wildcard db/structure.sql))
-	@$(call system,bundle exec rake db:structure:load DATABASE_URL='${url}')
+	@$(call system,rake db:structure:load DATABASE_URL='${url}')
 	@${rake} db:structure:load DATABASE_URL='${url}' ${log} || ${fail}
   else ifneq (,$(wildcard db/schema.rb))
-	@$(call system,bundle exec rake db:schema:load DATABASE_URL='${url}')
+	@$(call system,rake db:schema:load DATABASE_URL='${url}')
 	@${rake} db:schema:load DATABASE_URL='${url}' ${log} || ${fail}
   endif
-	@$(call system,bundle exec rake db:migrate DATABASE_URL='${url}')
+	@$(call system,rake db:migrate DATABASE_URL='${url}')
 	@${rake} db:migrate RAILS_ENV=${env}
 endif
 	@$(MAKE) -n post-setup >/dev/null 2>&1 \
-          && $(call system,"make post-setup RAILS_ENV=${env}") \
+          && $(call system,make post-setup RAILS_ENV=${env}) \
           && $(MAKE) post-setup RAILS_ENV=${env}
+	@$(call echo,${printenv} environment setup complete ${tick})
 
 .PHONY: dump
 dump:
@@ -276,35 +361,23 @@ deploy: RACK_ENV := ${env}
 deploy: DOCKER_TAG = ${git_version}
 deploy: base_vars = DOCKER_ORGANIZATION=${docker_organization} DOCKER_REPOSITORY=${docker_repository} DOCKER_TAG=${git_version}
 deploy: compose_deploy := ${base_vars} COMPOSE_PROJECT_NAME=${project_base} HOST_UID=$(shell id -u) docker-compose ${env_file_option} --project-name ${project_base} -f orchestration/docker-compose.production.yml
-deploy: compose_config := ${compose_deploy} config
-deploy: deploy_cmd := echo "$${config}" | ssh "${manager}" "/bin/bash -lc 'cat | docker stack deploy --prune --with-registry-auth -c - ${project_base}'"
-deploy: out_of_sequence_error := rpc error: code = Unknown desc = update out of sequence
-deploy: retry_message := ${yellow}Detected Docker RPC error: ${red}${out_of_sequence_error}${yellow}. Retrying in
+deploy: deploy_cmd := ${compose_deploy} config | ssh "${manager}" "/bin/bash -lc 'cat | docker stack deploy --prune --with-registry-auth -c - ${project_base}'"
 deploy:
 ifndef manager
-	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`') ; exit 1
+	@$(call fail,Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`) ; exit 1
 endif
-	@$(call println,'${yellow}Deploying ${green}${env} ${yellow}stack via ${green}${manager} ${yellow}as ${green}${project_base}${reset} ...') && \
+	@$(call echo,Deploying ${printenv} stack via ${cyan}${manager}${reset} as ${cyan}${project_base}${reset}) && \
           ( \
-             $(call println,'${yellow}Deployment environment${reset}:') && \
+             $(call echo,Deployment environment:) && \
              ( test -f '${env_file}' && cat '${env_file}' | ${format_env} || : ) && \
-             $(call println,'') && \
-             $(call println,'${yellow}Application image${reset}: ${cyan}${docker_image}${reset}') && \
-             export config="$$(${compose_config} 2>${stderr})" ; \
-             config_exit_code=$$? ; \
-             if [[ "$${config_exit_code}" != "0" ]]; then exit ${config_exit_code}; fi ; \
-             output="$$(${deploy_cmd} | tee)" ; \
-             deploy_exit_code=$$? ; \
+             $(call echo,Application image: ${cyan}${docker_image}${reset}) ; \
+	     $(call system,${deploy_cmd}) ; \
+	     ${deploy_cmd} ; \
              if [[ "$${deploy_exit_code}" == 0 ]] ; then exit 0 ; fi ; \
-             if ! echo "$${output}" | grep -q '${out_of_sequence_error}' ; then exit ${deploy_exit_code} ; fi ; \
-             retry_in="$$(( 10 + RANDOM % 50 ))" ; \
-             echo "${retry_message} ${green}$${retry_in} ${yellow}seconds.${reset}" ; \
-             sleep "$${retry_in}" ; \
-             ${deploy_cmd} \
           ) \
           || ${fail}
 
-	@$(call println,'${yellow}Deployment${reset} ${green}complete${reset}. ${tick}')
+	@$(call echo,Deployment ${green}complete${reset} ${tick})
 
 .PHONY: rollback
 ifndef service
@@ -312,18 +385,20 @@ rollback: service = app
 endif
 rollback:
 ifndef manager
-	@$(call println_error,'Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`') ; exit 1
+	@$(call fail,Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`)
+	@exit 1
 endif
-	@$(call println,'${yellow}Rolling back${reset} ${green}${compose_project_name}_${service}${reset} ${yellow}via${reset} ${green}${manager}${reset} ...')
+	@$(call echo,Rolling back ${cyan}${compose_project_name}_${service}${reset} via ${cyan}${manager}${reset} ...)
+	@$(call system,docker service rollback --detach "${compose_project_name}_${service}")
 	@ssh "${manager}" 'docker service rollback --detach "${compose_project_name}_${service}"' ${log} || ${fail}
-	@$(call println,'${yellow}Rollback request${reset} ${green}complete${reset}. ${tick}')
+	@$(call echo,Rollback request ${green}complete${reset} ${tick})
 
 ### Service healthcheck commands ###
 
 .PHONY: wait
 wait:
 	@${rake} orchestration:wait
-	@$(call echo,${cyan}${env}${reset} services ${green}ready${reset} ${tick})
+	@$(call echo,${printenv} services ${green}ready${reset} ${tick})
 
 ## Generic Listener healthcheck for TCP services ##
 
@@ -335,60 +410,61 @@ wait-listener:
 .PHONY: build
 build: build_dir = ${orchestration_dir}/.build
 build: context = ${build_dir}/context.tar
+build: build_args := --build-arg GIT_COMMIT='${git_version}'
+ifdef BUNDLE_GITHUB__COM
+build: build_args := ${build_args} --build-arg BUNDLE_GITHUB__COM
+endif
+ifdef BUNDLE_BITBUCKET__ORG
+build: build_args := ${build_args} --build-arg BUNDLE_BITBUCKET__ORG
+endif
 build: _create-log-directory check-local-changes
-	@$(call print,'${yellow}Preparing build context from${reset} ${cyan}${git_branch}:${git_version}${reset} ... ')
+	@$(call echo,Preparing build context from ${cyan}${git_branch}:${git_version}${reset})
+	@$(call system,git archive --format 'tar' -o '${context}' '${git_branch}')
 	@mkdir -p ${orchestration_dir}/.build ${log} || ${fail}
 ifndef dev
 	@git show ${git_branch}:./Gemfile > ${orchestration_dir}/.build/Gemfile 2>${stderr} || ${fail}
 	@git show ${git_branch}:./Gemfile.lock > ${orchestration_dir}/.build/Gemfile.lock 2>${stderr} || ${fail}
-<% if defined?(Webpacker) %>	@git show ${git_branch}:./package.json > ${orchestration_dir}/.build/package.json 2>${stderr} || ${fail}<% end %>
-<% if defined?(Webpacker) %>	@git show ${git_branch}:./yarn.lock > ${orchestration_dir}/.build/yarn.lock 2>${stderr} || ${fail}<% end %>
 	@git archive --format 'tar' -o '${context}' '${git_branch}' ${log} || ${fail}
 else
 	@tar -cvf '${context}' . ${log} || ${fail}
 endif
-	@$(call printrawln,'${green}complete.${reset} ${tick}')
 ifdef include
-	@$(call print,'${yellow}Including files from:${reset} ${cyan}${include}${reset} ...')
+	@$(call echo,Including files from: ${cyan}${include}${reset})
 	@(while read line; do \
+	    _system () { ${system_prefix} $$1 }
             export line; \
             include_dir="${build_dir}/$$(dirname "$${line}")/" && \
             mkdir -p "$${include_dir}" && cp "$${line}" "$${include_dir}" \
             && (cd '${orchestration_dir}/.build/' && tar rf 'context.tar' "$${line}"); \
+	    _system "tar rf 'context.tar' '$${line}'")
           done < '${include}') ${log} || ${fail}
-	@$(call printrawln,' ${green}complete.${reset} ${tick}')
+	@$(call echo,Build context ${green}ready${reset} ${tick})
 endif
-ifdef sidecar
-        # Assume we are in a line-buffered environment (e.g. Jenkins)
-	@$(call println,'${yellow}Building image${reset} ...')
-else
-	@$(call print,'${yellow}Building image${reset} ...')
-endif
-	@docker build \
-                        --build-arg BUNDLE_GITHUB__COM \
-                        --build-arg BUNDLE_BITBUCKET__ORG \
-                        --build-arg GIT_COMMIT='${git_version}' \
+	@$(call echo,Building image)
+	@$(call system,docker build ${build_args} -t ${docker_organization}/${docker_repository}:${git_version} ${orchestration_dir}/) \
+	@docker build ${build_args}
                         -t ${docker_organization}/${docker_repository} \
                         -t ${docker_organization}/${docker_repository}:${git_version} \
                         ${orchestration_dir}/ ${log_progress} || ${fail}
-	@$(call printrawln,' ${green}complete${reset}. ${tick}')
-	@$(call println,'[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}${reset}')
-	@$(call println,'[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset}')
+	@$(call echo,Docker image build ${green}complete${reset} ${tick})
+	@$(call echo,[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}${reset})
+	@$(call echo,[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset})
 
 .PHONY: push
 push: _create-log-directory
-	@$(call print,'${yellow}Pushing${reset} ${cyan}${docker_image}${reset} ...')
+	@$(call echo,Pushing ${cyan}${docker_image}${reset} to Docker Hub)
+	@$(call system,docker push ${docker_image})
 	@docker push ${docker_image} ${log_progress} || ${fail}
-	@$(call printrawln,' ${green}complete${reset}. ${tick}')
+	@$(call echo,Push ${green}complete${reset} ${tick})
 
 .PHONY: check-local-changes
 check-local-changes:
 ifndef dev
-	@changes="$$(git status --porcelain)"; if [[ "${changes"} ! -z ]] && [[ "${changes}" != "?? orchestration/.sidecar" ]]; \
+	@changes="$$(git status --porcelain)"; if [[ "${changes}" ! -z ]] && [[ "${changes}" != "?? orchestration/.sidecar" ]]; \
          then \
-           $(call println,'${red}You have uncommitted changes which will not be included in your build:${reset}') ; \
+           $(call warn,You have uncommitted changes which will not be included in your build:) ; \
            git status --porcelain ; \
-           $(call println,'${yellow}Use ${cyan}make build dev=1${reset} ${yellow}to include these files.${reset}\n') ; \
+           $(call echo,Commit these changes to Git or, alternatively, build in development mode to test your changes before committing: ${cyan}make build dev=1${reset}) ; \
          fi
 endif
 
@@ -402,3 +478,8 @@ _clean-logs:
 .PHONY: _create-log-directory
 _create-log-directory:
 	@mkdir -p log
+
+# Used by Orchestration test suite to verify Makefile syntax
+.PHONY: _test
+_test:
+	@echo 'test command'

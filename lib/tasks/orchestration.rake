@@ -8,11 +8,9 @@ namespace :orchestration do
     Orchestration::InstallGenerator.start
   end
 
-  namespace :install do
-    desc I18n.t('orchestration.rake.install_makefile')
-    task :makefile do
-      Orchestration::InstallGenerator.new.orchestration_makefile
-    end
+  desc I18n.t('orchestration.makefile')
+  task :makefile do
+    Orchestration.makefile
   end
 
   desc I18n.t('orchestration.rake.config')
@@ -42,7 +40,6 @@ namespace :orchestration do
 
   desc I18n.t('orchestration.rake.wait')
   task :wait do
-    Orchestration::InstallGenerator.new.verify_makefile(skip: false)
     env = Orchestration::Environment.new
     services = Orchestration::Services
     env.docker_compose_config['services'].each do |name, _service|

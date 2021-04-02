@@ -27,30 +27,10 @@ module Orchestration
       @terminal.write(:skip, relpath)
     end
 
-    def verify_makefile(skip: true)
-      # Only run when called explicitly [from Rake tasks].
-      # (I know this is hacky).
-      return if skip
-
-      content = template('orchestration.mk', makefile_environment)
-      path = @env.orchestration_root.join('Makefile')
-      return if path.exist? && content == File.read(path)
-
-      write_file(path, content)
-      @terminal.write(:update, 'Makefile')
-      @terminal.write(:status, t(:auto_update))
-    end
-
     def application_makefile
       path = @env.root.join('Makefile')
       simple_copy('application.mk', path) unless File.exist?(path)
       inject_if_missing(path, 'include orchestration/Makefile')
-    end
-
-    def orchestration_makefile
-      content = template('orchestration.mk', makefile_environment)
-      path = @env.orchestration_root.join('Makefile')
-      path.exist? ? update_file(path, content) : create_file(path, content)
     end
 
     def dockerfile
@@ -131,12 +111,6 @@ module Orchestration
 
     def t(key)
       I18n.t("orchestration.#{key}")
-    end
-
-    def makefile_environment
-      macros = template('makefile_macros.mk', env: @env)
-
-      { env: @env, services: enabled_services, macros: macros }
     end
 
     def enabled_services

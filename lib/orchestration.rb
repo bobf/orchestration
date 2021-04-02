@@ -36,6 +36,10 @@ module Orchestration
     Pathname.new(File.dirname(__dir__))
   end
 
+  def self.makefile
+    root.join('lib', 'orchestration', 'make', 'orchestration.mk')
+  end
+
   def self.rakefile
     root.join('lib', 'Rakefile')
   end

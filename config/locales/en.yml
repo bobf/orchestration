@@ -1,32 +1,20 @@
 en:
   orchestration:
-    attempt_limit: "Unable to reconnect after %{limit} attempts. Aborting."
+    attempt_limit: "Unable to connect after %{limit} attempts. Aborting."
     default: "default"
     auto_update: "Orchestration Makefile was automatically updated to the latest version."
+    service:
+      ready: "%{service} is ready"
 
     app:
-      waiting: "Waiting for app: %{config}"
-      ready: "App is ready."
       connection_error: "Error attempting to connect to app: received status code %{code}"
 
     database:
-      waiting: "Waiting for database: %{config}"
-      ready: "Database is ready."
       unknown_environment: "Environment not defined in database configuration: %{environment}"
       unknown_adapter: "Unable to determine adapter from database.yml: %{adapter}"
 
     mongo:
-      waiting: "Waiting for Mongo: %{config}"
-      ready: "Mongo is ready."
       bad_config: "Unable to parse Mongo config: %{path}. Expected section for one of: %{expected}"
-
-    rabbitmq:
-      waiting: "Waiting for RabbitMQ: %{config}"
-      ready: "RabbitMQ is ready."
-
-    custom_service:
-      waiting: "Waiting for [%{service}]: %{config}"
-      ready: "[%{service}] is ready."
 
     settings:
       docker:

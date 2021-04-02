@@ -32,6 +32,7 @@ module Orchestration
       true
     rescue *@service.connection_errors => e
       @attempts += 1
+      @last_error = e
       sleep @retry_interval
       retry unless @attempts == @attempt_limit
       echo_error(e)
@@ -39,28 +40,19 @@ module Orchestration
       false
     end
 
+    def last_error
+      return nil if @last_error.nil?
+
+      "(#{@last_error&.cause&.class&.name || @last_error&.class&.name})"
+    end
+
     def echo_start
       @terminal.write(@service_name.to_sym, '', :status)
+      @terminal.write(:config, friendly_config)
     end
 
     def echo_waiting
-      @terminal.write(:waiting, service_waiting)
-    end
-
-    def service_waiting
-      I18n.t(
-        "orchestration.#{@service_name}.waiting",
-        config: friendly_config,
-        default: default_waiting
-      )
-    end
-
-    def default_waiting
-      I18n.t(
-        'orchestration.custom_service.waiting',
-        config: friendly_config,
-        service: @service_name
-      )
+      @terminal.write(:waiting, last_error)
     end
 
     def echo_ready
@@ -68,30 +60,16 @@ module Orchestration
     end
 
     def service_ready
-      I18n.t(
-        "orchestration.#{@service_name}.ready",
-        config: friendly_config,
-        default: default_ready
-      )
-    end
-
-    def default_ready
-      I18n.t(
-        'orchestration.custom_service.ready',
-        config: friendly_config,
-        service: @service_name
-      )
+      I18n.t('orchestration.service.ready', service: @service_name)
     end
 
     def echo_failure
-      @terminal.write(
-        :failure,
-        I18n.t('orchestration.attempt_limit', limit: @attempt_limit)
-      )
+      @terminal.write(:failure, I18n.t('orchestration.attempt_limit', limit: @attempt_limit))
     end
 
     def echo_error(error)
-      @terminal.write(:error, "[#{error.class.name}] #{error.message}")
+      cause = error.cause.nil? ? error : error.cause
+      @terminal.write(:error, "[#{cause.class.name}] #{cause.message}")
     end
 
     def friendly_config
