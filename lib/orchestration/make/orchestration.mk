@@ -26,9 +26,9 @@ orchestration_config:=${pwd}/${orchestration_config_filename}
 system_prefix=${reset}[${cyan}exec${reset}]
 warn_prefix=${reset}[${yellow}warn${reset}]
 echo_prefix=${reset}[${blue}info${reset}]
-system=echo ${system_prefix} ${cyan}$1${reset}
-warn=echo ${warn_prefix} ${reset}$1${reset}
-echo=echo ${echo_prefix} ${reset}$1${reset}
+system=echo '${system_prefix} ${cyan}$1${reset}'
+warn=echo '${warn_prefix} ${reset}$1${reset}'
+echo=echo '${echo_prefix} ${reset}$1${reset}'
 print_error=printf '${red}\#${reset} '$1 | tee '${stderr}'
 println_error=$(call print_error,$1'\n')
 print=printf '${blue}\#${reset} '$1
@@ -215,12 +215,12 @@ ifeq (${env},$(filter ${env},test development))
 	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${fail}
 	@[ -n '${sidecar}' ] && \
          ( \
-           $(call echo,(joining dependency network ${cyan}${network}${reset}) ; \
-           $(call system,docker network connect '${network}') ; \
+           $(call echo,(joining dependency network ${cyan}${network}${reset})) ; \
+           $(call system,docker network connect "${network}") ; \
            docker network connect '${network}' '$(shell hostname)' ${log} \
            || ( \
            $(call warn,Unable to join network: "${cyan}${network}${reset}". Container will not be able to connect to dependency services) ; \
-           $(call info,Try deleting "${cyan}orchestration/.sidecar${reset}" if you do not want to use sidecar mode) ; \
+           $(call echo,Try deleting "${cyan}orchestration/.sidecar${reset}" if you do not want to use sidecar mode) ; \
            ) \
          ) \
          || ( [ -z '${sidecar}' ] || ${fail} )
@@ -278,7 +278,7 @@ console: rails = RAILS_ENV='${env}' bundle exec rails
 console:
 	@if [ -f "${env_file}" ] ; \
          then ( \
-                $(call echo,Environment${reset}: ${cyan}${env_file}${reset}') && \
+                $(call echo,Environment${reset}: ${cyan}${env_file}${reset}) && \
                 cat '${env_file}' | ${format_env} \
             ) ; \
         fi
@@ -295,16 +295,16 @@ setup:
 	@$(call make,start env=${env})
 ifneq (,$(wildcard config/database.yml))
 	@$(call echo,Preparing ${printenv} database)
-	@$(call system,rake db:create DATABASE_URL='${url}')
+	@$(call system,rake db:create DATABASE_URL="${url}")
 	@${rake} db:create RAILS_ENV=${env} ${log} || : ${log}
   ifneq (,$(wildcard db/structure.sql))
-	@$(call system,rake db:structure:load DATABASE_URL='${url}')
+	@$(call system,rake db:structure:load DATABASE_URL="${url}")
 	@${rake} db:structure:load DATABASE_URL='${url}' ${log} || ${fail}
   else ifneq (,$(wildcard db/schema.rb))
-	@$(call system,rake db:schema:load DATABASE_URL='${url}')
+	@$(call system,rake db:schema:load DATABASE_URL="${url}")
 	@${rake} db:schema:load DATABASE_URL='${url}' ${log} || ${fail}
   endif
-	@$(call system,rake db:migrate DATABASE_URL='${url}')
+	@$(call system,rake db:migrate DATABASE_URL="${url}")
 	@${rake} db:migrate RAILS_ENV=${env}
 endif
 	@$(MAKE) -n post-setup >/dev/null 2>&1 \
@@ -419,7 +419,7 @@ build: build_args := ${build_args} --build-arg BUNDLE_BITBUCKET__ORG
 endif
 build: _create-log-directory check-local-changes
 	@$(call echo,Preparing build context from ${cyan}${git_branch}:${git_version}${reset})
-	@$(call system,git archive --format 'tar' -o '${context}' '${git_branch}')
+	@$(call system,git archive --format "tar" -o "${context}" "${git_branch}")
 	@mkdir -p ${orchestration_dir}/.build ${log} || ${fail}
 ifndef dev
 	@git show ${git_branch}:./Gemfile > ${orchestration_dir}/.build/Gemfile 2>${stderr} || ${fail}
@@ -431,7 +431,7 @@ endif
 ifdef include
 	@$(call echo,Including files from: ${cyan}${include}${reset})
 	@(while read line; do \
-	    _system () { ${system_prefix} $$1 }
+	    _system () { echo '${system_prefix}' $$1 }
             export line; \
             include_dir="${build_dir}/$$(dirname "$${line}")/" && \
             mkdir -p "$${include_dir}" && cp "$${line}" "$${include_dir}" \
@@ -442,7 +442,7 @@ ifdef include
 endif
 	@$(call echo,Building image)
 	@$(call system,docker build ${build_args} -t ${docker_organization}/${docker_repository}:${git_version} ${orchestration_dir}/) \
-	@docker build ${build_args}
+	@docker build ${build_args} \
                         -t ${docker_organization}/${docker_repository} \
                         -t ${docker_organization}/${docker_repository}:${git_version} \
                         ${orchestration_dir}/ ${log_progress} || ${fail}
