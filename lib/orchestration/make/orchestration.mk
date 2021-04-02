@@ -86,7 +86,7 @@ format_env:=sed '$(call censor,SECRET); \
 
 fail=( \
        $(call printraw,' ${cross}') ; \
-       $(call make,dump) ; \
+       $(call make,dump src_cmd=$(MAKECMDGOALS)) ; \
        echo ; \
        $(call println,'Failed. ${cross}') ; \
        exit 1 \
@@ -118,7 +118,7 @@ else
   env=development
 endif
 
-printenv=${gray}${env}${reset}
+env_human=${gray}${env}${reset}
 DOCKER_TAG ?= latest
 
 ifneq (,$(wildcard ./Gemfile))
@@ -194,7 +194,7 @@ endif
 docker_image=${docker_organization}/${docker_repository}:${git_version}
 
 compose=${compose_base}
-printcompose=docker-compose -f ${orchestration_dir_name}/docker-compose.${env}.yml
+compose_human=docker-compose -f ${orchestration_dir_name}/docker-compose.${env}.yml
 random_str=cat /dev/urandom | LC_ALL=C tr -dc 'a-z' | head -c $1
 
 ifneq (,$(wildcard ${orchestration_dir}/docker-compose.local.yml))
@@ -210,7 +210,7 @@ ifndef network
 start: network := ${compose_project_name}
 endif
 start: _create-log-directory _clean-logs
-	@$(call system,${printcompose} up --detach)
+	@$(call system,${compose_human} up --detach)
 ifeq (${env},$(filter ${env},test development))
 	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${fail}
 	@[ -n '${sidecar}' ] && \
@@ -227,15 +227,15 @@ ifeq (${env},$(filter ${env},test development))
 else
 	@${compose} up --detach --scale app=$${instances:-1} ${log} || ${fail}
 endif
-	@$(call echo,${printenv} containers started ${tick})
+	@$(call echo,${env_human} containers started ${tick})
 	@$(call echo,Waiting for services to become available)
 	@$(call make,wait) 2>${stderr} || ${fail}
 
 .PHONY: stop
 stop: network := ${compose_project_name}
 stop:
-	@$(call echo,Stopping ${printenv} containers)
-	@$(call system,${printcompose} down)
+	@$(call echo,Stopping ${env_human} containers)
+	@$(call system,${compose_human} down)
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
           then \
             ( docker network disconnect ${network} $(shell hostname) ${log} || : ) \
@@ -244,7 +244,7 @@ stop:
           else \
             ${compose} down ${log} || ${fail} ; \
           fi
-	@$(call echo,${printenv} containers stopped ${tick})
+	@$(call echo,${env_human} containers stopped ${tick})
 
 .PHONY: logs
 logs:
@@ -291,10 +291,10 @@ db-console:
 .PHONY: setup
 setup: url = $(shell ${rake} orchestration:db:url RAILS_ENV=${env})
 setup:
-	@$(call echo,Setting up ${printenv} environment)
+	@$(call echo,Setting up ${env_human} environment)
 	@$(call make,start env=${env})
 ifneq (,$(wildcard config/database.yml))
-	@$(call echo,Preparing ${printenv} database)
+	@$(call echo,Preparing ${env_human} database)
 	@$(call system,rake db:create DATABASE_URL="${url}")
 	@${rake} db:create RAILS_ENV=${env} ${log} || : ${log}
   ifneq (,$(wildcard db/structure.sql))
@@ -310,7 +310,7 @@ endif
 	@$(MAKE) -n post-setup >/dev/null 2>&1 \
           && $(call system,make post-setup RAILS_ENV=${env}) \
           && $(MAKE) post-setup RAILS_ENV=${env}
-	@$(call echo,${printenv} environment setup complete ${tick})
+	@$(call echo,${env_human} environment setup complete ${tick})
 
 .PHONY: dump
 dump:
@@ -336,6 +336,8 @@ ifndef verbose
           $(call hr,${red}) ; \
         )
 endif
+ifeq (,$(findstring build,${src_cmd}))
+ifeq (,$(findstring push,${src_cmd}))
 	@echo ; \
         $(call hr,${yellow}) ; \
         $(call println,'${gray}docker-compose logs${reset}') ; \
@@ -345,15 +347,18 @@ endif
 	@echo ; \
         $(call hr,${yellow})
 	@$(NOOP)
+endif
+endif
 
-.PHONY: image
-image:
+.PHONY: tag
+tag:
 	@echo ${docker_image}
 
 ### Deployment utility commands ###
 
 .PHONY: deploy
 ifdef env_file
+push: _clean-logs
 deploy: env_file_option = --env-file ${env_file}
 endif
 deploy: RAILS_ENV := ${env}
@@ -366,7 +371,7 @@ deploy:
 ifndef manager
 	@$(call fail,Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`) ; exit 1
 endif
-	@$(call echo,Deploying ${printenv} stack via ${cyan}${manager}${reset} as ${cyan}${project_base}${reset}) && \
+	@$(call echo,Deploying ${env_human} stack via ${cyan}${manager}${reset} as ${cyan}${project_base}${reset}) && \
           ( \
              $(call echo,Deployment environment:) && \
              ( test -f '${env_file}' && cat '${env_file}' | ${format_env} || : ) && \
@@ -398,7 +403,7 @@ endif
 .PHONY: wait
 wait:
 	@${rake} orchestration:wait
-	@$(call echo,${printenv} services ${green}ready${reset} ${tick})
+	@$(call echo,${env_human} services ${green}ready${reset} ${tick})
 
 ## Generic Listener healthcheck for TCP services ##
 
@@ -408,9 +413,12 @@ wait-listener:
 ### Docker build commands ###
 
 .PHONY: build
+build: _clean-logs
 build: build_dir = ${orchestration_dir}/.build
 build: context = ${build_dir}/context.tar
 build: build_args := --build-arg GIT_COMMIT='${git_version}'
+build: tag_human = ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset}
+build: latest_tag_human = ${cyan}${docker_organization}/${docker_repository}:latest${reset}
 ifdef BUNDLE_GITHUB__COM
 build: build_args := ${build_args} --build-arg BUNDLE_GITHUB__COM
 endif
@@ -440,27 +448,29 @@ ifdef include
           done < '${include}') ${log} || ${fail}
 	@$(call echo,Build context ${green}ready${reset} ${tick})
 endif
-	@$(call echo,Building image)
-	@$(call system,docker build ${build_args} -t ${docker_organization}/${docker_repository}:${git_version} ${orchestration_dir}/) \
+	@$(call echo,Building image ${tag_human})
+	@$(call system,docker build ${build_args} -t ${docker_organization}/${docker_repository}:${git_version} ${orchestration_dir}/)
 	@docker build ${build_args} \
                         -t ${docker_organization}/${docker_repository} \
                         -t ${docker_organization}/${docker_repository}:${git_version} \
                         ${orchestration_dir}/ ${log_progress} || ${fail}
+	@$(call println)
 	@$(call echo,Docker image build ${green}complete${reset} ${tick})
-	@$(call echo,[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}${reset})
-	@$(call echo,[${green}tag${reset}] ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset})
+	@$(call echo,[${green}tag${reset}] ${latest_tag_human})
+	@$(call echo,[${green}tag${reset}] ${tag_human})
 
 .PHONY: push
-push: _create-log-directory
+push: _clean-logs
 	@$(call echo,Pushing ${cyan}${docker_image}${reset} to Docker Hub)
 	@$(call system,docker push ${docker_image})
 	@docker push ${docker_image} ${log_progress} || ${fail}
+	@$(call println)
 	@$(call echo,Push ${green}complete${reset} ${tick})
 
 .PHONY: check-local-changes
 check-local-changes:
 ifndef dev
-	@changes="$$(git status --porcelain)"; if [[ "${changes}" ! -z ]] && [[ "${changes}" != "?? orchestration/.sidecar" ]]; \
+	@changes="$$(git status --porcelain)"; if ! [ -z "${changes}" ] && [[ "${changes}" != "?? orchestration/.sidecar" ]]; \
          then \
            $(call warn,You have uncommitted changes which will not be included in your build:) ; \
            git status --porcelain ; \
@@ -472,6 +482,7 @@ endif
 #
 .PHONY: _clean-logs
 _clean-logs:
+_clean-logs: _create-log-directory
 	@rm -f '${stdout}' '${stderr}'
 	@touch '${stdout}' '${stderr}'
 

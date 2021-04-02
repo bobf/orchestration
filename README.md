@@ -349,7 +349,7 @@ Real-world applications will inevitably need to make changes to this file. As wi
 
 ## Entrypoint
 
-An [entrypoint](https://docs.docker.com/engine/reference/builder/#entrypoint) script for your application is provided which does the following:
+An [entrypoint](https://docs.docker.com/engine/reference/builder/#entrypoint) script for your application is provided at `orchestration/entrypoint.sh` which does the following:
 
 * Runs the `CMD` process as the same system user that launched the container (rather than the default `root` user);
 * Creates various required temporary directories and removes stale `pid` files;
