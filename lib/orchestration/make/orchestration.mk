@@ -287,7 +287,7 @@ db-console:
 
 .PHONY: setup
 setup: url = $(shell ${rake} orchestration:db:url RAILS_ENV=${env})
-setup:
+setup: _log-notify
 	@$(call echo,Setting up ${env_human} environment)
 	@$(call make,start env=${env})
 ifneq (,$(wildcard config/database.yml))
@@ -354,7 +354,7 @@ tag:
 ### Deployment utility commands ###
 
 .PHONY: deploy
-deploy: _clean-logs
+deploy: _log-notify _clean-logs
 ifdef env_file
 deploy: env_file_option = --env-file ${env_file}
 endif
@@ -409,7 +409,7 @@ wait-listener:
 ### Docker build commands ###
 
 .PHONY: build
-build: _clean-logs
+build: _log-notify _clean-logs
 build: build_dir = ${orchestration_dir}/.build
 build: context = ${build_dir}/context.tar
 build: build_args := --build-arg GIT_COMMIT='${git_version}'
@@ -456,7 +456,7 @@ endif
 	@$(call echo,[${green}tag${reset}] ${tag_human})
 
 .PHONY: push
-push: _clean-logs
+push: _log-notify _clean-logs
 	@$(call echo,Pushing ${cyan}${docker_image}${reset} to registry)
 	@$(call system,docker push ${docker_image})
 	@docker push ${docker_image} ${log_progress} || ${exit_fail}
@@ -476,6 +476,13 @@ endif
 
 ### Internal Commands ###
 #
+.PHONY: _log-notify
+_log-notify: comma=,
+_log-notify:
+ifndef verbose
+	@$(call echo,${green}stdout${reset}: ${cyan}log/orchestration.stdout.log${reset}${comma} ${red}stderr${reset}: ${cyan}log/orchestration.stderr.log)
+endif
+
 .PHONY: _clean-logs
 _clean-logs:
 _clean-logs: _create-log-directory
