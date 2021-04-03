@@ -14,6 +14,7 @@ module Orchestration
       @settings = Settings.new(@env.orchestration_configuration_path)
       @terminal = Terminal.new(@settings)
       @docker_compose = DockerCompose::InstallGenerator.new(@env, @terminal)
+      @kubernetes = Kubernetes::InstallGenerator.new(@env, @terminal)
     end
 
     def orchestration_configuration
@@ -51,6 +52,10 @@ module Orchestration
       @docker_compose.docker_compose_test_yml
       @docker_compose.docker_compose_development_yml
       @docker_compose.docker_compose_deployment_yml
+    end
+
+    def kubernetes
+      @kubernetes.kubernetes
     end
 
     def puma

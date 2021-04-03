@@ -13,6 +13,9 @@ require 'webmock/rspec'
 require 'orchestration'
 require File.join(__dir__, 'dummy/config/environment.rb')
 
+require 'rspec/its'
+require 'rspec/file_fixtures'
+
 ENV['RACK_ENV'] = 'test'
 
 Dir[File.join(__dir__, 'support', '**', '*.rb')].sort.each { |path| require path }
@@ -25,8 +28,6 @@ RSpec.configure do |config|
 
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!
-
-  config.include FixtureHelper
 
   config.expect_with :rspec do |c|
     c.syntax = :expect

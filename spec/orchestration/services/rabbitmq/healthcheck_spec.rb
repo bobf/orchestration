@@ -7,7 +7,7 @@ RSpec.describe Orchestration::Services::RabbitMQ::Healthcheck do
     double(
       'Environment',
       environment: 'test',
-      rabbitmq_configuration_path: fixture_path('rabbitmq'),
+      rabbitmq_configuration_path: fixture('rabbitmq'),
       rabbitmq_url: nil,
       docker_compose_config: {
         'services' => { 'rabbitmq' => { 'ports' => ['5673:5672'] } }

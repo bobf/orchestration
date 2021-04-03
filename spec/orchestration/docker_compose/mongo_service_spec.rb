@@ -3,7 +3,7 @@
 RSpec.describe Orchestration::DockerCompose::MongoService do
   subject(:mongo_service) { described_class.new(configuration, environment) }
 
-  let(:config) { fixture_path('mongoid') }
+  let(:config) { fixture('mongoid') }
   let(:environment) { :test }
   let(:env) do
     double(

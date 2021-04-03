@@ -7,7 +7,7 @@ RSpec.describe Orchestration::Services::Mongo::Healthcheck do
     double(
       'Environment',
       environment: 'test',
-      mongoid_configuration_path: fixture_path('mongoid'),
+      mongoid_configuration_path: fixture('mongoid.yml').path,
       mongo_url: nil,
       docker_compose_config: {
         'services' => { 'mongo' => { 'ports' => ['27020:27017'] } }

@@ -33,12 +33,12 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     subject(:console_command) { configuration.console_command }
 
     context 'sqlite3' do
-      let(:config_path) { fixture_path('sqlite3') }
+      let(:config_path) { fixture('sqlite3.yml').path }
       it { is_expected.to eql 'sqlite3 db/test.sqlite3' }
     end
 
     context 'postgresql' do
-      let(:config_path) { fixture_path('postgresql') }
+      let(:config_path) { fixture('postgresql.yml').path }
       let(:expected) do
         "PGPASSWORD='password' psql --username=postgres --host=localhost --port=5432 --dbname=test_db"
       end
@@ -46,7 +46,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     end
 
     context 'mysql' do
-      let(:config_path) { fixture_path('mysql2') }
+      let(:config_path) { fixture('mysql2.yml').path }
       let(:expected) do
         'mysql --user=root --port=3354 --host=127.0.0.1 --password=password --no-auto-rehash test_db'
       end
@@ -58,17 +58,17 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     subject(:friendly_config) { configuration.friendly_config }
 
     context 'sqlite3' do
-      let(:config_path) { fixture_path('sqlite3') }
+      let(:config_path) { fixture('sqlite3.yml').path }
       it { is_expected.to eql '[sqlite3]' }
     end
 
     context 'postgresql' do
-      let(:config_path) { fixture_path('postgresql') }
+      let(:config_path) { fixture('postgresql.yml').path }
       it { is_expected.to eql '[postgresql] postgresql://postgres:password@localhost:5432/test_db' }
     end
 
     context 'mysql' do
-      let(:config_path) { fixture_path('mysql2') }
+      let(:config_path) { fixture('mysql2.yml').path }
       it { is_expected.to eql '[mysql2] mysql2://root:password@127.0.0.1:3354/test_db' }
     end
   end
@@ -79,7 +79,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     let(:healthcheck) { false }
 
     context 'sqlite3' do
-      let(:config_path) { fixture_path('sqlite3') }
+      let(:config_path) { fixture('sqlite3.yml').path }
 
       its(['adapter']) { is_expected.to eql 'sqlite3' }
       its(['host']) { is_expected.to eql '127.0.0.1' }
@@ -89,7 +89,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     end
 
     context 'postgresql' do
-      let(:config_path) { fixture_path('postgresql') }
+      let(:config_path) { fixture('postgresql.yml').path }
 
       its(['adapter']) { is_expected.to eql 'postgresql' }
       its(['host']) { is_expected.to eql 'localhost' }
@@ -104,7 +104,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     end
 
     context 'mysql2' do
-      let(:config_path) { fixture_path('mysql2') }
+      let(:config_path) { fixture('mysql2.yml').path }
 
       its(['adapter']) { is_expected.to eql 'mysql2' }
       its(['host']) { is_expected.to eql '127.0.0.1' }
@@ -119,7 +119,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     end
 
     context 'from DATABASE_URL environment variable' do
-      let(:config_path) { fixture_path('postgresql') }
+      let(:config_path) { fixture('postgresql.yml').path }
 
       before do
         allow(env).to receive(:database_url) { database_url }
@@ -148,7 +148,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     end
 
     context 'from environment (RAILS_ENV, RACK_ENV)' do
-      let(:config_path) { fixture_path('postgresql') }
+      let(:config_path) { fixture('postgresql.yml').path }
 
       before do
         allow(env).to receive(:environment) { 'production' }
@@ -162,14 +162,14 @@ RSpec.describe Orchestration::Services::Database::Configuration do
     end
 
     context 'from alternate database.yml' do
-      let(:options) { { config_path: fixture_path('database.custom') } }
-      let(:config_path) { fixture_path('mysql2') }
+      let(:options) { { config_path: fixture('database.custom.yml').path } }
+      let(:config_path) { fixture('mysql2.yml').path }
 
       its(['adapter']) { is_expected.to eql 'postgresql' }
     end
 
     context 'not from alternate database.yml' do
-      let(:config_path) { fixture_path('mysql2') }
+      let(:config_path) { fixture('mysql2.yml').path }
 
       its(['adapter']) { is_expected.to_not eql 'custom' }
     end

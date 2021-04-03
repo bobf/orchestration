@@ -91,7 +91,7 @@ format_env:=sed '$(call censor,SECRET); \
             sort
 
 exit_fail=( \
-           $(call printraw,' ${cross}') ; \
+           $(call printraw,' ${cross}\n') ; \
            $(call make,dump src_cmd=$(MAKECMDGOALS)) ; \
            echo ; \
            $(call println,'Failed. ${cross}') ; \
@@ -377,6 +377,8 @@ tag:
 
 ### Deployment utility commands ###
 
+orchestrator ?= kubernetes
+
 .PHONY: deploy
 deploy: _log-notify _clean-logs
 ifdef env_file
@@ -391,11 +393,13 @@ deploy: config_cmd = ${compose_deploy} config
 deploy: remote_cmd = cat | docker stack deploy --prune --with-registry-auth -c - ${project_base}
 deploy: ssh_cmd = ssh "${manager}"
 deploy: deploy_cmd := ${config_cmd} | ${ssh_cmd} "/bin/bash -lc '${remote_cmd}'"
+deploy: deployment := ./orchestration/.build/deployment
 deploy:
+ifeq (${orchestrator},swarm)
 ifndef manager
 	@$(call fail,Missing ${cyan}manager${reset} parameter: ${cyan}make deploy manager=swarm-manager.example.com${reset}) ; exit 1
 endif
-	@$(call echo,Deploying ${env_human} stack via ${cyan}${manager}${reset} as ${cyan}${project_base}${reset}) && \
+	@$(call echo,Deploying ${gray}Docker Swarm${reset} ${env_human} stack via ${cyan}${manager}${reset} as ${cyan}${project_base}${reset}) && \
           ( \
              ( test -f '${env_file}' && $(call echo,Deployment environment:) && cat '${env_file}' | ${format_env} || : ) && \
              $(call echo,Application image: ${cyan}${docker_image}${reset}) ; \
@@ -403,6 +407,25 @@ endif
 	     ${deploy_cmd} \
           )
 	@$(call echo,Deployment ${green}complete${reset} ${tick})
+endif
+ifeq (${orchestrator},kubernetes)
+	@$(call echo,Deploying ${env_human} environment to ${gray}Kubernetes${reset} cluster)
+	@rm -rf ${deployment}
+	@mkdir -p ${deployment}
+	@cp -r ./orchestration/kubernetes/* ${deployment}
+ifdef env_file
+	@bundle exec rake orchestration:kubernetes:environment env_file='${env_file}' > ${deployment}/environmentPatch.yml
+else
+	@bundle exec rake orchestration:kubernetes:environment > ${deployment}/environmentPatch.yml
+endif
+	@$(call system,kubectl -k ${deployment} apply)
+	@kubectl -k ${deployment} apply
+	@$(call echo,Deployment to ${env_human} environment complete ${tick})
+ifdef debug
+	@$(call echo,Deployment specification:)
+	@kustomize build ${deployment}
+endif
+endif
 
 .PHONY: rollback
 ifndef service

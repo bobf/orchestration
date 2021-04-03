@@ -3,7 +3,7 @@
 RSpec.describe Orchestration::Services::RabbitMQ::Configuration do
   subject(:configuration) { described_class.new(env) }
 
-  let(:config) { fixture_path('rabbitmq') }
+  let(:config) { fixture('rabbitmq') }
   let(:environment) { 'test' }
   let(:env) do
     double(

@@ -38,7 +38,7 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
 
   context 'config file' do
     let(:environment) { 'test' }
-    let(:path) { fixture_path('mongoid') }
+    let(:path) { fixture('mongoid.yml').path }
     before { allow(env).to receive(:mongoid_configuration_path) { path } }
     its(:database) { is_expected.to eql 'config_db' }
   end

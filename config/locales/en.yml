@@ -32,7 +32,6 @@ en:
       healthcheck: "Execute healthcheck; used for HEALTHCHECK command in Docker image"
       compose_services: "Output configured services for a given environment (RAILS_ENV)"
       install: "Install Orchestration tools"
-      install_makefile: "(Re)create orchestration/Makefile"
       wait: "Wait for development/test dependencies to be available"
       db:
         url: "Return the database URL for the current environment (RAILS_ENV)"

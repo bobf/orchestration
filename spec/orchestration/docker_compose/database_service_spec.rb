@@ -13,7 +13,7 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
       database_url: nil,
       docker_compose_config?: false,
       database_volume: 'dummy_database',
-      database_configuration_path: fixture_path(adapter)
+      database_configuration_path: fixture(adapter)
     )
   end
 

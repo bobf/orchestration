@@ -10,7 +10,7 @@ RSpec.describe Orchestration::Services::App::Healthcheck do
       settings: settings,
       app_port: 3000,
       app_name: 'test_app',
-      docker_compose_path: fixture_path('docker-compose'),
+      docker_compose_path: fixture('docker-compose'),
       docker_compose_config: {
         'services' => { 'app' => { 'ports' => ['3000:80'] } }
       }

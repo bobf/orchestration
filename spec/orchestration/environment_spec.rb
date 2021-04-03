@@ -38,6 +38,7 @@ RSpec.describe Orchestration::Environment do
   its(:mongoid_configuration_path) { is_expected.to be_a Pathname }
   its(:rabbitmq_configuration_path) { is_expected.to be_a Pathname }
   its(:docker_compose_path) { is_expected.to be_a Pathname }
+  its(:kubernetes_configuration_path) { is_expected.to be_a Pathname }
   its(:database_volume) { is_expected.to eql 'database' }
   its(:mongo_volume) { is_expected.to eql 'mongo' }
 

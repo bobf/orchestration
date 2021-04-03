@@ -16,7 +16,7 @@ RSpec.describe Orchestration::DockerCompose::AppService do
       database_url: 'postgresql://hostname',
       settings: settings,
       docker_compose_config?: false,
-      database_configuration_path: fixture_path('postgresql')
+      database_configuration_path: fixture('postgresql.yml').path
     )
   end
 

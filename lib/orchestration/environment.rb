@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Orchestration
+  # rubocop:disable Metrics/ClassLength
   class Environment
     def initialize(options = {})
       @environment = options.fetch(:environment, nil)
@@ -48,6 +49,10 @@ module Orchestration
       root.join('.orchestration.yml')
     end
 
+    def kubernetes_configuration_path
+      orchestration_root.join('kubernetes')
+    end
+
     def docker_api_version
       '3.7'
     end
@@ -83,6 +88,10 @@ module Orchestration
 
     def app_port
       ENV.fetch('PUBLISH_PORT', ENV.fetch('WEB_PORT', '3000')).to_i
+    end
+
+    def organization
+      settings.get('docker.repository')
     end
 
     def app_name
@@ -136,4 +145,5 @@ module Orchestration
       end.join
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

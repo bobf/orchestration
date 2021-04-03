@@ -21,6 +21,7 @@ I18n.load_path += Dir[File.join(File.expand_path('..', __dir__),
 require 'orchestration/file_helpers'
 
 require 'orchestration/docker_compose'
+require 'orchestration/kubernetes'
 require 'orchestration/environment'
 require 'orchestration/errors'
 require 'orchestration/docker_healthcheck'

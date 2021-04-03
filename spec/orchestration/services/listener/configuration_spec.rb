@@ -5,7 +5,7 @@ RSpec.describe Orchestration::Services::Listener::Configuration do
     described_class.new(env, 'custom-service', options)
   end
 
-  let(:config) { fixture_path('docker-compose.yml') }
+  let(:config) { fixture('docker-compose.yml') }
   let(:options) { {} }
   let(:env) do
     instance_double(

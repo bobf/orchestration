@@ -22,6 +22,13 @@ RSpec.describe Orchestration::InstallGenerator do
     expect(File.read(path)).to include 'some make commands'
   end
 
+  it 'creates kubernetes directory' do
+    path = dummy_path.join('orchestration', 'kubernetes')
+    FileUtils.rm_rf(path)
+    install_generator.kubernetes
+    expect(File).to exist(path)
+  end
+
   it 'creates .env' do
     path = dummy_path.join('.env')
     FileUtils.rm_f(path)

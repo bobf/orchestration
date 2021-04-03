@@ -21,7 +21,7 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
   end
 
   let(:database_url) { nil }
-  let(:database_config_path) { fixture_path('sqlite3') }
+  let(:database_config_path) { fixture('sqlite3.yml').path }
 
   it { is_expected.to be_a described_class }
 
