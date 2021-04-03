@@ -447,12 +447,10 @@ endif
 	@$(call echo,Building image ${tag_human})
 	@$(call system,docker build ${build_args} -t ${docker_organization}/${docker_repository}:${git_version} ${orchestration_dir}/)
 	@docker build ${build_args} \
-                        -t ${docker_organization}/${docker_repository} \
                         -t ${docker_organization}/${docker_repository}:${git_version} \
                         ${orchestration_dir}/ ${log_progress} || ${exit_fail}
 	@echo
 	@$(call echo,Build ${green}complete${reset} ${tick})
-	@$(call echo,[${green}tag${reset}] ${latest_tag_human})
 	@$(call echo,[${green}tag${reset}] ${tag_human})
 
 .PHONY: push
