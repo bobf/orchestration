@@ -83,7 +83,7 @@ All `make` commands provided by _Orchestration_ (with the exception of `test` an
 e.g.:
 ```
 # Stop all test containers
-make stop env=test
+make stop RAILS_ENV=test
 ```
 
 The default value for `env` is `development`.
@@ -113,7 +113,7 @@ make stop
 #### Interface directly with `docker-compose`
 
 ```bash
-$(make compose env=test) logs -f database
+$(make compose RAILS_ENV=test) logs -f database
 ```
 
 ### Images
@@ -301,7 +301,7 @@ tail -f log/orchestration*.log
 A convenience `Makefile` target `dump` is provided. The following command will output all consumed _stdout_, _stderr_, and _Docker Compose_ container logs for the test environment:
 
 ```bash
-make dump env=test
+make dump RAILS_ENV=test
 ```
 
 All commands also support the `verbose` flag which will output all logs immediately to the console:
@@ -385,7 +385,7 @@ Note that a temporary file `orchestration/.sidecar` containing the random projec
 make setup test sidecar=1
 
 # Stop test dependencies in sidecar mode
-make stop env=test
+make stop RAILS_ENV=test
 ```
 
 <a name="rabbitmq-configuration"></a>
