@@ -43,12 +43,6 @@ RSpec.shared_examples 'a service' do |service|
         its(:port) { is_expected.to eql 1234 }
         its(:host) { is_expected.to eql '127.0.0.1' }
       end
-
-      context 'production environment' do
-        let(:environment) { 'production' }
-        its(:port) { is_expected.to eql 5678 }
-        its(:host) { is_expected.to eql 'myservice' }
-      end
     end
   end
 end

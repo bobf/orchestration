@@ -36,25 +36,6 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
     end
   end
 
-  context 'production environment' do
-    let(:environment) { 'production' }
-    its(:host) { is_expected.to eql 'mongo' }
-    its(:port) { is_expected.to eql 27_017 }
-    its(:friendly_config) do
-      is_expected.to eql '[mongoid] mongodb://mongo:27017/productiondb'
-    end
-  end
-
-  context 'MONGO_URL' do
-    let(:environment) { 'production' }
-    before { allow(env).to receive(:mongo_url) { 'mongodb://my:1234/mydb' } }
-    its(:host) { is_expected.to eql 'my' }
-    its(:port) { is_expected.to eql 1234 }
-    its(:friendly_config) do
-      is_expected.to eql '[mongoid] mongodb://my:1234/mydb'
-    end
-  end
-
   context 'config file' do
     let(:environment) { 'test' }
     let(:path) { fixture_path('mongoid') }

@@ -40,7 +40,7 @@ RSpec.describe Orchestration::Services::Listener::Healthcheck do
       expect(terminal)
         .to receive(:write)
         .with(:waiting, any_args)
-        .with(:ready, '[custom-service] is ready.')
+        .with(:ready, 'custom-service is ready')
       start
     end
 

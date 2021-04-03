@@ -34,7 +34,7 @@ module Orchestration
       end
 
       def networks
-        return {} unless @environment == :production
+        return {} unless @environment == :deployment
 
         { 'local' => { 'aliases' => ['database-local'] } }
       end

@@ -33,13 +33,6 @@ RSpec.describe Orchestration::Services::RabbitMQ::Configuration do
     its(:friendly_config) { is_expected.to eql '[bunny] amqp://127.0.0.1:5673' }
   end
 
-  context 'production environment' do
-    let(:environment) { 'production' }
-    its(:host) { is_expected.to eql 'rabbitmq' }
-    its(:port) { is_expected.to eql 5672 }
-    its(:friendly_config) { is_expected.to eql '[bunny] amqp://rabbitmq:5672' }
-  end
-
   context 'RABBITMQ_URL' do
     let(:environment) { 'production' }
     before { allow(env).to receive(:rabbitmq_url) { 'amqp://my:1234' } }

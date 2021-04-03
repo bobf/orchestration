@@ -41,7 +41,7 @@ RSpec.describe Orchestration::Services::RabbitMQ::Healthcheck do
       allow(Bunny).to receive(:new) { double(start: nil, stop: nil) }
       expect(terminal)
         .to receive(:write)
-        .with(:ready, 'RabbitMQ is ready.')
+        .with(:ready, 'rabbitmq is ready')
 
       start
     end

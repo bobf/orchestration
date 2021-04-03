@@ -49,7 +49,7 @@ RSpec.describe Orchestration::Services::Database::Healthcheck do
     it 'outputs a ready message' do
       expect(terminal)
         .to receive(:write)
-        .with(:ready, 'Database is ready.')
+        .with(:ready, 'database is ready')
 
       start
     end

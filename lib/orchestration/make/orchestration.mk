@@ -20,15 +20,28 @@ else
   database_enabled = 0
 endif
 
+red:=$(shell tput setaf 1)
+green:=$(shell tput setaf 2)
+yellow:=$(shell tput setaf 3)
+blue:=$(shell tput setaf 4)
+magenta:=$(shell tput setaf 5)
+cyan:=$(shell tput setaf 6)
+gray:=$(shell tput setaf 7)
+reset:=$(shell tput sgr0)
+tick=[${green}✓${reset}]
+cross=[${red}✘${reset}]
+
 make=$(MAKE) $1
 orchestration_config_filename:=.orchestration.yml
 orchestration_config:=${pwd}/${orchestration_config_filename}
 system_prefix=${reset}[${cyan}exec${reset}]
 warn_prefix=${reset}[${yellow}warn${reset}]
 echo_prefix=${reset}[${blue}info${reset}]
+fail_prefix=${reset}[${red}fail${reset}]
 system=echo '${system_prefix} ${cyan}$1${reset}'
 warn=echo '${warn_prefix} ${reset}$1${reset}'
 echo=echo '${echo_prefix} ${reset}$1${reset}'
+fail=echo '${fail_prefix} ${reset}$1${reset}'
 print_error=printf '${red}\#${reset} '$1 | tee '${stderr}'
 println_error=$(call print_error,$1'\n')
 print=printf '${blue}\#${reset} '$1
@@ -40,19 +53,9 @@ log_path_length=$(shell echo "${stdout}" | wc -c)
 ifndef verbose
 log_tee:= 2>&1 | tee -a ${stdout}
 log:= >>${stdout} 2>>${stderr}
-progress_point:=perl -e 'while( my $$line = <STDIN> ) { printf("."); select()->flush(); }'
+progress_point:=perl -e 'printf("[${magenta}busy${reset}] "); while( my $$line = <STDIN> ) { printf("."); select()->flush(); }'
 log_progress:= > >(tee -ai ${stdout} >&1 | ${progress_point}) 2> >(tee -ai ${stderr} 2>&1 | ${progress_point})
 endif
-red:=$(shell tput setaf 1)
-green:=$(shell tput setaf 2)
-yellow:=$(shell tput setaf 3)
-blue:=$(shell tput setaf 4)
-magenta:=$(shell tput setaf 5)
-cyan:=$(shell tput setaf 6)
-gray:=$(shell tput setaf 7)
-reset:=$(shell tput sgr0)
-tick=[${green}✓${reset}]
-cross=[${red}✘${reset}]
 hr=$(call println,"$1$(shell head -c ${log_path_length} < /dev/zero | tr '\0' '=')${reset}")
 managed_env_tag:=\# -|- ORCHESTRATION
 standard_env_path:=${pwd}/.env
@@ -84,13 +87,13 @@ format_env:=sed '$(call censor,SECRET); \
                  s/=\(.*\)$$/=${yellow}\1${reset}/' | \
             sort
 
-fail=( \
-       $(call printraw,' ${cross}') ; \
-       $(call make,dump src_cmd=$(MAKECMDGOALS)) ; \
-       echo ; \
-       $(call println,'Failed. ${cross}') ; \
-       exit 1 \
-    )
+exit_fail=( \
+           $(call printraw,' ${cross}') ; \
+           $(call make,dump src_cmd=$(MAKECMDGOALS)) ; \
+           echo ; \
+           $(call println,'Failed. ${cross}') ; \
+           exit 1 \
+        )
 
 ifdef env_file
   -include ${env_file}
@@ -212,7 +215,7 @@ endif
 start: _create-log-directory _clean-logs
 	@$(call system,${compose_human} up --detach)
 ifeq (${env},$(filter ${env},test development))
-	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${fail}
+	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${exit_fail}
 	@[ -n '${sidecar}' ] && \
          ( \
            $(call echo,(joining dependency network ${cyan}${network}${reset})) ; \
@@ -223,13 +226,13 @@ ifeq (${env},$(filter ${env},test development))
            $(call echo,Try deleting "${cyan}orchestration/.sidecar${reset}" if you do not want to use sidecar mode) ; \
            ) \
          ) \
-         || ( [ -z '${sidecar}' ] || ${fail} )
+         || ( [ -z '${sidecar}' ] || ${exit_fail} )
 else
-	@${compose} up --detach --scale app=$${instances:-1} ${log} || ${fail}
+	@${compose} up --detach --scale app=$${instances:-1} ${log} || ${exit_fail}
 endif
 	@$(call echo,${env_human} containers started ${tick})
 	@$(call echo,Waiting for services to become available)
-	@$(call make,wait) 2>${stderr} || ${fail}
+	@$(call make,wait) 2>${stderr} || ${exit_fail}
 
 .PHONY: stop
 stop: network := ${compose_project_name}
@@ -240,9 +243,9 @@ stop:
           then \
             ( docker network disconnect ${network} $(shell hostname) ${log} || : ) \
             && \
-            ( ${compose} down ${log} || ${fail} ) ; \
+            ( ${compose} down ${log} || ${exit_fail} ) ; \
           else \
-            ${compose} down ${log} || ${fail} ; \
+            ${compose} down ${log} || ${exit_fail} ; \
           fi
 	@$(call echo,${env_human} containers stopped ${tick})
 
@@ -299,10 +302,10 @@ ifneq (,$(wildcard config/database.yml))
 	@${rake} db:create RAILS_ENV=${env} ${log} || : ${log}
   ifneq (,$(wildcard db/structure.sql))
 	@$(call system,rake db:structure:load DATABASE_URL="${url}")
-	@${rake} db:structure:load DATABASE_URL='${url}' ${log} || ${fail}
+	@${rake} db:structure:load DATABASE_URL='${url}' ${log} || ${exit_fail}
   else ifneq (,$(wildcard db/schema.rb))
 	@$(call system,rake db:schema:load DATABASE_URL="${url}")
-	@${rake} db:schema:load DATABASE_URL='${url}' ${log} || ${fail}
+	@${rake} db:schema:load DATABASE_URL='${url}' ${log} || ${exit_fail}
   endif
 	@$(call system,rake db:migrate DATABASE_URL="${url}")
 	@${rake} db:migrate RAILS_ENV=${env}
@@ -338,6 +341,7 @@ ifndef verbose
 endif
 ifeq (,$(findstring build,${src_cmd}))
 ifeq (,$(findstring push,${src_cmd}))
+ifeq (,$(findstring deploy,${src_cmd}))
 	@echo ; \
         $(call hr,${yellow}) ; \
         $(call println,'${gray}docker-compose logs${reset}') ; \
@@ -349,6 +353,7 @@ ifeq (,$(findstring push,${src_cmd}))
 	@$(NOOP)
 endif
 endif
+endif
 
 .PHONY: tag
 tag:
@@ -357,31 +362,30 @@ tag:
 ### Deployment utility commands ###
 
 .PHONY: deploy
+deploy: _clean-logs
 ifdef env_file
-push: _clean-logs
 deploy: env_file_option = --env-file ${env_file}
 endif
 deploy: RAILS_ENV := ${env}
 deploy: RACK_ENV := ${env}
 deploy: DOCKER_TAG = ${git_version}
 deploy: base_vars = DOCKER_ORGANIZATION=${docker_organization} DOCKER_REPOSITORY=${docker_repository} DOCKER_TAG=${git_version}
-deploy: compose_deploy := ${base_vars} COMPOSE_PROJECT_NAME=${project_base} HOST_UID=$(shell id -u) docker-compose ${env_file_option} --project-name ${project_base} -f orchestration/docker-compose.production.yml
-deploy: deploy_cmd := ${compose_deploy} config | ssh "${manager}" "/bin/bash -lc 'cat | docker stack deploy --prune --with-registry-auth -c - ${project_base}'"
+deploy: compose_deploy := ${base_vars} COMPOSE_PROJECT_NAME=${project_base} HOST_UID=$(shell id -u) docker-compose ${env_file_option} --project-name ${project_base} -f orchestration/docker-compose.deployment.yml
+deploy: config_cmd = ${compose_deploy} config
+deploy: remote_cmd = cat | docker stack deploy --prune --with-registry-auth -c - ${project_base}
+deploy: ssh_cmd = ssh "${manager}"
+deploy: deploy_cmd := ${config_cmd} | ${ssh_cmd} "/bin/bash -lc '${remote_cmd}'"
 deploy:
 ifndef manager
-	@$(call fail,Missing `manager` parameter: `make deploy manager=swarm-manager.example.com`) ; exit 1
+	@$(call fail,Missing ${cyan}manager${reset} parameter: ${cyan}make deploy manager=swarm-manager.example.com${reset}) ; exit 1
 endif
 	@$(call echo,Deploying ${env_human} stack via ${cyan}${manager}${reset} as ${cyan}${project_base}${reset}) && \
           ( \
-             $(call echo,Deployment environment:) && \
-             ( test -f '${env_file}' && cat '${env_file}' | ${format_env} || : ) && \
+             ( test -f '${env_file}' && $(call echo,Deployment environment:) && cat '${env_file}' | ${format_env} || : ) && \
              $(call echo,Application image: ${cyan}${docker_image}${reset}) ; \
-	     $(call system,${deploy_cmd}) ; \
-	     ${deploy_cmd} ; \
-             if [[ "$${deploy_exit_code}" == 0 ]] ; then exit 0 ; fi ; \
-          ) \
-          || ${fail}
-
+	     $(call system,${config_cmd} | ${ssh_cmd} "/bin/bash -lc '\''${remote_cmd}'\''") ; \
+	     ${deploy_cmd} \
+          )
 	@$(call echo,Deployment ${green}complete${reset} ${tick})
 
 .PHONY: rollback
@@ -395,7 +399,7 @@ ifndef manager
 endif
 	@$(call echo,Rolling back ${cyan}${compose_project_name}_${service}${reset} via ${cyan}${manager}${reset} ...)
 	@$(call system,docker service rollback --detach "${compose_project_name}_${service}")
-	@ssh "${manager}" 'docker service rollback --detach "${compose_project_name}_${service}"' ${log} || ${fail}
+	@ssh "${manager}" 'docker service rollback --detach "${compose_project_name}_${service}"' ${log} || ${exit_fail}
 	@$(call echo,Rollback request ${green}complete${reset} ${tick})
 
 ### Service healthcheck commands ###
@@ -426,15 +430,15 @@ ifdef BUNDLE_BITBUCKET__ORG
 build: build_args := ${build_args} --build-arg BUNDLE_BITBUCKET__ORG
 endif
 build: _create-log-directory check-local-changes
-	@$(call echo,Preparing build context from ${cyan}${git_branch}:${git_version}${reset})
+	@$(call echo,Preparing build context from ${cyan}${git_branch}${reset} (${cyan}${git_version}${reset})${reset})
 	@$(call system,git archive --format "tar" -o "${context}" "${git_branch}")
-	@mkdir -p ${orchestration_dir}/.build ${log} || ${fail}
+	@mkdir -p ${orchestration_dir}/.build ${log} || ${exit_fail}
 ifndef dev
-	@git show ${git_branch}:./Gemfile > ${orchestration_dir}/.build/Gemfile 2>${stderr} || ${fail}
-	@git show ${git_branch}:./Gemfile.lock > ${orchestration_dir}/.build/Gemfile.lock 2>${stderr} || ${fail}
-	@git archive --format 'tar' -o '${context}' '${git_branch}' ${log} || ${fail}
+	@git show ${git_branch}:./Gemfile > ${orchestration_dir}/.build/Gemfile 2>${stderr} || ${exit_fail}
+	@git show ${git_branch}:./Gemfile.lock > ${orchestration_dir}/.build/Gemfile.lock 2>${stderr} || ${exit_fail}
+	@git archive --format 'tar' -o '${context}' '${git_branch}' ${log} || ${exit_fail}
 else
-	@tar -cvf '${context}' . ${log} || ${fail}
+	@tar -cvf '${context}' . ${log} || ${exit_fail}
 endif
 ifdef include
 	@$(call echo,Including files from: ${cyan}${include}${reset})
@@ -445,7 +449,7 @@ ifdef include
             mkdir -p "$${include_dir}" && cp "$${line}" "$${include_dir}" \
             && (cd '${orchestration_dir}/.build/' && tar rf 'context.tar' "$${line}"); \
 	    _system "tar rf 'context.tar' '$${line}'")
-          done < '${include}') ${log} || ${fail}
+          done < '${include}') ${log} || ${exit_fail}
 	@$(call echo,Build context ${green}ready${reset} ${tick})
 endif
 	@$(call echo,Building image ${tag_human})
@@ -453,18 +457,18 @@ endif
 	@docker build ${build_args} \
                         -t ${docker_organization}/${docker_repository} \
                         -t ${docker_organization}/${docker_repository}:${git_version} \
-                        ${orchestration_dir}/ ${log_progress} || ${fail}
-	@$(call println)
-	@$(call echo,Docker image build ${green}complete${reset} ${tick})
+                        ${orchestration_dir}/ ${log_progress} || ${exit_fail}
+	@echo
+	@$(call echo,Build ${green}complete${reset} ${tick})
 	@$(call echo,[${green}tag${reset}] ${latest_tag_human})
 	@$(call echo,[${green}tag${reset}] ${tag_human})
 
 .PHONY: push
 push: _clean-logs
-	@$(call echo,Pushing ${cyan}${docker_image}${reset} to Docker Hub)
+	@$(call echo,Pushing ${cyan}${docker_image}${reset} to registry)
 	@$(call system,docker push ${docker_image})
-	@docker push ${docker_image} ${log_progress} || ${fail}
-	@$(call println)
+	@docker push ${docker_image} ${log_progress} || ${exit_fail}
+	@echo
 	@$(call echo,Push ${green}complete${reset} ${tick})
 
 .PHONY: check-local-changes

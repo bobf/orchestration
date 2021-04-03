@@ -50,7 +50,7 @@ RSpec.describe Orchestration::Services::App::Healthcheck do
     it 'outputs a ready message' do
       expect(terminal)
         .to receive(:write)
-        .with(:ready, 'App is ready.')
+        .with(:ready, 'app is ready')
 
       start
     end

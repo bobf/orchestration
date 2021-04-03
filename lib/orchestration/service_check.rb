@@ -31,18 +31,26 @@ module Orchestration
       @service.connect
       true
     rescue *@service.connection_errors => e
-      @attempts += 1
-      @last_error = e
-      sleep @retry_interval
+      wait_failure(e)
       retry unless @attempts == @attempt_limit
       echo_error(e)
       echo_failure
       false
     end
 
+    def wait_failure(error)
+      @attempts += 1
+      @last_error = error
+      sleep @retry_interval
+    end
+
     def last_error
       return nil if @last_error.nil?
 
+      last_error_message
+    end
+
+    def last_error_message
       "(#{@last_error&.cause&.class&.name || @last_error&.class&.name})"
     end
 

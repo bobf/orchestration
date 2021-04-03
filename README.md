@@ -214,22 +214,29 @@ ORCHESTRATION_RETRY_LIMIT # default: 15
 ORCHESTRATION_RETRY_INTERVAL # default: 10 [seconds]
 ```
 
-### (Local) Production
+### (Local) Deployment
 
-Run a production environment locally to simulate your deployment platform:
+Run a deployment environment locally to simulate your deployment platform:
 
+```bash
+make deploy manager=localhost
 ```
-make start env=production
-```
+
+Ensure you have passwordless _SSH_ access to your own workstation and that you have approved the host authenticity/fingerprint.
 
 #### Deploy to a remote swarm
 
 To connect via _SSH_ to a remote swarm and deploy, pass the `manager` parameter:
-```
+```bash
 make deploy manager=user@manager.swarm.example.com
 ```
 
-The file `orchestration/docker-compose.production.yml` is created automatically. This file will always be used for deployment, regardless of _Rails_ environment. Other environments should be configured using a separate [`.env` file](#env-file) for each environment.
+The file `orchestration/docker-compose.deployment.yml` is created automatically. This file will be used for all deployments, regardless of _Rails_ environment. Other environments should be configured using a separate [`.env` file](#env-file) for each environment. i.e. to deploy a staging environment, create a `staging.env` (for example), set `RAILS_ENV=staging` and run:
+```bash
+make deploy manager=user@manager.swarm.example.com env_file=staging.env
+```
+
+This way you can set different publish ports and other application configuration variables for each stage you want to deploy to.
 
 #### Roll back a deployment
 
@@ -248,11 +255,11 @@ The `project_name` parameter is also supported.
 
 #### Use a custom stack name
 
-The [_Docker_ stack](https://docs.docker.com/engine/reference/commandline/stack/) name defaults to the name of your repository (as defined in `.orchesration.yml`) and the _Rails_ environment, e.g. `anvil_production`.
+The [_Docker_ stack](https://docs.docker.com/engine/reference/commandline/stack/) name defaults to the name of your repository (as defined in `.orchesration.yml`) and the _Rails_ environment, e.g. `anvil_staging`.
 
 To override this default, pass the `project_name` parameter:
 ```
-make deploy project_name=acme_anvil_production
+make deploy project_name=custom_stack_name
 ```
 
 This variable will also be available as `COMPOSE_PROJECT_NAME` for use within your `docker-compose.yml`. e.g. to explicitly name a network after the project name:
@@ -321,7 +328,7 @@ See related documentation:
 
 ## Healthchecks
 
-[Healthchecks](https://docs.docker.com/engine/reference/builder/#healthcheck) are automatically configured for your application. A healthcheck utility is provided in `orchestration/healthcheck.rb`. The following environment variables can be configured (in the `app` service of `orchestration/docker-compose.production.yml`):
+[Healthchecks](https://docs.docker.com/engine/reference/builder/#healthcheck) are automatically configured for your application. A healthcheck utility is provided in `orchestration/healthcheck.rb`. The following environment variables can be configured (in the `app` service of `orchestration/docker-compose.deployment.yml`):
 
 | Variable | Meaning | Default Value |
 |-|-|-|

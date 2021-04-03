@@ -49,8 +49,8 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
         it { is_expected.to eql %i[database mongo rabbitmq] }
       end
 
-      context 'production' do
-        let(:env) { :production }
+      context 'deployment' do
+        let(:env) { :deployment }
         it do
           is_expected.to eql %i[app database mongo rabbitmq]
         end
@@ -69,12 +69,12 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
 
       after { FileUtils.rm_f(path) }
 
-      context 'production' do
-        let(:env) { :production }
+      context 'deployment' do
+        let(:env) { :deployment }
 
-        before { install_generator.docker_compose_production_yml }
+        before { install_generator.docker_compose_deployment_yml }
 
-        it 'creates docker-compose.production.yml' do
+        it 'creates docker-compose.deployment.yml' do
           expect(File).to exist(path)
         end
 

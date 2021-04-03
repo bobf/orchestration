@@ -53,7 +53,7 @@ RSpec.describe Orchestration::ServiceCheck do
     end
 
     it 'writes a waiting message' do
-      expect(terminal).to receive(:write).with(:waiting, 'text')
+      expect(terminal).to receive(:write).with(:waiting, nil)
       run
     end
 
@@ -79,7 +79,7 @@ RSpec.describe Orchestration::ServiceCheck do
         it 'retries on expected errors' do
           expect(terminal)
             .to receive(:write)
-            .with(:waiting, 'text')
+            .with(:waiting, any_args)
             .exactly(20).times
           run
         end

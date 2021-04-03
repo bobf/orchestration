@@ -51,7 +51,7 @@ module Orchestration
     def docker_compose
       @docker_compose.docker_compose_test_yml
       @docker_compose.docker_compose_development_yml
-      @docker_compose.docker_compose_production_yml
+      @docker_compose.docker_compose_deployment_yml
     end
 
     def puma
@@ -114,7 +114,7 @@ module Orchestration
     end
 
     def enabled_services
-      %i[test development production].map do |environment|
+      %i[test development deployment].map do |environment|
         @docker_compose.enabled_services(environment)
       end.flatten.uniq
     end

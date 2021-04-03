@@ -53,7 +53,7 @@ module Orchestration
         local, remote = parse_port(service).map(&:to_i)
         return remote if @env.environment == 'test' && @options[:sidecar]
 
-        (@env.environment == 'production' ? remote : local)
+        (@env.environment == 'deployment' ? remote : local)
       end
 
       def service

@@ -18,8 +18,8 @@ module Orchestration
         create_compose_file(:development)
       end
 
-      def docker_compose_production_yml
-        create_compose_file(:production)
+      def docker_compose_deployment_yml
+        create_compose_file(:deployment)
       end
 
       def enabled_services(environment)
@@ -68,7 +68,7 @@ module Orchestration
         case environment
         when :test, :development
           %i[database mongo rabbitmq]
-        when :production
+        when :deployment
           %i[app database mongo rabbitmq]
         when :local, nil
           []
