@@ -135,15 +135,9 @@ ifneq (,$(wildcard ${env_file}))
   rake=. ${env_file} && ${rake_cmd}
 endif
 
-ifeq (,$(findstring serve,$(MAKECMDGOALS)))
-ifeq (,$(findstring console,$(MAKECMDGOALS)))
-ifeq (,$(findstring test,$(MAKECMDGOALS)))
-  docker_config:=$(shell DEVPACK_DISABLE=1 RAILS_ENV=development bundle exec rake orchestration:config)
-  docker_organization=$(word 1,$(docker_config))
-  docker_repository=$(word 2,$(docker_config))
-endif
-endif
-endif
+docker_config:=$(shell DEVPACK_DISABLE=1 RAILS_ENV=development bundle exec rake orchestration:config)
+docker_organization=$(word 1,$(docker_config))
+docker_repository=$(word 2,$(docker_config))
 
 ifeq (,$(project_name))
   project_base = ${docker_repository}_${env}
@@ -339,9 +333,8 @@ ifndef verbose
           $(call hr,${red}) ; \
         )
 endif
-ifeq (,$(findstring build,${src_cmd}))
-ifeq (,$(findstring push,${src_cmd}))
-ifeq (,$(findstring deploy,${src_cmd}))
+ifneq (build,${src_cmd})
+ifneq (push,${src_cmd})
 	@echo ; \
         $(call hr,${yellow}) ; \
         $(call println,'${gray}docker-compose logs${reset}') ; \
@@ -351,7 +344,6 @@ ifeq (,$(findstring deploy,${src_cmd}))
 	@echo ; \
         $(call hr,${yellow})
 	@$(NOOP)
-endif
 endif
 endif
 
