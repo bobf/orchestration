@@ -2,7 +2,7 @@ FROM ruby:<%= ruby_version %>
 ARG BUNDLE_BITBUCKET__ORG
 ARG BUNDLE_GITHUB__COM
 ARG GIT_COMMIT
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
       nodejs \
@@ -13,17 +13,13 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
  && mkdir /app<%if defined?(Webpacker) %> \
  && curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash \
  && . /root/.bashrc \
- && nvm install 10.13.0 \
+ && nvm install 14.16.0 \
  && npm config set user 0 \
  && npm config set unsafe-perm true \
  && npm install -g yarn<% end %>
 WORKDIR /app
 COPY .build/Gemfile .build/Gemfile.lock ./
 RUN bundle install --without development test --deployment
-<% if defined?(Webpacker) %>
-COPY .build/package.json .build/yarn.lock ./
-RUN . /root/.bashrc ; yarn install
-<% end %>
 ADD .build/context.tar .
 <% if defined?(Webpacker) %>RUN . /root/.bashrc ; NODE_ENV=production RAILS_ENV=production yarn install && NODE_ENV=production RAILS_ENV=production SECRET_KEY_BASE=abc123 bundle exec rake assets:precompile<% elsif Rake::Task.tasks.map(&:name).include?('assets:precompile') %>RUN NODE_ENV=production RAILS_ENV=production SECRET_KEY_BASE=abc123 bundle exec rake assets:precompile<% end %>
 RUN echo "${GIT_COMMIT}" > /app/GIT_COMMIT

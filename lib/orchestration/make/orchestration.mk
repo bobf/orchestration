@@ -1,3 +1,4 @@
+
 ### Environment setup ###
 SHELL:=/bin/bash
 MAKE:=mkpath=${mkpath} make --no-print-directory
@@ -38,10 +39,12 @@ system_prefix=${reset}[${cyan}exec${reset}]
 warn_prefix=${reset}[${yellow}warn${reset}]
 echo_prefix=${reset}[${blue}info${reset}]
 fail_prefix=${reset}[${red}fail${reset}]
+logs_prefix=${reset}[${green}logs${reset}]
 system=echo '${system_prefix} ${cyan}$1${reset}'
 warn=echo '${warn_prefix} ${reset}$1${reset}'
 echo=echo '${echo_prefix} ${reset}$1${reset}'
 fail=echo '${fail_prefix} ${reset}$1${reset}'
+logs=echo '${logs_prefix} ${reset}$1${reset}'
 print_error=printf '${red}\#${reset} '$1 | tee '${stderr}'
 println_error=$(call print_error,$1'\n')
 print=printf '${blue}\#${reset} '$1
@@ -125,17 +128,16 @@ env_human=${gray}${env}${reset}
 DOCKER_TAG ?= latest
 
 ifneq (,$(wildcard ./Gemfile))
-  rake=DEVPACK_DISABLE=1 RACK_ENV=${env} RAILS_ENV=${env} bundle exec rake
-else
-  rake=RACK_ENV=${env} RAILS_ENV=${env} rake
+  bundle_cmd = bundle exec
 endif
+rake=DEVPACK_DISABLE=1 RACK_ENV=${env} RAILS_ENV=${env} ${bundle_cmd} rake
 
 ifneq (,$(wildcard ${env_file}))
   rake_cmd:=${rake}
   rake=. ${env_file} && ${rake_cmd}
 endif
 
-docker_config:=$(shell DEVPACK_DISABLE=1 RAILS_ENV=development bundle exec rake orchestration:config)
+docker_config:=$(shell DEVPACK_DISABLE=1 RAILS_ENV=development ${bundle_cmd} rake orchestration:config 2>/dev/null || echo no-org no-repo)
 docker_organization=$(word 1,$(docker_config))
 docker_repository=$(word 2,$(docker_config))
 
@@ -181,9 +183,9 @@ compose_base=env -i \
              docker-compose \
              -f ${orchestration_dir}/docker-compose.${env}.yml
 
-git_branch ?= $(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD))
+git_branch ?= $(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo no-branch))
 ifndef dev
-  git_version ?= $(shell git rev-parse --short --verify ${git_branch})
+  git_version ?= $(shell git rev-parse --short --verify ${git_branch} 2>/dev/null || echo no-version)
 else
   git_version = dev
 endif
@@ -476,10 +478,14 @@ endif
 #
 .PHONY: _log-notify
 _log-notify: comma=,
-_log-notify:
+_log-notify: _verify-repository
 ifndef verbose
-	@$(call echo,${green}stdout${reset}: ${cyan}log/orchestration.stdout.log${reset}${comma} ${red}stderr${reset}: ${cyan}log/orchestration.stderr.log)
+	@$(call logs,${green}stdout${reset}: ${cyan}log/orchestration.stdout.log${reset}${comma} ${red}stderr${reset}: ${cyan}log/orchestration.stderr.log)
 endif
+
+.PHONY: _verify-repository
+_verify-repository:
+	@if ! git rev-parse HEAD >/dev/null 2>&1 ; then $(call fail,You must make at least one commit before you can use Orchestration commands) ; exit 1 ; fi
 
 .PHONY: _clean-logs
 _clean-logs:
