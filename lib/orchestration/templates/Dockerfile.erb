@@ -19,7 +19,9 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
  && npm install -g yarn<% end %>
 WORKDIR /app
 COPY .build/Gemfile .build/Gemfile.lock ./
-RUN bundle install --without development test --deployment
+RUN bundle config set deployment 'true' \
+ && bundle config set without 'development test' \
+ && bundle install
 ADD .build/context.tar .
 <% if defined?(Webpacker) %>RUN . /root/.bashrc ; NODE_ENV=production RAILS_ENV=production yarn install && NODE_ENV=production RAILS_ENV=production SECRET_KEY_BASE=abc123 bundle exec rake assets:precompile<% elsif Rake::Task.tasks.map(&:name).include?('assets:precompile') %>RUN NODE_ENV=production RAILS_ENV=production SECRET_KEY_BASE=abc123 bundle exec rake assets:precompile<% end %>
 RUN echo "${GIT_COMMIT}" > /app/GIT_COMMIT
