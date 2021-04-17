@@ -131,6 +131,8 @@ ifneq (,$(wildcard ./Gemfile))
   bundle_cmd = bundle exec
 endif
 rake=DEVPACK_DISABLE=1 RACK_ENV=${env} RAILS_ENV=${env} ${bundle_cmd} rake
+RAILS_ENV=${env}
+RACK_ENV=${env}
 
 ifneq (,$(wildcard ${env_file}))
   rake_cmd:=${rake}
@@ -289,22 +291,23 @@ db-console:
 
 .PHONY: setup
 setup: url = $(shell ${rake} orchestration:db:url RAILS_ENV=${env})
+setup: url_var = $(shell echo '${RAILS_ENV}' | tr '[:lower:]' '[:upper:]' )_DATABASE_URL
 setup: _log-notify
 	@$(call echo,Setting up ${env_human} environment)
 	@$(call make,start env=${env})
 ifneq (,$(wildcard config/database.yml))
 	@$(call echo,Preparing ${env_human} database)
-	@$(call system,rake db:create DATABASE_URL="${url}")
-	@${rake} db:create RAILS_ENV=${env} ${log} || : ${log}
+	@$(call system,rake db:create ${url_var}="${url}")
+	@${rake} db:create RAILS_ENV=${env} ${url_var}='${url}' DATABASE_URL='${url}' ${log} || : ${log}
   ifneq (,$(wildcard db/structure.sql))
-	@$(call system,rake db:schema:load DATABASE_URL="${url}")
-	@${rake} db:schema:load DATABASE_URL='${url}' ${log} || ${exit_fail}
+	@$(call system,rake db:schema:load ${url_var}="${url}")
+	@${rake} db:schema:load ${url_var}='${url}' DATABASE_URL='${url}' ${log} || ${exit_fail}
   else ifneq (,$(wildcard db/schema.rb))
-	@$(call system,rake db:schema:load DATABASE_URL="${url}")
-	@${rake} db:schema:load DATABASE_URL='${url}' ${log} || ${exit_fail}
+	@$(call system,rake db:schema:load ${url_var}="${url}")
+	@${rake} db:schema:load ${url_var}='${url}' DATABASE_URL='${url}' ${log} || ${exit_fail}
   endif
-	@$(call system,rake db:migrate DATABASE_URL="${url}")
-	@${rake} db:migrate RAILS_ENV=${env}
+	@$(call system,rake db:migrate ${url_var}="${url}")
+	@${rake} db:migrate ${url_var}='${url}' DATABASE_URL='${url}' RAILS_ENV=${env}
 endif
 	@$(MAKE) -n post-setup >/dev/null 2>&1 \
           && $(call system,make post-setup RAILS_ENV=${env}) \
