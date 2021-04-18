@@ -309,9 +309,9 @@ ifneq (,$(wildcard config/database.yml))
 	@$(call system,rake db:migrate ${url_var}="${url}")
 	@${rake} db:migrate ${url_var}='${url}' DATABASE_URL='${url}' RAILS_ENV=${env}
 endif
-	@$(MAKE) -n post-setup >/dev/null 2>&1 \
-          && $(call system,make post-setup RAILS_ENV=${env}) \
-          && $(MAKE) post-setup RAILS_ENV=${env}
+	@if $(MAKE) -n post-setup >/dev/null 2>&1 ; then \
+          $(call system,make post-setup RAILS_ENV=${env}) \
+          && $(MAKE) post-setup RAILS_ENV=${env} ; fi
 	@$(call echo,${env_human} environment setup complete ${tick})
 
 .PHONY: dump
