@@ -13,5 +13,11 @@ namespace :orchestration do
       end
       puts Orchestration::Kubernetes::Environment.new(env_file: env_file).content
     end
+
+    desc 'Create image patch for a Kubernetes deployment'
+    task :image do
+      image = ENV.fetch('image')
+      puts Orchestration::Kubernetes::Image.new(image: image).content
+    end
   end
 end

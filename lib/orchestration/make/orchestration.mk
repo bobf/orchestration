@@ -137,6 +137,7 @@ else
 endif
 
 env_human=${gray}${env}${reset}
+tag_human=${cyan}${docker_organization}/${docker_repository}:${git_version}${reset}
 DOCKER_TAG ?= latest
 
 ifneq (,$(wildcard ./Gemfile))
@@ -414,10 +415,15 @@ ifeq (${orchestrator},kubernetes)
 	@mkdir -p ${deployment}
 	@cp -r ./orchestration/kubernetes/* ${deployment}
 ifdef env_file
+	@$(call echo,Generating environment patch file from ${env_file})
 	@bundle exec rake orchestration:kubernetes:environment env_file='${env_file}' > ${deployment}/environmentPatch.yml
 else
+	@$(call echo,Generating environment patch file)
 	@bundle exec rake orchestration:kubernetes:environment > ${deployment}/environmentPatch.yml
 endif
+	@$(call echo,Generating image patch file for ${tag_human})
+	@bundle exec rake orchestration:kubernetes:image image='${docker_image}' > ${deployment}/imagePatch.yml
+	@$(call echo,Deploying configuration)
 	@$(call system,kubectl -k ${deployment} apply)
 	@kubectl -k ${deployment} apply
 	@$(call echo,Deployment to ${env_human} environment complete ${tick})

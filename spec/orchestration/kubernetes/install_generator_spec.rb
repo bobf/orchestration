@@ -84,6 +84,6 @@ RSpec.describe Orchestration::Kubernetes::InstallGenerator do
     its([:apiVersion]) { is_expected.to eql 'kustomize.config.k8s.io/v1beta1' }
     its([:kind]) { is_expected.to eql 'Kustomization' }
     its([:resources]) { is_expected.to eql %w[deployment.yml service.yml] }
-    its([:patchesStrategicMerge]) { is_expected.to eql %w[environmentPatch.yml] }
+    its([:patchesStrategicMerge]) { is_expected.to eql %w[environmentPatch.yml imagePatch.yml] }
   end
 end

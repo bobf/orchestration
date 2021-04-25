@@ -3,25 +3,14 @@
 module Orchestration
   module Kubernetes
     class Environment
+      include KustomizationPatch
+
       def initialize(env_file:, env: Orchestration::Environment.new)
         @env = env
         @env_file = env_file
       end
 
-      def content
-        structure.to_yaml
-      end
-
       private
-
-      def structure
-        {
-          'apiVersion' => 'apps/v1',
-          'kind' => 'Deployment',
-          'metadata' => { 'name' => @env.app_name },
-          'spec' => spec
-        }
-      end
 
       def spec
         { 'template' => { 'spec' => { 'containers' => [container] } } }
