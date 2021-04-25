@@ -6,6 +6,8 @@ RSpec.describe Orchestration::Environment do
   let(:options) { {} }
 
   it { is_expected.to be_a described_class }
+  its(:app_name) { is_expected.to eql 'dummy' }
+  its(:organization) { is_expected.to eql 'testuser' }
 
   describe '#environment' do
     subject { environment.environment }

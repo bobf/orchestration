@@ -91,7 +91,7 @@ module Orchestration
     end
 
     def organization
-      settings.get('docker.repository')
+      settings.get('docker.organization')
     end
 
     def app_name

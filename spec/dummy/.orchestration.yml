@@ -1,4 +1,4 @@
 ---
 docker:
-  username: testuser
+  organization: testuser
   repository: dummy
