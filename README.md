@@ -13,6 +13,8 @@ make deploy manager=user@swarm.example.com env_file=/var/configs/myapp.env
 
 _Orchestration_ has been successfully used to build continuous delivery pipelines for numerous production applications with a wide range or requirements.
 
+See [upgrade guide](UPGRADE.md) if you are upgrading from `0.5.x` to `0.6.x`.
+
 ## Example
 
 The below screenshot demonstrates _Orchestration_ being installed in a brand new _Rails_ application with support for _PostgreSQL_ (via the _PG_ gem) and _RabbitMQ_ (via the _Bunny_ gem):
