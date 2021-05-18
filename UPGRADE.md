@@ -12,7 +12,7 @@ Delete all files from `orchestration/` directory except:
 * `Dockerfile`
 * `entrypoint.sh`
 
-Then rename:
+Rename:
 
 ```bash
 orchestration/docker-compose.production.yml => orchestration/docker-compose.deployment.yml
@@ -73,3 +73,18 @@ Update any continuous integration scripts (e.g. `Jenkinsfile`) to run the `setup
 ```
 
 (`sidecar` may or may not be needed depending on your setup but, if it was there prior to upgrade, then it should remain after upgrade).
+
+### General Usage
+
+All _Orchestration_ commands behave exactly the same as before with the exception of the `test` target. Now, instead of running `make test` to launch all containers and then run tests, _Rubocop_, etc., you must run `make setup test`.
+
+This will set up the test environment and then run tests. You may then run `make test` to just run tests without having to go through the full setup process again.
+
+Similarly you can set up the development environment by just running `make setup`.
+
+To set up the test environment and run tests as two separate steps (i.e. equivalent of using the shorthand `make setup test`) you can run:
+
+```bash
+make setup RAILS_ENV=test
+make test
+```
