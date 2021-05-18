@@ -369,7 +369,7 @@ deploy: DOCKER_TAG = ${git_version}
 deploy: base_vars = DOCKER_ORGANIZATION=${docker_organization} DOCKER_REPOSITORY=${docker_repository} DOCKER_TAG=${git_version}
 deploy: compose_deploy := ${base_vars} COMPOSE_PROJECT_NAME=${project_base} HOST_UID=$(shell id -u) docker-compose ${env_file_option} --project-name ${project_base} -f orchestration/docker-compose.deployment.yml
 deploy: config_cmd = ${compose_deploy} config
-deploy: remote_cmd = cat | docker stack deploy --prune --with-registry-auth -c - ${project_base}
+deploy: remote_cmd = cat | docker stack deploy --prune --with-registry-auth --resolve-image always -c - ${project_base}
 deploy: ssh_cmd = ssh "${manager}"
 deploy: deploy_cmd := ${config_cmd} | ${ssh_cmd} "/bin/bash -lc '${remote_cmd}'"
 deploy:
