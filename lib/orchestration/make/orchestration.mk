@@ -442,7 +442,7 @@ ifdef include
             include_dir="${build_dir}/$$(dirname "$${line}")/" && \
             mkdir -p "$${include_dir}" && cp "$${line}" "$${include_dir}" \
             && (cd '${orchestration_dir}/.build/' && tar rf 'context.tar' "$${line}"); \
-	    _system "tar rf 'context.tar' '$${line}'")
+	    _system "tar rf 'context.tar' '$${line}'") \
           done < '${include}') ${log} || ${exit_fail}
 	@$(call echo,Build context ${green}ready${reset} ${tick})
 endif
