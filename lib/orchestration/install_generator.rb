@@ -30,7 +30,6 @@ module Orchestration
     def application_makefile
       path = @env.root.join('Makefile')
       simple_copy('application.mk', path) unless File.exist?(path)
-      inject_if_missing(path, 'include orchestration/Makefile')
     end
 
     def dockerfile

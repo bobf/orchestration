@@ -22,7 +22,13 @@ namespace :orchestration do
   namespace :db do
     desc I18n.t('orchestration.rake.db.url')
     task :url do
-      puts DatabaseUrl.to_active_record_url(Rails.application.config_for(:database))
+      config = Rails.application.config_for(:database)
+
+      if config[:adapter] == 'sqlite3'
+        puts "sqlite3:#{config[:database]}"
+      else
+        puts DatabaseUrl.to_active_record_url(config)
+      end
     end
 
     desc I18n.t('orchestration.rake.db.console')
