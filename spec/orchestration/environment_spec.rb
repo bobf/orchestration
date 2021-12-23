@@ -136,7 +136,7 @@ RSpec.describe Orchestration::Environment do
         allow(Dir).to receive(:pwd) { '/path/to/my_app' }
       end
 
-      it { is_expected.to eql 'myapp' }
+      it { is_expected.to eql 'my_app' }
     end
   end
 
