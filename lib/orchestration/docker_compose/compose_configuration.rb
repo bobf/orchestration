@@ -48,6 +48,8 @@ module Orchestration
 
       def config
         @config ||= @env.docker_compose_config
+      rescue Errno::ENOENT
+        {}
       end
 
       def listener?(name)

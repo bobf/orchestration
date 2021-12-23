@@ -98,7 +98,7 @@ module Orchestration
           'RAILS_LOG_TO_STDOUT' => '1',
           'RAILS_SERVE_STATIC_FILES' => '1',
           'WEB_PRELOAD_APP' => '1',
-          'WEB_HEALTHCHECK_PATH' => '/',
+          'WEB_HEALTHCHECK_PATH' => '/healthcheck',
           'WEB_PORT' => 8080,
           'DATABASE_URL' => database_url
         }.merge(inherited_environment.to_h { |key| [key, nil] }).merge(rabbitmq_urls)
