@@ -141,6 +141,8 @@ docker_config:=$(shell DEVPACK_DISABLE=1 RAILS_ENV=development ${bundle_cmd} rak
 docker_organization=$(word 1,$(docker_config))
 docker_repository=$(word 2,$(docker_config))
 
+compose_services:=$(shell ${rake} orchestration:compose_services RAILS_ENV=${env})
+
 ifeq (,$(project_name))
   project_base = ${docker_repository}_${env}
 else
@@ -209,9 +211,10 @@ ifndef network
 start: network := ${compose_project_name}
 endif
 start: _create-log-directory _clean-logs
+ifneq (,${compose_services})
 	@$(call system,${compose_human} up --detach)
 ifeq (${env},$(filter ${env},test development))
-	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${exit_fail}
+	${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${exit_fail}
 	@[ -n '${sidecar}' ] && \
          ( \
            $(call echo,(joining dependency network ${cyan}${network}${reset})) ; \
@@ -229,10 +232,12 @@ endif
 	@$(call echo,${env_human} containers started ${tick})
 	@$(call echo,Waiting for services to become available)
 	@$(call make,wait) 2>${stderr} || ${exit_fail}
+endif
 
 .PHONY: stop
 stop: network := ${compose_project_name}
 stop:
+ifneq (,${compose_services})
 	@$(call echo,Stopping ${env_human} containers)
 	@$(call system,${compose_human} down)
 	@if docker ps --format "{{.ID}}" | grep -q $(shell hostname) ; \
@@ -244,6 +249,7 @@ stop:
             ${compose} down ${log} || ${exit_fail} ; \
           fi
 	@$(call echo,${env_human} containers stopped ${tick})
+endif
 
 .PHONY: logs
 logs:
@@ -288,7 +294,9 @@ db-console:
 	@${rake} orchestration:db:console RAILS_ENV=${env}
 
 .PHONY: setup
+ifneq (,$(wildcard config/database.yml))
 setup: url = $(shell ${rake} orchestration:db:url RAILS_ENV=${env})
+endif
 setup: _log-notify
 	@$(call echo,Setting up ${env_human} environment)
 	@$(call make,start env=${env})
@@ -306,9 +314,9 @@ ifneq (,$(wildcard config/database.yml))
 	@$(call system,rake db:migrate DATABASE_URL="${url}")
 	@${rake} db:migrate RAILS_ENV=${env}
 endif
-	@$(MAKE) -n post-setup >/dev/null 2>&1 \
-          && $(call system,make post-setup RAILS_ENV=${env}) \
-          && $(MAKE) post-setup RAILS_ENV=${env}
+	@if $(MAKE) -n post-setup >/dev/null 2>&1; then \
+          $(call system,make post-setup RAILS_ENV=${env}) \
+          && $(MAKE) post-setup RAILS_ENV=${env}; fi
 	@$(call echo,${env_human} environment setup complete ${tick})
 
 .PHONY: dump

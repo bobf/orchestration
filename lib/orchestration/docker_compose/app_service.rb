@@ -101,7 +101,7 @@ module Orchestration
           'WEB_HEALTHCHECK_PATH' => '/',
           'WEB_PORT' => 8080,
           'DATABASE_URL' => database_url
-        }.merge(inherited_environment.map { |key| [key, nil] }.to_h).merge(rabbitmq_urls)
+        }.merge(inherited_environment.to_h { |key| [key, nil] }).merge(rabbitmq_urls)
       end
 
       def rabbitmq_urls

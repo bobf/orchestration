@@ -39,6 +39,12 @@ namespace :orchestration do
     end
   end
 
+  desc I18n.t('orchestration.rake.compose_services')
+  task :compose_services do
+    config = Orchestration::DockerCompose::ComposeConfiguration.new(Orchestration::Environment.new)
+    puts config.services.keys.join(' ') unless config.services.empty?
+  end
+
   desc I18n.t('orchestration.rake.healthcheck')
   task :healthcheck do
     Orchestration::DockerHealthcheck.execute

@@ -14,6 +14,7 @@ Gem::Specification.new do |spec|
   spec.summary = 'Docker orchestration toolkit'
   spec.description = 'Tools to help launch apps in Docker'
   spec.homepage = url
+  spec.metadata['rubygems_mfa_required'] = 'true'
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     `git ls-files -z`.split("\x0").reject do |f|
@@ -21,7 +22,7 @@ Gem::Specification.new do |spec|
     end
   end
 
-  spec.required_ruby_version = '~> 2.6'
+  spec.required_ruby_version = '~> 2.7'
   spec.bindir = 'bin'
   spec.executables = []
   spec.require_paths = ['lib']
