@@ -30,11 +30,8 @@ post-setup:
 # Launch all dependencies needed for a development environment and set up the
 # development database.
 #
-.PHONY: setup
+.PHONY: develop
 develop:
 	bundle install
-	@$(MAKE) start env=test
-	@$(MAKE) start env=development
-	bundle exec rake db:create
-	bundle exec rake db:migrate
-	bundle exec rake db:seed
+	@$(MAKE) setup env=test
+	@$(MAKE) setup env=development
