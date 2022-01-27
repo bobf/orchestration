@@ -3,6 +3,8 @@
 module Orchestration
   module DockerCompose
     class AppService
+      include ComposeHelpers
+
       def initialize(config, environment)
         @environment = environment
         @config = config
@@ -87,10 +89,6 @@ module Orchestration
             'max-file' => '5'
           }
         }
-      end
-
-      def networks
-        { 'local' => {} }
       end
 
       def environment

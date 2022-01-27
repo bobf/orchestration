@@ -33,12 +33,6 @@ module Orchestration
         adapter.default_port
       end
 
-      def networks
-        return {} unless @environment == :deployment
-
-        { 'local' => { 'aliases' => ['database-local'] } }
-      end
-
       def ports
         return {} unless %i[development test].include?(@environment)
 

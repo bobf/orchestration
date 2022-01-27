@@ -32,11 +32,18 @@ RSpec.describe Orchestration::DockerCompose::DatabaseService do
 
       it { is_expected.to be_a Hash }
       its(['image']) { is_expected.to eql 'library/postgres' }
+      its(['volumes']) { is_expected.to eql ['dummy_database:/var/pgdata'] }
       its(['environment']) do
         is_expected.to eql(
           'POSTGRES_PASSWORD' => 'password',
           'PGDATA' => '/var/pgdata'
         )
+      end
+
+      context 'test environment' do
+        let(:environment) { :test }
+
+        its(['networks']) { is_expected.to eql({ 'local' => { 'aliases' => ['database'] } }) }
       end
     end
 

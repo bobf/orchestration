@@ -13,6 +13,12 @@ module Orchestration
         # "3306" (docker will use an ephemeral host port which we will not use)
         "${sidecar-#{port}:}"
       end
+
+      def networks
+        service = self.class.name.rpartition('::').last.partition('Service').first.downcase
+        network_alias = %i[development test].include?(@environment) ? service : "#{network_alias}-local"
+        { 'local' => { 'aliases' => [network_alias] } }
+      end
     end
   end
 end

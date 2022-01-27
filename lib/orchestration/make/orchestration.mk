@@ -214,7 +214,7 @@ start: _create-log-directory _clean-logs
 ifneq (,${compose_services})
 	@$(call system,${compose_human} up --detach)
 ifeq (${env},$(filter ${env},test development))
-	${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${exit_fail}
+	@${compose} up --detach --force-recreate --renew-anon-volumes --remove-orphans ${services} ${log} || ${exit_fail}
 	@[ -n '${sidecar}' ] && \
          ( \
            $(call echo,(joining dependency network ${cyan}${network}${reset})) ; \
