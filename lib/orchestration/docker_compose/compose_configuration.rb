@@ -42,6 +42,8 @@ module Orchestration
         ports(name).find { |mapping| mapping[:remote] == remote_port }
                    .fetch(:local)
                    .to_i
+      rescue NoMethodError
+        nil
       end
 
       private
