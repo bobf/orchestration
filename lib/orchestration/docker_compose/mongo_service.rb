@@ -15,7 +15,7 @@ module Orchestration
       def definition
         return nil unless @config.enabled?
 
-        { 'image' => 'library/mongo' }.merge(ports).merge(volumes).merge(networks)
+        { 'image' => 'library/mongo', 'networks' => networks }.merge(ports).merge(volumes)
       end
 
       private

@@ -13,7 +13,7 @@ module Orchestration
       def definition
         return nil unless @config.enabled?
 
-        { 'image' => 'library/rabbitmq:management' }.merge(ports).merge(networks)
+        { 'image' => 'library/rabbitmq:management', 'networks' => networks }.merge(ports)
       end
 
       def ports
