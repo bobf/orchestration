@@ -16,7 +16,7 @@ module Orchestration
 
       def networks
         service = self.class.name.rpartition('::').last.partition('Service').first.downcase
-        network_alias = %i[development test].include?(@environment) ? service : "#{network_alias}-local"
+        network_alias = %i[development test].include?(@environment) ? service : "#{service}-local"
         { 'local' => { 'aliases' => [network_alias] } }
       end
     end
