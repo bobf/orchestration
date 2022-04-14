@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
     end
   end
 
-  spec.required_ruby_version = '~> 2.7'
+  spec.required_ruby_version = '>= 2.6'
   spec.bindir = 'bin'
   spec.executables = []
   spec.require_paths = ['lib']
@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'erubis', '~> 2.7'
   spec.add_runtime_dependency 'i18n', '>= 0.5'
   spec.add_runtime_dependency 'paint', '~> 2.0'
-  spec.add_runtime_dependency 'rails', '~> 6.0'
+  spec.add_runtime_dependency 'rails', '>= 4.1'
   spec.add_runtime_dependency 'thor', '~> 1.0'
 
   spec.add_development_dependency 'activerecord', '~> 6.0'

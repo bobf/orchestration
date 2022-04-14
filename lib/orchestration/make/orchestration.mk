@@ -302,16 +302,16 @@ setup: _log-notify
 	@$(call make,start env=${env})
 ifneq (,$(wildcard config/database.yml))
 	@$(call echo,Preparing ${env_human} database)
-	@$(call system,rake db:create DATABASE_URL="${url}")
+	@$(call system,rake db:create RAILS_ENV="${env}")
 	@${rake} db:create RAILS_ENV=${env} ${log} || : ${log}
   ifneq (,$(wildcard db/structure.sql))
 	@$(call system,rake db:schema:load DATABASE_URL="${url}")
-	@${rake} db:schema:load DATABASE_URL='${url}' ${log} || ${exit_fail}
+	@${rake} db:schema:load RAILS_ENV="${env}" DATABASE_URL='${url}' ${log} || ${exit_fail}
   else ifneq (,$(wildcard db/schema.rb))
 	@$(call system,rake db:schema:load DATABASE_URL="${url}")
-	@${rake} db:schema:load DATABASE_URL='${url}' ${log} || ${exit_fail}
+	@${rake} db:schema:load RAILS_ENV="${env}" DATABASE_URL='${url}' ${log} || ${exit_fail}
   endif
-	@$(call system,rake db:migrate DATABASE_URL="${url}")
+	@$(call system,rake db:migrate RAILS_ENV="${env}" DATABASE_URL="${url}")
 	@${rake} db:migrate RAILS_ENV=${env}
 endif
 	@if $(MAKE) -n post-setup >/dev/null 2>&1; then \
@@ -422,7 +422,7 @@ wait-listener:
 build: _log-notify _clean-logs
 build: build_dir = ${orchestration_dir}/.build
 build: context = ${build_dir}/context.tar
-build: build_args := --build-arg GIT_COMMIT='${git_version}'
+build: build_args := --build-arg GIT_COMMIT='${git_version}' $(shell grep '^ARG ' orchestration/Dockerfile | sed -e 's/=.*$$//' -e 's/^ARG /--build-arg /')
 build: tag_human = ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset}
 build: latest_tag_human = ${cyan}${docker_organization}/${docker_repository}:latest${reset}
 ifdef BUNDLE_GITHUB__COM
