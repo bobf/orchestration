@@ -99,13 +99,21 @@ exit_fail=( \
         )
 
 ifdef env_file
-  -include ${env_file}
+  env_path=${env_file}
 else
+  env_path=.env
+endif
+
 ifneq (${env},test)
-ifeq (,$(findstring test,$(MAKECMDGOALS)))
-  -include .env
+  ifeq (,$(findstring test,$(MAKECMDGOALS)))
+    ifeq (,$(findstring deploy,$(MAKECMDGOALS)))
+      -include ${env_path}
+    endif
+  endif
 endif
-endif
+
+ifneq (,$(findstring deploy,$(MAKECMDGOALS)))
+  RAILS_ENV=$(shell grep '^RAILS_ENV=' '${env_path}' | tail -n1 | sed 's/^RAILS_ENV=//')
 endif
 
 export
@@ -130,11 +138,13 @@ DOCKER_TAG ?= latest
 ifneq (,$(wildcard ./Gemfile))
   bundle_cmd = bundle exec
 endif
-rake=DEVPACK_DISABLE=1 RACK_ENV=${env} RAILS_ENV=${env} ${bundle_cmd} rake
+rake=DEVPACK_DISABLE=1 RACK_ENV=${env} SECRET_KEY_BASE='placeholder-secret' RAILS_ENV=${env} ${bundle_cmd} rake
 
 ifneq (,$(wildcard ${env_file}))
-  rake_cmd:=${rake}
-  rake=. ${env_file} && ${rake_cmd}
+  ifeq (,$(findstring deploy,$(MAKECMDGOALS)))
+    rake_cmd:=${rake}
+    rake=. ${env_file} && ${rake_cmd}
+  endif
 endif
 
 docker_config:=$(shell DEVPACK_DISABLE=1 RAILS_ENV=development ${bundle_cmd} rake orchestration:config 2>/dev/null || echo no-org no-repo)
