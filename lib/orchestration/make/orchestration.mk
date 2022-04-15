@@ -425,12 +425,6 @@ build: context = ${build_dir}/context.tar
 build: build_args := --build-arg GIT_COMMIT='${git_version}' $(shell grep '^ARG ' orchestration/Dockerfile | sed -e 's/=.*$$//' -e 's/^ARG /--build-arg /')
 build: tag_human = ${cyan}${docker_organization}/${docker_repository}:${git_version}${reset}
 build: latest_tag_human = ${cyan}${docker_organization}/${docker_repository}:latest${reset}
-ifdef BUNDLE_GITHUB__COM
-build: build_args := ${build_args} --build-arg BUNDLE_GITHUB__COM
-endif
-ifdef BUNDLE_BITBUCKET__ORG
-build: build_args := ${build_args} --build-arg BUNDLE_BITBUCKET__ORG
-endif
 build: _create-log-directory check-local-changes
 	@$(call echo,Preparing build context from ${cyan}${git_branch}${reset} (${cyan}${git_version}${reset})${reset})
 	@$(call system,git archive --format "tar" -o "${context}" "${git_branch}")
