@@ -295,7 +295,7 @@ db-console:
 
 .PHONY: setup
 ifneq (,$(wildcard config/database.yml))
-setup: url = $(shell ${rake} orchestration:db:url RAILS_ENV=${env})
+setup: url = $(shell ${rake} orchestration:db:url RAILS_ENV=${env} 2>/dev/null)
 endif
 setup: _log-notify
 	@$(call echo,Setting up ${env_human} environment)
@@ -312,7 +312,7 @@ ifneq (,$(wildcard config/database.yml))
 	@${rake} db:schema:load RAILS_ENV="${env}" DATABASE_URL='${url}' ${log} || ${exit_fail}
   endif
 	@$(call system,rake db:migrate RAILS_ENV="${env}" DATABASE_URL="${url}")
-	@${rake} db:migrate RAILS_ENV=${env}
+	@${rake} db:migrate RAILS_ENV=${env} ${log} || ${exit_fail}
 endif
 	@if $(MAKE) -n post-setup >/dev/null 2>&1; then \
           $(call system,make post-setup RAILS_ENV=${env}) \
