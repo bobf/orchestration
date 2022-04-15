@@ -305,8 +305,8 @@ ifneq (,$(wildcard config/database.yml))
 	@$(call system,rake db:create RAILS_ENV="${env}")
 	@${rake} db:create RAILS_ENV=${env} ${log} || : ${log}
   ifneq (,$(wildcard db/structure.sql))
-	@$(call system,rake db:schema:load RAILS_ENV="${env}" DATABASE_URL="${url}")
-	@${rake} db:schema:load RAILS_ENV="${env}" DATABASE_URL='${url}' ${log} || ${exit_fail}
+	@$(call system,rake db:structure:load RAILS_ENV="${env}" DATABASE_URL="${url}")
+	@${rake} db:structure:load RAILS_ENV="${env}" DATABASE_URL='${url}' ${log} || ${exit_fail}
   else ifneq (,$(wildcard db/schema.rb))
 	@$(call system,rake db:schema:load RAILS_ENV="${env}" DATABASE_URL="${url}")
 	@${rake} db:schema:load RAILS_ENV="${env}" DATABASE_URL='${url}' ${log} || ${exit_fail}

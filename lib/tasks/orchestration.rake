@@ -110,10 +110,12 @@ post-setup:
   namespace :db do
     desc I18n.t('orchestration.rake.db.url')
     task :url do
-      config = Rails.application.config_for(:database)
+      config = Rails.application.config_for(:database).transform_keys(&:to_sym)
 
       if config[:adapter] == 'sqlite3'
         puts "sqlite3:#{config[:database]}"
+      elsif !config[:url].nil?
+        puts config[:url]
       else
         puts DatabaseUrl.to_active_record_url(config)
       end
