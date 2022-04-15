@@ -28,6 +28,7 @@ en:
 
     rake:
       config: "Parse and output Orchestration config (internal use)"
+      upgrade: "Upgrade from Orchestration 0.5.x to 0.6.x"
       healthcheck: "Execute healthcheck; used for HEALTHCHECK command in Docker image"
       compose_services: "Output configured services for a given environment (RAILS_ENV)"
       install: "Install Orchestration tools"

@@ -3,6 +3,7 @@
 require 'erb'
 require 'pathname'
 require 'socket'
+require 'yaml'
 
 require 'database_url'
 require 'erubis'

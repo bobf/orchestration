@@ -1,6 +1,18 @@
-# Upgrade guide
+# Upgrade guide (0.5 to 0.6)
 
-## 0.5 to 0.6
+## Automatic Upgrade
+
+A _Rake_ task is provided to automatically upgrade your application:
+
+```bash
+bundle exec rake orchestration:upgrade
+```
+
+Obsolete files will be removed and required modifications to existing files will be applied.
+
+It is recommended to manually verify the validity of all changes to ensure that no custom configuration is lost.
+
+## Manual Upgrade
 
 ### Delete/rename files
 
@@ -47,6 +59,14 @@ post-setup:
 ```
 
 Replace the body of this target with any commands that you want to take place once the initial setup (launching development/test containers, running migrations, etc.) is complete. For example, running migrations for a secondary database.
+
+### Update Dockerfile healthcheck
+
+Edit `orchestration/Dockerfile` and edit the `HEALTHCHECK` directive's `CMD` to:
+
+```
+CMD ["bundle","exec","rake","orchestration:healthcheck"]
+```
 
 ### Continuous Integration files
 

@@ -3,9 +3,13 @@
 module Orchestration
   COLOR_MAP = {
     failure: %i[red bright],
+    success: %i[green],
+    info: %i[blue],
     error: %i[red],
     ready: %i[green],
     create: %i[green],
+    delete: %i[red],
+    rename: %i[blue],
     update: %i[yellow],
     backup: %i[blue],
     status: %i[blue],
