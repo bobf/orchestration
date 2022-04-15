@@ -315,7 +315,7 @@ ifneq (,$(wildcard config/database.yml))
 	@${rake} db:migrate RAILS_ENV=${env} ${log} || ${exit_fail}
 endif
 	@if $(MAKE) -n post-setup >/dev/null 2>&1; then \
-          $(call system,make post-setup RAILS_ENV=${env}) \
+          $(call system,make post-setup RAILS_ENV="${env}") \
           && $(MAKE) post-setup RAILS_ENV=${env}; fi
 	@$(call echo,${env_human} environment setup complete ${tick})
 
