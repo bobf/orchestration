@@ -3,7 +3,10 @@
 RSpec.describe Orchestration::Environment do
   subject(:environment) { described_class.new(options) }
 
+  let(:stubbed_environment) { {} }
   let(:options) { {} }
+
+  before { stub_const('ENV', ENV.to_h.merge(stubbed_environment)) }
 
   it { is_expected.to be_a described_class }
 
@@ -13,15 +16,13 @@ RSpec.describe Orchestration::Environment do
     it { is_expected.to eql 'test' }
 
     context 'from environment' do
-      before { allow(ENV).to receive(:[]).and_call_original }
-
       context 'RAILS_ENV' do
-        before { allow(ENV).to receive(:[]).with('RAILS_ENV') { 'myenv' } }
+        let(:stubbed_environment) { { 'RAILS_ENV' => 'myenv' } }
         it { is_expected.to eql 'myenv' }
       end
 
       context 'RACK_ENV' do
-        before { allow(ENV).to receive(:[]).with('RAILS_ENV') { 'myenv' } }
+        let(:stubbed_environment) { { 'RACK_ENV' => 'myenv' } }
         it { is_expected.to eql 'myenv' }
       end
     end
@@ -42,52 +43,32 @@ RSpec.describe Orchestration::Environment do
   describe '#database_url' do
     subject(:database_url) { environment.database_url }
 
-    before do
-      allow(ENV).to receive(:[]).and_call_original
-      allow(ENV).to receive(:[]).with('DATABASE_URL') { 'database-url' }
-    end
-
     context 'development' do
-      before do
-        allow(ENV).to receive(:[]).with('RAILS_ENV') { 'development' }
-      end
-
       context 'with DEVELOPMENT_DATABASE_URL set' do
-        before do
-          allow(ENV).to receive(:[]).with('DEVELOPMENT_DATABASE_URL') { 'abc' }
-        end
-
+        let(:stubbed_environment) { { 'RAILS_ENV' => 'development', 'DEVELOPMENT_DATABASE_URL' => 'abc' } }
         it { is_expected.to eql 'abc' }
       end
 
       context 'without DEVELOPMENT_DATABASE_URL set' do
+        let(:stubbed_environment) { { 'RAILS_ENV' => 'development', 'DATABASE_URL' => 'database-url' } }
         it { is_expected.to eql 'database-url' }
       end
     end
 
     context 'test' do
-      before do
-        allow(ENV).to receive(:[]).with('RAILS_ENV') { 'test' }
-      end
-
       context 'with TEST_DATABASE_URL set' do
-        before do
-          allow(ENV).to receive(:[]).with('TEST_DATABASE_URL') { 'abc' }
-        end
-
+        let(:stubbed_environment) { { 'RAILS_ENV' => 'test', 'TEST_DATABASE_URL' => 'abc' } }
         it { is_expected.to eql 'abc' }
       end
 
       context 'without TEST_DATABASE_URL set' do
+        let(:stubbed_environment) { { 'RAILS_ENV' => 'test', 'DATABASE_URL' => 'database-url' } }
         it { is_expected.to eql 'database-url' }
       end
     end
 
     context 'production' do
-      before do
-        allow(ENV).to receive(:[]).with('RAILS_ENV') { 'production' }
-      end
-
+      let(:stubbed_environment) { { 'RAILS_ENV' => 'production', 'DATABASE_URL' => 'database-url' } }
       it { is_expected.to eql 'database-url' }
     end
   end

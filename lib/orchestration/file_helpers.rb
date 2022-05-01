@@ -95,9 +95,9 @@ module Orchestration
     end
 
     def ensure_line_in_file(path, line, echo: true, regex: nil)
-      return if line_in_file?(path, line: line, regex: regex)
+      return if line_in_file?(path, line:, regex:)
 
-      append_file(path, "\n#{line.chomp}\n", echo: echo)
+      append_file(path, "\n#{line.chomp}\n", echo:)
       true
     end
 
@@ -131,7 +131,7 @@ module Orchestration
 
     def force?
       # Rake task was invoked with `force=yes`
-      ENV['force'] == 'yes'
+      ENV.fetch('force', nil) == 'yes'
     end
   end
 end

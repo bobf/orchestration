@@ -10,7 +10,7 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
       database_configuration_path: dummy_path.join('config', 'database.yml'),
       mongoid_configuration_path: dummy_path.join('config', 'mongoid.yml'),
       rabbitmq_configuration_path: dummy_path.join('config', 'rabbitmq.yml'),
-      docker_compose_path: docker_compose_path,
+      docker_compose_path:,
       root: dummy_path,
       environment: 'test',
       database_url: nil,

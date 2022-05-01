@@ -21,10 +21,10 @@ module Orchestration
         def settings(healthcheck: false)
           {
             adapter: adapter.name,
-            host: host,
-            port: port,
-            username: username,
-            password: password,
+            host:,
+            port:,
+            username:,
+            password:,
             database: healthcheck ? adapter.credentials['database'] : database
           }.transform_keys(&:to_s)
         end
@@ -64,7 +64,7 @@ module Orchestration
           return {} unless File.exist?(database_configuration_path) || custom?
 
           yaml = ERB.new(File.read(database_configuration_path)).result
-          YAML.safe_load(yaml, [], [], true)[@env.environment] || {}
+          YAML.safe_load(yaml, aliases: true)[@env.environment] || {}
         end
 
         def url_config

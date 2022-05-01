@@ -12,7 +12,7 @@ RSpec.describe Orchestration::Services::Listener::Configuration do
       Orchestration::Environment,
       environment: 'test',
       docker_compose_path: config,
-      docker_compose_config: docker_compose_config
+      docker_compose_config:
     )
   end
 

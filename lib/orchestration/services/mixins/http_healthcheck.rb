@@ -19,7 +19,7 @@ module Orchestration
 
       def connection_error(code)
         raise HTTPConnectionError,
-              I18n.t('orchestration.http.connection_error', code: code)
+              I18n.t('orchestration.http.connection_error', code:)
       end
 
       def connection_error?(code)

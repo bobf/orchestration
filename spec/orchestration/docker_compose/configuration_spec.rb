@@ -35,10 +35,10 @@ RSpec.describe Orchestration::DockerCompose::Configuration do
       let(:database_configuration) do
         instance_double(
           Orchestration::Services::Database::Configuration,
-          env: env,
+          env:,
           enabled?: true,
           settings: { 'port' => 1234 },
-          adapter: adapter
+          adapter:
         )
       end
 

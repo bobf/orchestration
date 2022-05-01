@@ -77,7 +77,7 @@ module Orchestration
         # '{sidecar-27018:}27017' => '27018:27017'
         local, _, remote = mapping.sub(/\${sidecar-(\d+):}/, '\1:')
                                   .partition(':')
-        { local: local, remote: remote }
+        { local:, remote: }
       end
     end
   end

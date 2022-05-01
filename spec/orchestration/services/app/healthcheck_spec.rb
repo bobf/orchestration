@@ -7,7 +7,7 @@ RSpec.describe Orchestration::Services::App::Healthcheck do
     instance_double(
       Orchestration::Environment,
       environment: 'test',
-      settings: settings,
+      settings:,
       app_port: 3000,
       app_name: 'test_app',
       docker_compose_path: fixture_path('docker-compose'),

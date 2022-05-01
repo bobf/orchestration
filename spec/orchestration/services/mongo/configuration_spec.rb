@@ -7,7 +7,7 @@ RSpec.describe Orchestration::Services::Mongo::Configuration do
   let(:env) do
     double(
       'Environment',
-      environment: environment,
+      environment:,
       mongoid_configuration_path: '/path/to/nowhere.yml',
       mongo_url: nil,
       docker_compose_config: {

@@ -8,7 +8,7 @@ RSpec.describe Orchestration::Services::RabbitMQ::Configuration do
   let(:env) do
     double(
       'Environment',
-      environment: environment,
+      environment:,
       rabbitmq_configuration_path: config,
       rabbitmq_url: nil,
       docker_compose_config: {

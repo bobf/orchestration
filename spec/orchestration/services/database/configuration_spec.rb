@@ -74,7 +74,7 @@ RSpec.describe Orchestration::Services::Database::Configuration do
   end
 
   describe '#settings' do
-    subject(:settings) { configuration.settings(healthcheck: healthcheck) }
+    subject(:settings) { configuration.settings(healthcheck:) }
 
     let(:healthcheck) { false }
 

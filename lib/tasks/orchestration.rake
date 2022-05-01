@@ -124,7 +124,7 @@ post-setup:
     desc I18n.t('orchestration.rake.db.console')
     task :console do
       env = Orchestration::Environment.new
-      options = ENV['db'] ? { config_path: "config/database.#{ENV['db']}.yml" } : {}
+      options = ENV['db'] ? { config_path: "config/database.#{ENV.fetch('db', nil)}.yml" } : {}
       sh Orchestration::Services::Database::Configuration.new(env, nil, options).console_command
     end
   end
@@ -161,7 +161,7 @@ post-setup:
                 end
 
       adapter::Healthcheck.start(
-        nil, nil, config_path: path, service_name: name, sidecar: ENV['sidecar']
+        nil, nil, config_path: path, service_name: name, sidecar: ENV.fetch('sidecar', nil)
       )
     end
   end

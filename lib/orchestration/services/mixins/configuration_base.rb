@@ -74,7 +74,7 @@ module Orchestration
 
       def yaml(content)
         # Whitelist `Symbol` and permit aliases:
-        YAML.safe_load(content, [Symbol], [], true)
+        YAML.safe_load(content, permitted_classes: [Symbol], aliases: true)
       end
     end
   end

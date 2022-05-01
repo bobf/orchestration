@@ -15,7 +15,7 @@ RSpec.shared_examples 'a service' do |service|
     let(:env) do
       double(
         'Environment',
-        environment: environment,
+        environment:,
         database_configuration_path: '/non/existent/path/i/hope',
         database_url: 'postgresql://',
         mongo_url: nil,

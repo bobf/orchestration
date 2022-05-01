@@ -54,7 +54,7 @@ module Orchestration
           raise ArgumentError,
                 I18n.t(
                   'orchestration.rake.app.unspported_web_server',
-                  server: server,
+                  server:,
                   expected: %w[puma unicorn]
                 )
         end

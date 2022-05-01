@@ -64,7 +64,7 @@ module Orchestration
           return {} unless File.exist?(@env.mongoid_configuration_path)
 
           yaml = File.read(@env.mongoid_configuration_path)
-          config = YAML.safe_load(yaml, [], [], true)
+          config = YAML.safe_load(yaml, aliases: true)
           env = config.fetch(@env.environment, nil)
           return {} if env.nil?
 

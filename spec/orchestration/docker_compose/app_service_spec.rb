@@ -14,7 +14,7 @@ RSpec.describe Orchestration::DockerCompose::AppService do
       orchestration_root: Pathname.new('orchestration'),
       app_name: 'test_app',
       database_url: 'postgresql://hostname',
-      settings: settings,
+      settings:,
       docker_compose_config?: false,
       database_configuration_path: fixture_path('postgresql')
     )

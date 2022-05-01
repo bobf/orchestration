@@ -3,7 +3,7 @@
 RSpec.describe Orchestration::DockerCompose::RabbitMQService do
   subject(:rabbitmq_service) { described_class.new(config, environment) }
 
-  let(:config) { double('Configuration', settings: settings, enabled?: true) }
+  let(:config) { double('Configuration', settings:, enabled?: true) }
   let(:settings) { { 'port' => 5674 } }
   let(:environment) { :test }
 

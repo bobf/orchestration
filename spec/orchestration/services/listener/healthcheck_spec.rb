@@ -6,7 +6,7 @@ RSpec.describe Orchestration::Services::Listener::Healthcheck do
   let(:env) do
     instance_double(
       Orchestration::Environment,
-      settings: settings,
+      settings:,
       environment: 'test',
       docker_compose_path: fixture_path('docker-compose'),
       docker_compose_config: {
