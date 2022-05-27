@@ -110,6 +110,9 @@ post-setup:
   namespace :db do
     desc I18n.t('orchestration.rake.db.url')
     task :url do
+      ENV['DATABASE_URL'] = nil
+      ENV['DEVELOPMENT_DATABASE_URL'] = nil
+      ENV['TEST_DATABASE_URL'] = nil
       config = Rails.application.config_for(:database).transform_keys(&:to_sym)
 
       if config[:adapter] == 'sqlite3'

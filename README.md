@@ -31,13 +31,13 @@ Add _Orchestration_ to your `Gemfile`:
 _Ruby 3.x_:
 
 ```ruby
-gem 'orchestration', '~> 0.7.0'
+gem 'orchestration', '~> 0.7.1'
 ```
 
 _Ruby 2.x_:
 
 ```ruby
-gem 'orchestration', '~> 0.6.6'
+gem 'orchestration', '~> 0.6.7'
 ```
 
 Install:
