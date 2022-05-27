@@ -9,8 +9,6 @@
 # rspec failure tracking
 .rspec_status
 
-Gemfile.lock
-
 *.swp
 *.swo
 
@@ -34,5 +32,3 @@ docker/.build/
 docker/.context.tar
 
 .DS_Store
-
-.ruby-version

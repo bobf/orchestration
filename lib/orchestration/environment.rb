@@ -9,7 +9,7 @@ module Orchestration
     def environment
       return @environment unless @environment.nil?
 
-      ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
+      ENV.fetch('RAILS_ENV') { ENV.fetch('RACK_ENV', 'development') }
     end
 
     def web_server
@@ -20,16 +20,16 @@ module Orchestration
     def database_url
       case environment
       when 'development'
-        ENV['DEVELOPMENT_DATABASE_URL'] || ENV['DATABASE_URL']
+        ENV.fetch('DEVELOPMENT_DATABASE_URL') { ENV.fetch('DATABASE_URL', nil) }
       when 'test'
-        ENV['TEST_DATABASE_URL'] || ENV['DATABASE_URL']
+        ENV.fetch('TEST_DATABASE_URL') { ENV.fetch('DATABASE_URL', nil) }
       else
-        ENV['DATABASE_URL']
+        ENV.fetch('DATABASE_URL', nil)
       end
     end
 
     def mongo_url
-      ENV['MONGO_URL']
+      ENV.fetch('MONGO_URL', nil)
     end
 
     def mongoid_configuration_path

@@ -13,15 +13,17 @@ RSpec.describe Orchestration::Environment do
     it { is_expected.to eql 'test' }
 
     context 'from environment' do
-      before { allow(ENV).to receive(:[]).and_call_original }
+      before { stub_const('ENV', ENV.to_h.merge(custom_env)) }
+
+      let(:custom_env) { {} }
 
       context 'RAILS_ENV' do
-        before { allow(ENV).to receive(:[]).with('RAILS_ENV') { 'myenv' } }
+        let(:custom_env) { { 'RAILS_ENV' => 'myenv' } }
         it { is_expected.to eql 'myenv' }
       end
 
       context 'RACK_ENV' do
-        before { allow(ENV).to receive(:[]).with('RAILS_ENV') { 'myenv' } }
+        let(:custom_env) { { 'RACK_ENV' => 'myenv' } }
         it { is_expected.to eql 'myenv' }
       end
     end
@@ -43,18 +45,17 @@ RSpec.describe Orchestration::Environment do
     subject(:database_url) { environment.database_url }
 
     before do
-      allow(ENV).to receive(:[]).and_call_original
-      allow(ENV).to receive(:[]).with('DATABASE_URL') { 'database-url' }
+      stub_const('ENV', ENV.to_h.merge({ 'DATABASE_URL' => 'database-url' }))
     end
 
     context 'development' do
       before do
-        allow(ENV).to receive(:[]).with('RAILS_ENV') { 'development' }
+        stub_const('ENV', ENV.to_h.merge({ 'RAILS_ENV' => 'development' }))
       end
 
       context 'with DEVELOPMENT_DATABASE_URL set' do
         before do
-          allow(ENV).to receive(:[]).with('DEVELOPMENT_DATABASE_URL') { 'abc' }
+          stub_const('ENV', ENV.to_h.merge({ 'DEVELOPMENT_DATABASE_URL' => 'abc' }))
         end
 
         it { is_expected.to eql 'abc' }
@@ -67,12 +68,12 @@ RSpec.describe Orchestration::Environment do
 
     context 'test' do
       before do
-        allow(ENV).to receive(:[]).with('RAILS_ENV') { 'test' }
+        stub_const('ENV', ENV.to_h.merge({ 'RAILS_ENV' => 'test' }))
       end
 
       context 'with TEST_DATABASE_URL set' do
         before do
-          allow(ENV).to receive(:[]).with('TEST_DATABASE_URL') { 'abc' }
+          stub_const('ENV', ENV.to_h.merge({ 'TEST_DATABASE_URL' => 'abc' }))
         end
 
         it { is_expected.to eql 'abc' }
@@ -85,7 +86,7 @@ RSpec.describe Orchestration::Environment do
 
     context 'production' do
       before do
-        allow(ENV).to receive(:[]).with('RAILS_ENV') { 'production' }
+        stub_const('ENV', ENV.to_h.merge({ 'RAILS_ENV' => 'production' }))
       end
 
       it { is_expected.to eql 'database-url' }

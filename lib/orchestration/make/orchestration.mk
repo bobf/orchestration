@@ -107,7 +107,9 @@ endif
 ifneq (${env},test)
   ifeq (,$(findstring test,$(MAKECMDGOALS)))
     ifeq (,$(findstring deploy,$(MAKECMDGOALS)))
-      -include ${env_path}
+      ifeq (,$(findstring setup,$(MAKECMDGOALS)))
+        -include ${env_path}
+      endif
     endif
   endif
 endif
@@ -122,7 +124,9 @@ ifneq (,$(findstring test,$(MAKECMDGOALS)))
   env=test
 endif
 
-ifneq (,$(env))
+ifneq (,$(RAILS_ENV))
+  env=$(RAILS_ENV)
+else ifneq (,$(env))
   # `env` set by current shell.
 else ifneq (,$(RAILS_ENV))
   env=$(RAILS_ENV)
@@ -313,16 +317,16 @@ setup: _log-notify
 ifneq (,$(wildcard config/database.yml))
 	@$(call echo,Preparing ${env_human} database)
 	@$(call system,rake db:create RAILS_ENV="${env}")
-	@${rake} db:create RAILS_ENV=${env} ${log} || : ${log}
+	@${rake} db:create RAILS_ENV=${env} DATABASE_URL='${url}' ${log} || : ${log}
   ifneq (,$(wildcard db/structure.sql))
-	@$(call system,rake db:structure:load RAILS_ENV="${env}" DATABASE_URL="${url}")
+	@$(call system,rake db:structure:load RAILS_ENV="${env}" ${url_prefix}DATABASE_URL="${url}")
 	@${rake} db:structure:load RAILS_ENV="${env}" DATABASE_URL='${url}' ${log} || ${exit_fail}
   else ifneq (,$(wildcard db/schema.rb))
-	@$(call system,rake db:schema:load RAILS_ENV="${env}" DATABASE_URL="${url}")
+	@$(call system,rake db:schema:load RAILS_ENV="${env}" ${url_prefix}DATABASE_URL="${url}")
 	@${rake} db:schema:load RAILS_ENV="${env}" DATABASE_URL='${url}' ${log} || ${exit_fail}
   endif
-	@$(call system,rake db:migrate RAILS_ENV="${env}" DATABASE_URL="${url}")
-	@${rake} db:migrate RAILS_ENV=${env} ${log} || ${exit_fail}
+	@$(call system,rake db:migrate RAILS_ENV="${env}" ${url_prefix}DATABASE_URL="${url}")
+	@${rake} db:migrate RAILS_ENV="${env}" DATABASE_URL='${url}' ${log} || ${exit_fail}
 endif
 	@if $(MAKE) -n post-setup >/dev/null 2>&1; then \
           $(call system,make post-setup RAILS_ENV="${env}") \
