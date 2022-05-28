@@ -46,13 +46,13 @@ RSpec.describe Orchestration::DockerCompose::InstallGenerator do
 
       context 'test' do
         let(:env) { :test }
-        it { is_expected.to eql %i[database mongo rabbitmq] }
+        it { is_expected.to eql %i[database mongo rabbitmq redis] }
       end
 
       context 'deployment' do
         let(:env) { :deployment }
         it do
-          is_expected.to eql %i[app database mongo rabbitmq]
+          is_expected.to eql %i[app database mongo rabbitmq redis]
         end
       end
     end

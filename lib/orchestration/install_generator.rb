@@ -72,7 +72,7 @@ module Orchestration
     end
 
     def database_yml
-      return unless defined?(ActiveRecord)
+      return unless defined?(::ActiveRecord)
 
       adapter = DockerCompose::ComposeConfiguration.database_adapter_name
       return if adapter == 'sqlite3'
@@ -81,15 +81,21 @@ module Orchestration
     end
 
     def mongoid_yml
-      return unless defined?(Mongoid)
+      return unless defined?(::Mongoid)
 
       service_config('mongoid.yml', Services::Mongo::Configuration)
     end
 
     def rabbitmq_yml
-      return unless defined?(Bunny)
+      return unless defined?(::Bunny)
 
       service_config('rabbitmq.yml', Services::RabbitMQ::Configuration)
+    end
+
+    def redis_yml
+      return unless defined?(::Redis)
+
+      service_config('redis.yml', Services::Redis::Configuration)
     end
 
     def env

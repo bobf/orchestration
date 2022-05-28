@@ -2,6 +2,7 @@
 
 module Orchestration
   module DockerCompose
+    # rubocop:disable Metrics/ClassLength
     class AppService
       include ComposeHelpers
 
@@ -99,13 +100,19 @@ module Orchestration
           'WEB_HEALTHCHECK_PATH' => '/healthcheck',
           'WEB_PORT' => 8080,
           'DATABASE_URL' => database_url
-        }.merge(inherited_environment.to_h { |key| [key, nil] }).merge(rabbitmq_urls)
+        }.merge(inherited_environment.to_h { |key| [key, nil] }).merge(rabbitmq_urls).merge(redis_url)
       end
 
       def rabbitmq_urls
         return {} unless Services::RabbitMQ::Configuration.new(Environment.new).enabled?
 
-        { 'RABBITMQ_URL' => 'amqp://rabbitmq:5672', 'RABBITMQ_MANAGEMENT_URL' => 'http://rabbitmq:15672' }
+        { 'RABBITMQ_URL' => 'amqp://rabbitmq-local:5672', 'RABBITMQ_MANAGEMENT_URL' => 'http://rabbitmq-local:15672' }
+      end
+
+      def redis_url
+        return {} unless Services::Redis::Configuration.new(Environment.new).enabled?
+
+        { 'REDIS_URL' => "redis://redis-local:#{Services::Redis::PORT}" }
       end
 
       def database_url
@@ -124,5 +131,6 @@ module Orchestration
         ['${PUBLISH_PORT:?PUBLISH_PORT must be provided}:8080']
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

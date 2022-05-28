@@ -67,6 +67,7 @@ _Orchestration_ generates the following files where appropriate. Backups are cre
 * `config/database.yml`
 * `config/mongoid.yml`
 * `config/rabbitmq.yml` (see [RabbitMQ Configuration](#rabbitmq-configuration) for more details)
+* `config/redis.yml` (see [Redis Configuration](#redis-configuration) for more details)
 * `config/unicorn.rb`
 * `config/puma.rb`
 
@@ -422,6 +423,31 @@ production:
 Using this approach, the environment variable `RABBITMQ_URL` can be used to configure _Bunny_ in production (similar to `DATABASE_URL` and `MONGO_URL`).
 
 This is a convention of the _Orchestration_ gem intended to make _RabbitMQ_ configuration consistent with other services.
+
+<a name="redis-configuration"></a>
+## Redis Configuration
+
+The [Redis](https://github.com/redis/redis-rb) does not recognise `config/redis.yml`. If your application uses _Redis_ then you must manually update your code to reference this file, e.g.:
+
+```ruby
+# config/initializers/redis.rb
+
+ENV['REDIS_URL'] ||= config_for(:redis)['url']
+```
+
+_Redis_ will then use `REDIS_URL` for all connections.
+
+_Orchestration_ generates the following `config/redis.yml`:
+
+```
+development:
+  url: redis://127.0.0.1:51071
+
+test:
+  url: redis://127.0.0.1:51069
+```
+
+This allows `development` and `test` environments to auto-load the correct config for the relevant containers while also allowing `production` to use either the auto-generated _Redis_ service or an external _Redis_ instance.
 
 ## Alternate Database Configuration Files
 

@@ -39,7 +39,7 @@ module Orchestration
         return nil unless listener?(name)
         return ports(name).first[:local].to_i if remote_port.nil?
 
-        ports(name).find { |mapping| mapping[:remote] == remote_port }
+        ports(name).find { |mapping| mapping[:remote].to_i == remote_port.to_i }
                    .fetch(:local)
                    .to_i
       rescue NoMethodError

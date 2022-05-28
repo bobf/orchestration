@@ -42,6 +42,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pg', '~> 1.3'
   spec.add_development_dependency 'rails'
   spec.add_development_dependency 'rake', '~> 13.0'
+  spec.add_development_dependency 'redis', '~> 4.6'
   spec.add_development_dependency 'rspec', '~> 3.11'
   spec.add_development_dependency 'rspec-its', '~> 1.3'
   spec.add_development_dependency 'rubocop', '~> 1.28'

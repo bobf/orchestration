@@ -32,7 +32,8 @@ module Orchestration
           app: AppService,
           database: DatabaseService,
           mongo: MongoService,
-          rabbitmq: RabbitMQService
+          rabbitmq: RabbitMQService,
+          redis: RedisService
         }
       end
 

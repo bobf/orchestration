@@ -1,8 +1,8 @@
-environment ENV.fetch('RAILS_ENV') { 'development' }
+environment ENV.fetch('RAILS_ENV', 'development')
 
-port ENV.fetch('WEB_PORT') { 3000 }
-workers ENV.fetch('WEB_CONCURRENCY') { 4 }
-threads_count = ENV.fetch('RAILS_MAX_THREADS') { 8 }
+port ENV.fetch('WEB_PORT', 3000)
+workers ENV.fetch('WEB_CONCURRENCY', 4)
+threads_count = ENV.fetch('RAILS_MAX_THREADS', 8)
 
 pidfile './tmp/pids/server.pid'
 threads threads_count, threads_count

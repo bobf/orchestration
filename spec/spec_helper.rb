@@ -7,6 +7,7 @@ require 'bunny'
 require 'mongoid'
 require 'mysql2'
 require 'pg'
+require 'redis'
 require 'sqlite3'
 require 'webmock/rspec'
 

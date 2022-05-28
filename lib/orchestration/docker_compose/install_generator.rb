@@ -67,9 +67,9 @@ module Orchestration
       def service_names(environment)
         case environment
         when :test, :development
-          %i[database mongo rabbitmq]
+          %i[database mongo rabbitmq redis]
         when :deployment
-          %i[app database mongo rabbitmq]
+          %i[app database mongo rabbitmq redis]
         when :local, nil
           []
         else
@@ -88,7 +88,8 @@ module Orchestration
           app: Orchestration::Services::App::Configuration,
           database: Orchestration::Services::Database::Configuration,
           mongo: Orchestration::Services::Mongo::Configuration,
-          rabbitmq: Orchestration::Services::RabbitMQ::Configuration
+          rabbitmq: Orchestration::Services::RabbitMQ::Configuration,
+          redis: Orchestration::Services::Redis::Configuration
         }.fetch(service).new(@env)
       end
 

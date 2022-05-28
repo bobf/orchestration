@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Orchestration
+  # rubocop:disable Metrics/ClassLength
   class Environment
     def initialize(options = {})
       @environment = options.fetch(:environment, nil)
@@ -42,6 +43,10 @@ module Orchestration
 
     def rabbitmq_configuration_path
       root.join('config', 'rabbitmq.yml')
+    end
+
+    def redis_configuration_path
+      root.join('config', 'redis.yml')
     end
 
     def orchestration_configuration_path
@@ -136,4 +141,5 @@ module Orchestration
       end.join
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end
