@@ -397,13 +397,6 @@ make stop RAILS_ENV=test
 <a name="rabbitmq-configuration"></a>
 ## RabbitMQ Configuration
 
-The [Bunny](https://github.com/ruby-amqp/bunny) _RabbitMQ_ gem does not recognise `config/rabbitmq.yml` or `RABBITMQ_URL`. If your application uses _RabbitMQ_ then you must manually update your code to reference this file, e.g.:
-
-```ruby
-connection = Bunny.new(config_for(:rabbit_mq)['url'])
-connection.start
-```
-
 _Orchestration_ generates the following `config/rabbitmq.yml`:
 
 ```
@@ -420,22 +413,19 @@ production:
   management_url: <%= ENV['RABBITMQ_MANAGEMENT_URL'] %>
 ```
 
+The [Bunny](https://github.com/ruby-amqp/bunny) _RabbitMQ_ gem does not recognise `config/rabbitmq.yml` or `RABBITMQ_URL`. If your application uses _RabbitMQ_ then you must manually update your code to reference this file, e.g.:
+
+```ruby
+connection = Bunny.new(config_for(:rabbit_mq)['url'])
+connection.start
+```
+
 Using this approach, the environment variable `RABBITMQ_URL` can be used to configure _Bunny_ in production (similar to `DATABASE_URL` and `MONGO_URL`).
 
 This is a convention of the _Orchestration_ gem intended to make _RabbitMQ_ configuration consistent with other services.
 
 <a name="redis-configuration"></a>
 ## Redis Configuration
-
-The [Redis](https://github.com/redis/redis-rb) does not recognise `config/redis.yml`. If your application uses _Redis_ then you must manually update your code to reference this file, e.g.:
-
-```ruby
-# config/initializers/redis.rb
-
-ENV['REDIS_URL'] ||= config_for(:redis)['url']
-```
-
-_Redis_ will then use `REDIS_URL` for all connections.
 
 _Orchestration_ generates the following `config/redis.yml`:
 
@@ -447,7 +437,17 @@ test:
   url: redis://127.0.0.1:51069
 ```
 
+The [Redis](https://github.com/redis/redis-rb) gem does not recognise `config/redis.yml`. If your application uses _Redis_ then you must manually update your code to reference this file, e.g.:
+
+```ruby
+# config/initializers/redis.rb
+
+ENV['REDIS_URL'] ||= config_for(:redis)['url']
+```
+_Redis_ will then use `REDIS_URL` for all connections.
+
 This allows `development` and `test` environments to auto-load the correct config for the relevant containers while also allowing `production` to use either the auto-generated _Redis_ service or an external _Redis_ instance.
+
 
 ## Alternate Database Configuration Files
 
