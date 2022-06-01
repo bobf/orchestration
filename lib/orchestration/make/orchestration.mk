@@ -146,17 +146,16 @@ endif
 rake=DEVPACK_DISABLE=1 RACK_ENV=${env} SECRET_KEY_BASE='placeholder-secret' RAILS_ENV=${env} ${bundle_cmd} rake
 
 ifneq (,$(wildcard ${env_file}))
-  ifeq (,$(findstring deploy,$(MAKECMDGOALS)))
-    rake_cmd:=${rake}
-    rake=. ${env_file} && ${rake_cmd}
-  endif
+  rake_with_env=set -a +x ; . ${env_file} ; ${rake} $1
+else
+  rake_with_env=${rake} $1
 endif
 
 docker_config:=$(shell DEVPACK_DISABLE=1 RAILS_ENV=development ${bundle_cmd} rake orchestration:config 2>/dev/null || echo no-org no-repo)
 docker_organization=$(word 1,$(docker_config))
 docker_repository=$(word 2,$(docker_config))
 
-compose_services:=$(shell ${rake} orchestration:compose_services RAILS_ENV=${env})
+compose_services:=$(shell $(call rake_with_env,orchestration:compose_services RAILS_ENV=${env}))
 
 ifeq (,$(project_name))
   project_base = ${docker_repository}_${env}
@@ -416,13 +415,13 @@ ifeq (${orchestrator},kubernetes)
 	@cp -r ./orchestration/kubernetes/* ${deployment}
 ifdef env_file
 	@$(call echo,Generating environment patch file from ${env_file})
-	@bundle exec rake orchestration:kubernetes:environment env_file='${env_file}' > ${deployment}/environmentPatch.yml
+	@$(call rake_with_env,orchestration:kubernetes:environment env_file='${env_file}' > ${deployment}/environmentPatch.yml)
 else
 	@$(call echo,Generating environment patch file)
-	@bundle exec rake orchestration:kubernetes:environment > ${deployment}/environmentPatch.yml
+	@$(call rake_with_env,orchestration:kubernetes:environment > ${deployment}/environmentPatch.yml)
 endif
 	@$(call echo,Generating image patch file for ${tag_human})
-	@bundle exec rake orchestration:kubernetes:image image='${docker_image}' > ${deployment}/imagePatch.yml
+	@$(call rake_with_env,orchestration:kubernetes:image image='${docker_image}' > ${deployment}/imagePatch.yml)
 	@$(call echo,Deploying configuration)
 	@$(call system,kubectl -k ${deployment} apply)
 	@kubectl -k ${deployment} apply
