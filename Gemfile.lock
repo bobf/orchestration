@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    orchestration (0.7.1)
+    orchestration (0.7.2)
       database_url (~> 0.1.2)
       erubis (~> 2.7)
       i18n

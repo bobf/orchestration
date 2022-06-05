@@ -31,7 +31,7 @@ Add _Orchestration_ to your `Gemfile`:
 _Ruby 3.x_:
 
 ```ruby
-gem 'orchestration', '~> 0.7.1'
+gem 'orchestration', '~> 0.7.2'
 ```
 
 _Ruby 2.x_:
@@ -416,7 +416,7 @@ production:
 The [Bunny](https://github.com/ruby-amqp/bunny) _RabbitMQ_ gem does not recognise `config/rabbitmq.yml` or `RABBITMQ_URL`. If your application uses _RabbitMQ_ then you must manually update your code to reference this file, e.g.:
 
 ```ruby
-connection = Bunny.new(config_for(:rabbit_mq)['url'])
+connection = Bunny.new(Rails.application.config_for(:rabbit_mq)['url'])
 connection.start
 ```
 
@@ -442,7 +442,7 @@ The [Redis](https://github.com/redis/redis-rb) gem does not recognise `config/re
 ```ruby
 # config/initializers/redis.rb
 
-ENV['REDIS_URL'] ||= config_for(:redis)['url']
+ENV['REDIS_URL'] ||= Rails.application.config_for(:redis)['url']
 ```
 _Redis_ will then use `REDIS_URL` for all connections.
 
