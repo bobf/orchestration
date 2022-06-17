@@ -31,7 +31,7 @@ Add _Orchestration_ to your `Gemfile`:
 _Ruby 3.x_:
 
 ```ruby
-gem 'orchestration', '~> 0.7.2'
+gem 'orchestration', '~> 0.7.3'
 ```
 
 _Ruby 2.x_:
