@@ -220,11 +220,16 @@ all: build
 
 ### Container management commands ###
 
+.PHONY: pull
+pull:
+	@$(call system,${compose_human} pull)
+	@${compose} pull
+
 .PHONY: start
 ifndef network
 start: network := ${compose_project_name}
 endif
-start: _create-log-directory _clean-logs
+start: _create-log-directory _clean-logs pull
 ifneq (,${compose_services})
 	@$(call system,${compose_human} up --detach)
 ifeq (${env},$(filter ${env},test development))
