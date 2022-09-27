@@ -189,14 +189,13 @@ else
   compose_project_name = ${project_base}
 endif
 
-compose_base=env -i \
-             PATH=$(PATH) \
+compose_base=PATH=$(PATH) \
              HOST_UID=$(shell id -u) \
              DOCKER_ORGANIZATION="${docker_organization}" \
              DOCKER_REPOSITORY="${docker_repository}" \
              COMPOSE_PROJECT_NAME="${compose_project_name}" \
 	     ${sidecar_compose} \
-             docker-compose \
+             docker compose \
              -f ${orchestration_dir}/docker-compose.${env}.yml
 
 git_branch ?= $(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo no-branch))
