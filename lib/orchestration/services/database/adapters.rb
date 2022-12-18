@@ -12,4 +12,5 @@ end
 require 'orchestration/services/database/adapters/adapter_base'
 require 'orchestration/services/database/adapters/mysql2'
 require 'orchestration/services/database/adapters/postgresql'
+require 'orchestration/services/database/adapters/postgis'
 require 'orchestration/services/database/adapters/sqlite3'

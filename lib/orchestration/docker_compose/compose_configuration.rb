@@ -6,6 +6,7 @@ module Orchestration
       def self.database_adapter_name
         return nil unless defined?(ActiveRecord)
         return 'postgresql' if defined?(::PG)
+        return 'postgis' if defined?(::POSTGIS)
         return 'mysql2' if defined?(::Mysql2)
         return 'sqlite3' if defined?(::SQLite3)
 
@@ -29,6 +30,7 @@ module Orchestration
 
         base = Orchestration::Services::Database::Adapters
         return base::Postgresql.new if defined?(::PG)
+        return base::Postgis.new if defined?(::PostGIS)
         return base::Mysql2.new if defined?(::Mysql2)
         return base::Sqlite3.new if defined?(::SQLite3)
 

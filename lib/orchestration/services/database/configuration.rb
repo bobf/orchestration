@@ -118,6 +118,7 @@ module Orchestration
             'mysql2' => adapters::Mysql2,
             'mysql' => adapters::Mysql2,
             'postgresql' => adapters::Postgresql,
+            'postgis' => adapters::Postgis,
             'sqlite3' => adapters::Sqlite3
           }.fetch(name).new(self)
         rescue KeyError

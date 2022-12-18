@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'thor', '~> 1.2'
 
   spec.add_development_dependency 'activerecord', '>= 6.0'
+  spec.add_development_dependency 'activerecord-postgis-adapter', '~> 8.0.1'
   spec.add_development_dependency 'bunny', '~> 2.19'
   spec.add_development_dependency 'devpack', '~> 0.4.0'
   spec.add_development_dependency 'mongoid', '~> 7.4'
