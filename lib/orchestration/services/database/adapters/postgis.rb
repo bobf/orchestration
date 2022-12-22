@@ -12,14 +12,14 @@ module Orchestration
           end
 
           def image
-            'postgis/postgis'
+            'postgis/postgis:15-3.3'
           end
 
           def credentials
             {
               'username' => 'postgres',
               'password' => 'password',
-              'database' => 'postgis'
+              'database' => 'postgres'
             }
           end
 
