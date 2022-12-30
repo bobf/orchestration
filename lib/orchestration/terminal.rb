@@ -43,6 +43,10 @@ module Orchestration
       @settings.set(setting, read(prompt, default))
     end
 
+    def print_variable(variable, value)
+      $stdout.print "#{Paint[variable, :blue]}#{Paint['=', :white]}#{Paint[value, :cyan]}"
+    end
+
     private
 
     def prompt(message, default)

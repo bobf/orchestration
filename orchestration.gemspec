@@ -27,10 +27,10 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'database_url', '~> 0.1.2'
+  spec.add_runtime_dependency 'dotenv-rails', '~> 2.8'
   spec.add_runtime_dependency 'erubis', '~> 2.7'
   spec.add_runtime_dependency 'i18n', '>= 0.5'
   spec.add_runtime_dependency 'paint', '~> 2.0'
-  spec.add_runtime_dependency 'rails', '~> 6.0'
   spec.add_runtime_dependency 'thor', '~> 1.0'
 
   spec.add_development_dependency 'activerecord', '~> 6.0'

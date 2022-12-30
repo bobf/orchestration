@@ -32,28 +32,67 @@ require 'orchestration/terminal'
 require 'orchestration/version'
 
 module Orchestration
-  def self.root
-    Pathname.new(File.dirname(__dir__))
-  end
+  class << self
+    def root
+      Pathname.new(File.dirname(__dir__))
+    end
 
-  def self.makefile
-    root.join('lib', 'orchestration', 'make', 'orchestration.mk')
-  end
+    def makefile
+      root.join('lib', 'orchestration', 'make', 'orchestration.mk')
+    end
 
-  def self.rakefile
-    root.join('lib', 'Rakefile')
-  end
+    def rakefile
+      root.join('lib', 'Rakefile')
+    end
 
-  def self.error(key, options = {})
-    warn('# Orchestration Error')
-    warn("# #{I18n.t("orchestration.#{key}", options)}")
-  end
+    def error(key, options = {})
+      warn('# Orchestration Error')
+      warn("# #{I18n.t("orchestration.#{key}", options)}")
+    end
 
-  def self.random_local_port
-    socket = Socket.new(:INET, :STREAM, 0)
-    socket.bind(Addrinfo.tcp('127.0.0.1', 0))
-    port = socket.local_address.ip_port
-    socket.close
-    port
+    def random_local_port
+      socket = Socket.new(:INET, :STREAM, 0)
+      socket.bind(Addrinfo.tcp('127.0.0.1', 0))
+      port = socket.local_address.ip_port
+      socket.close
+      port
+    end
+
+    def print_environment
+      return unless File.exist?('.env')
+
+      $stdout.puts
+      $stdout.puts("#{prefix} #{Paint['Loading environment from', :cyan]} #{Paint['.env', :green]}")
+      $stdout.puts
+      environment_variables.each do |variable, value|
+        terminal.print_variable(variable, value)
+      end
+      $stdout.puts
+    end
+
+    private
+
+    def terminal
+      @terminal ||= Terminal.new(Environment.new.settings)
+    end
+
+    def prefix
+      "#{Paint['[', :white]}#{Paint['orchestration', :cyan]}#{Paint[']', :white]}"
+    end
+
+    def environment_variables
+      File.readlines('.env').reject { |line| line.match(/^\s*#/) }
+          .select { |line| line.include?('=') }
+          .map do |line|
+            variable, _, value = line.partition('=')
+            [variable, value]
+          end
+    end
   end
+end
+
+if ENV['RAILS_ENV'] == 'development'
+  require 'dotenv-rails'
+  Dotenv::Railtie.load
+  Orchestration.print_environment
 end
