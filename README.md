@@ -162,30 +162,15 @@ make push
 
 ### Development
 
-An [`.env` file](https://docs.docker.com/compose/env-file/) is created automatically in your project root. This file is _not_ stored in version control. Set all application environment variables in this file.
+A [`.env` file](https://docs.docker.com/compose/env-file/) is created automatically in your project root. This file is _not_ stored in version control. Set all application environment variables in this file.
 
 #### Launching a development server
 
-To load all variables from `.env` and launch a development server, run the following command:
+Use vanilla _Rails_ commands to load a server or console. If present, a `.env` file will be read and loaded (via the [dotenv](https://github.com/bkeepers/dotenv) gem) to populate the environment.
 
 ```bash
-make serve
-```
-
-To load a _Rails_ console:
-```bash
-make console
-```
-
-The application environment will be output on launch for convenience.
-
-To pass extra commands to the _Rails_ server:
-```bash
-# Custom server, custom port
-make serve server='webrick -p 3001'
-
-# Default server, custom port, custom bind address
-make serve server='-p 3001 -b 192.168.0.1'
+bundle exec rails s # Launch a server
+bundle exec rails c # Launch a console
 ```
 
 ### Testing

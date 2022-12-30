@@ -6,7 +6,7 @@ module Orchestration
 
     def orchestration_dir
       path = @env.orchestration_root
-      FileUtils.mkdir(path) unless Dir.exist?(path)
+      FileUtils.mkdir_p(path)
 
       path
     end

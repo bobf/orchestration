@@ -11,7 +11,7 @@ RSpec.describe Orchestration::Services::Database::Adapters::Mysql2 do
     )
   end
 
-  its(:errors) { is_expected.to eql [::Mysql2::Error] }
+  its(:errors) { is_expected.to eql [Mysql2::Error] }
   its(:default_port) { is_expected.to eql 3306 }
   its(:environment) do
     is_expected.to eql(
