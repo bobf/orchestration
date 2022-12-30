@@ -1,8 +1,9 @@
 PATH
   remote: .
   specs:
-    orchestration (0.7.2)
+    orchestration (0.7.4)
       database_url (~> 0.1.2)
+      dotenv-rails (~> 2.8)
       erubis (~> 2.7)
       i18n
       paint (~> 2.2)
@@ -94,6 +95,10 @@ GEM
     devpack (0.4.0)
     diff-lcs (1.5.0)
     digest (3.1.0)
+    dotenv (2.8.1)
+    dotenv-rails (2.8.1)
+      dotenv (= 2.8.1)
+      railties (>= 3.2)
     erubi (1.10.0)
     erubis (2.7.0)
     globalid (1.0.0)
