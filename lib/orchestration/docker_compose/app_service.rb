@@ -118,6 +118,7 @@ module Orchestration
       def database_url
         {
           'postgresql' => 'postgresql://postgres:password@database-local:5432/production',
+          'postgis' => 'postgis://postgres:password@database-local:5432/production',
           'mysql2' => 'mysql2://root:password@database-local:3306/production',
           'sqlite3' => 'sqlite3:db/production.sqlite3'
         }.fetch(DockerCompose::ComposeConfiguration.database_adapter_name, nil)
