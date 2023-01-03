@@ -62,13 +62,13 @@ module Orchestration
     def print_environment
       return unless File.exist?('.env')
 
-      $stdout.puts
-      $stdout.puts("#{prefix} #{Paint['Loading environment from', :cyan]} #{Paint['.env', :green]}")
-      $stdout.puts
+      $stderr.puts
+      warn("#{prefix} #{Paint['Loading environment from', :cyan]} #{Paint['.env', :green]}")
+      $stderr.puts
       environment_variables.each do |variable, value|
         terminal.print_variable(variable, value)
       end
-      $stdout.puts
+      $stderr.puts
     end
 
     private
@@ -92,7 +92,7 @@ module Orchestration
   end
 end
 
-if ENV['RAILS_ENV'] == 'development'
+if ENV['RAILS_ENV'] == 'development' && !ENV.key?('ORCHESTRATION_DISABLE_ENV')
   require 'dotenv-rails'
   Dotenv::Railtie.load
   Orchestration.print_environment

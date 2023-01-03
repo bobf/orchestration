@@ -258,7 +258,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord (>= 6.0)
-  activerecord-postgis-adapter (~> 8.0.1)
+  activerecord-postgis-adapter (~> 8.0)
   bunny (~> 2.19)
   devpack (~> 0.4.0)
   mongoid (~> 7.4)
