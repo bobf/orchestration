@@ -48,7 +48,7 @@ module Orchestration
     end
 
     def print_variable(variable, value)
-      $stdout.print "#{Paint[variable, :blue]}#{Paint['=', :white]}#{Paint[value, :cyan]}"
+      $stderr.print "#{Paint[variable, :blue]}#{Paint['=', :white]}#{Paint[value, :cyan]}"
     end
 
     private

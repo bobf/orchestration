@@ -2,7 +2,8 @@
 ### Environment setup ###
 SHELL:=/bin/bash
 MAKE:=mkpath=${mkpath} make --no-print-directory
-
+ORCHESTRATION_DISABLE_ENV=1
+export
 TERM ?= 'dumb'
 pwd:=$(shell pwd)
 
@@ -142,7 +143,7 @@ DOCKER_TAG ?= latest
 ifneq (,$(wildcard ./Gemfile))
   bundle_cmd = bundle exec
 endif
-rake=DEVPACK_DISABLE=1 RACK_ENV=${env} SECRET_KEY_BASE='placeholder-secret' RAILS_ENV=${env} ${bundle_cmd} rake
+rake=ORCHESTRATION_DISABLE_ENV=1 DEVPACK_DISABLE=1 RACK_ENV=${env} SECRET_KEY_BASE='placeholder-secret' RAILS_ENV=${env} ${bundle_cmd} rake
 
 ifneq (,$(wildcard ${env_file}))
   ifeq (,$(findstring deploy,$(MAKECMDGOALS)))

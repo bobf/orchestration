@@ -9,11 +9,14 @@ require 'mysql2'
 require 'pg'
 require 'sqlite3'
 require 'webmock/rspec'
+require 'rspec/its'
+require 'rake'
 
 require 'orchestration'
-require File.join(__dir__, 'dummy/config/environment.rb')
 
 ENV['RACK_ENV'] = 'test'
+
+require File.join(__dir__, 'dummy/config/environment.rb')
 
 Dir[File.join(__dir__, 'support', '**', '*.rb')].sort.each { |path| require path }
 
