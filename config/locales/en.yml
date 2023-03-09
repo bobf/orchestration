@@ -40,5 +40,6 @@ en:
 
     dbconsole:
       postgresql: "PGPASSWORD='%<password>s' psql --username=%<username>s --host=%<host>s --port=%<port>s --dbname=%<database>s"
+      postgis: "PGPASSWORD='%<password>s' psql --username=%<username>s --host=%<host>s --port=%<port>s --dbname=%<database>s"
       sqlite3: "sqlite3 %<database>s"
       mysql2: "mysql --user=%<username>s --port=%<port>s --host=%<host>s --password=%<password>s --no-auto-rehash %<database>s"
