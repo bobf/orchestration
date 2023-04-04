@@ -52,14 +52,14 @@ println=$(call print,$1'\n')
 printraw=printf $1
 stdout=${pwd}/log/orchestration.stdout.log
 stderr=${pwd}/log/orchestration.stderr.log
-log_path_length=$(shell echo "${stdout}" | wc -c)
+log_path_length:=$(shell echo "${stdout}" | wc -c)
 ifndef verbose
 log_tee:= 2>&1 | tee -a ${stdout}
 log:= >>${stdout} 2>>${stderr}
 progress_point:=perl -e 'printf("[${magenta}busy${reset}] "); while( my $$line = <STDIN> ) { printf("."); select()->flush(); }'
 log_progress:= > >(tee -ai ${stdout} >&1 | ${progress_point}) 2> >(tee -ai ${stderr} 2>&1 | ${progress_point})
 endif
-hr=$(call println,"$1$(shell head -c ${log_path_length} < /dev/zero | tr '\0' '=')${reset}")
+hr:=$(call println,"$1$(shell head -c ${log_path_length} < /dev/zero | tr '\0' '=')${reset}")
 managed_env_tag:=\# -|- ORCHESTRATION
 standard_env_path:=${pwd}/.env
 backup_env_path:=${pwd}/.env.orchestration.backup
@@ -173,7 +173,7 @@ else
   compose_project_name = ${project_base}
 endif
 
-compose_base=env -i \
+compose_base:=env -i \
              PATH=$(PATH) \
              HOST_UID=$(shell id -u) \
              DOCKER_ORGANIZATION="${docker_organization}" \
@@ -183,14 +183,14 @@ compose_base=env -i \
              docker-compose \
              -f ${orchestration_dir}/docker-compose.${env}.yml
 
-git_branch ?= $(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo no-branch))
+git_branch := $(if $(branch),$(branch),$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo no-branch))
 ifndef dev
-  git_version ?= $(shell git rev-parse --short --verify ${git_branch} 2>/dev/null || echo no-version)
+  git_version := $(shell git rev-parse --short --verify ${git_branch} 2>/dev/null || echo no-version)
 else
-  git_version = dev
+  git_version := dev
 endif
 
-docker_image=${docker_organization}/${docker_repository}:${git_version}
+docker_image:=${docker_organization}/${docker_repository}:${git_version}
 
 compose=${compose_base}
 compose_human=docker-compose -f ${orchestration_dir_name}/docker-compose.${env}.yml
@@ -288,7 +288,9 @@ db-console:
 	@${rake} orchestration:db:console RAILS_ENV=${env}
 
 .PHONY: setup
-setup: url = $(shell ${rake} orchestration:db:url RAILS_ENV=${env})
+ifneq (,$(wildcard config/database.yml))
+setup: url := $(shell ${rake} orchestration:db:url RAILS_ENV=${env} 2>/dev/null)
+endif
 setup: _log-notify
 	@$(call echo,Setting up ${env_human} environment)
 	@$(call make,start env=${env})
