@@ -100,7 +100,7 @@ RSpec.describe Orchestration::Terminal do
   end
 
   describe '#ask_setting' do
-    subject(:ask_setting) { terminal.ask_setting(setting, default) }
+    subject(:ask_setting) { terminal.ask_setting(setting, default: default) }
 
     let(:setting) { 'foo' }
     let(:default) { 'value' }

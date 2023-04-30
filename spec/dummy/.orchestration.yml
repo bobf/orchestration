@@ -1,4 +1,0 @@
----
-docker:
-  username: testuser
-  repository: dummy

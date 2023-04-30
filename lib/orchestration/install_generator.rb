@@ -17,10 +17,8 @@ module Orchestration
     end
 
     def orchestration_configuration
-      path = @env.orchestration_configuration_path
-      @terminal.ask_setting('docker.organization')
-      @terminal.ask_setting('docker.repository', @env.default_app_name)
-      relpath = relative_path(path)
+      configure_orchestration_settings
+      relpath = relative_path(@env.orchestration_configuration_path)
       return @terminal.write(:create, relpath) unless @settings.exist? || force?
       return @terminal.write(:update, relpath) if @settings.dirty?
 
@@ -147,6 +145,19 @@ module Orchestration
         command: DockerCompose::AppService.command,
         entrypoint: DockerCompose::AppService.entrypoint,
         healthcheck: DockerCompose::AppService.healthcheck
+      )
+    end
+
+    def configure_orchestration_settings
+      @terminal.ask_setting(
+        'docker.organization',
+        override: ENV.fetch('organization', nil)
+      )
+
+      @terminal.ask_setting(
+        'docker.repository',
+        default: @env.default_app_name,
+        override: ENV.fetch('project', nil)
       )
     end
   end

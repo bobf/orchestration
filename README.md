@@ -50,12 +50,13 @@ rake orchestration:install server=unicorn # (or 'puma' [default], etc.)
 
 To rebuild all build-out at any time, pass `force=yes` to the above install command.
 
-To rebuild just `orchestration/Makefile` (useful after upgrading the _Orchestration_ gem):
-```bash
-rake orchestration:install:makefile
-```
-
 You will be prompted to enter values for your _Docker_ organisation and repository name. For example, the _organisation_ and _repository_ for https://hub.docker.com/r/rubyorchestration/sampleapp are `rubyorchestration` and `sampleapp` respectively. If you are unsure of these values, they can be modified later by editing `.orchestration.yml` in the root of your project directory.
+
+Override these values from the command line by passing `project` and `organization` variables:
+
+```bash
+rake orchestration:install project=myapp organization=myorg
+```
 
 #### Configuration files
 
