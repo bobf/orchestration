@@ -60,6 +60,12 @@ To rebuild all build-out at any time, pass `force=yes` to the above install comm
 
 You will be prompted to enter values for your _Docker_ organisation and repository name. For example, the _organisation_ and _repository_ for https://hub.docker.com/r/rubyorchestration/sampleapp are `rubyorchestration` and `sampleapp` respectively. If you are unsure of these values, they can be modified later by editing `.orchestration.yml` in the root of your project directory.
 
+Override these values from the command line by passing `project` and `organization` variables:
+
+```bash
+rake orchestration:install project=myapp organization=myorg
+```
+
 #### Configuration files
 
 _Orchestration_ generates the following files where appropriate. Backups are created if a file is replaced.

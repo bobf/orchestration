@@ -35,4 +35,28 @@ RSpec.describe Orchestration::InstallGenerator do
     install_generator.env
     expect(File.read(path)).to eql 'some env settings'
   end
+
+  describe 'orchestration configuration' do
+    subject(:config) { YAML.safe_load(dummy_path.join('.orchestration.yml').read) }
+
+    before do
+      dummy_path.join('.orchestration.yml').unlink if dummy_path.join('.orchestration.yml').file?
+      stub_const('ENV', ENV.to_h.merge(env))
+      install_generator.orchestration_configuration
+    end
+
+    after { dummy_path.join('.orchestration.yml').unlink if dummy_path.join('.orchestration.yml').file? }
+
+    context 'with organization environment variable' do
+      let(:env) { { 'organization' => 'envorganization', 'project' => 'envapp' } }
+
+      its(%w[docker organization]) { is_expected.to eql 'envorganization' }
+    end
+
+    context 'with project environment variable' do
+      let(:env) { { 'organization' => 'envorganization', 'project' => 'envapp' } }
+
+      its(%w[docker repository]) { is_expected.to eql 'envapp' }
+    end
+  end
 end

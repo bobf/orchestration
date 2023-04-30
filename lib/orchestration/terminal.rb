@@ -39,8 +39,9 @@ module Orchestration
       result
     end
 
-    def ask_setting(setting, default = nil)
+    def ask_setting(setting, default: nil, override: nil)
       return unless @settings.get(setting).nil?
+      return @settings.set(setting, override) unless override.nil?
 
       write(:setup, t("settings.#{setting}.description"))
       prompt = t("settings.#{setting}.prompt")
