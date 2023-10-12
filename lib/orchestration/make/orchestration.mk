@@ -449,6 +449,8 @@ build: _create-log-directory check-local-changes
 	@$(call echo,Preparing build context from ${cyan}${git_branch}${reset} (${cyan}${git_version}${reset})${reset})
 	@$(call system,git archive --format "tar" -o "${context}" "${git_branch}")
 	@mkdir -p ${orchestration_dir}/.build ${log} || ${exit_fail}
+	@cp '$(shell bundle info --path orchestration)/lib/orchestration/healthcheck.bash' '${orchestration_dir}/healthcheck'
+	@chmod +x '${orchestration_dir}/healthcheck'
 ifndef dev
 	@git show ${git_branch}:./Gemfile > ${orchestration_dir}/.build/Gemfile 2>${stderr} || ${exit_fail}
 	@git show ${git_branch}:./Gemfile.lock > ${orchestration_dir}/.build/Gemfile.lock 2>${stderr} || ${exit_fail}
@@ -456,6 +458,8 @@ ifndef dev
 else
 	@tar -cvf '${context}' . ${log} || ${exit_fail}
 endif
+	@tar --append --file '${context}' '${orchestration_dir}/healthcheck'
+	@rm '${orchestration_dir}/healthcheck'
 ifdef include
 	@$(call echo,Including files from: ${cyan}${include}${reset})
 	@(while read line; do \
