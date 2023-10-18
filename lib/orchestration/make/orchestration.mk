@@ -182,12 +182,18 @@ ifeq (,$(findstring deploy,$(MAKECMDGOALS)))
     ifeq (,${sidecar_suffix})
       $(warning Unable to generate project suffix; project name collisions may occur.)
     endif
-    compose_project_name = ${project_base}_${sidecar_suffix}
+    compose_project_name_base = ${project_base}_${sidecar_suffix}
   else
-    compose_project_name = ${project_base}
+    compose_project_name_base = ${project_base}
   endif
 else
-  compose_project_name = ${project_base}
+  compose_project_name_base = ${project_base}
+endif
+
+ifdef COMPOSE_PROJECT_NAME_SUFFIX
+  compose_project_name = ${compose_project_name_base}_${COMPOSE_PROJECT_NAME_SUFFIX}
+else
+  compose_project_name = ${compose_project_name_base}
 endif
 
 compose_base:=env -i \
