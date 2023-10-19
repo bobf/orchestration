@@ -202,6 +202,7 @@ compose_base:=env -i \
              DOCKER_ORGANIZATION="${docker_organization}" \
              DOCKER_REPOSITORY="${docker_repository}" \
              COMPOSE_PROJECT_NAME="${compose_project_name}" \
+             COMPOSE_PROJECT_NAME_SUFFIX="${COMPOSE_PROJECT_NAME_SUFFIX}" \
 	     ${sidecar_compose} \
              docker-compose \
              -f ${orchestration_dir}/docker-compose.${env}.yml
