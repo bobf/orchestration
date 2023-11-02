@@ -17,6 +17,8 @@ module Orchestration
     end
 
     def orchestration_configuration
+      return unless build?('.orchestration.yml')
+
       configure_orchestration_settings
       relpath = relative_path(@env.orchestration_configuration_path)
       return @terminal.write(:create, relpath) unless @settings.exist? || force?
@@ -26,11 +28,15 @@ module Orchestration
     end
 
     def application_makefile
+      return unless build?('Makefile')
+
       path = @env.root.join('Makefile')
       simple_copy('application.mk', path) unless File.exist?(path)
     end
 
     def dockerfile
+      return unless build?('Dockerfile')
+
       create_file(
         orchestration_dir.join('Dockerfile'),
         dockerfile_content,
@@ -39,6 +45,8 @@ module Orchestration
     end
 
     def entrypoint_sh
+      return unless build?('entrypoint.sh')
+
       content = template('entrypoint.sh')
       path = orchestration_dir.join('entrypoint.sh')
       create_file(path, content, overwrite: false)
@@ -46,12 +54,15 @@ module Orchestration
     end
 
     def docker_compose
+      return unless build?('docker-compose.yml')
+
       @docker_compose.docker_compose_test_yml
       @docker_compose.docker_compose_development_yml
       @docker_compose.docker_compose_deployment_yml
     end
 
     def puma
+      return unless build?('puma.rb')
       return nil unless @env.web_server == 'puma'
 
       content = template('puma.rb')
@@ -60,6 +71,7 @@ module Orchestration
     end
 
     def unicorn
+      return unless build?('unicorn.rb')
       return nil unless @env.web_server == 'unicorn'
 
       content = template('unicorn.rb')
@@ -70,6 +82,7 @@ module Orchestration
     end
 
     def database_yml
+      return unless build?('database.yml')
       return unless defined?(::ActiveRecord)
 
       adapter = DockerCompose::ComposeConfiguration.database_adapter_name
@@ -79,28 +92,35 @@ module Orchestration
     end
 
     def mongoid_yml
+      return unless build?('mongoid.yml')
       return unless defined?(::Mongoid)
 
       service_config('mongoid.yml', Services::Mongo::Configuration)
     end
 
     def rabbitmq_yml
+      return unless build?('rabbitmq.yml')
       return unless defined?(::Bunny)
 
       service_config('rabbitmq.yml', Services::RabbitMQ::Configuration)
     end
 
     def redis_yml
+      return unless build?('redis.yml')
       return unless defined?(::Redis)
 
       service_config('redis.yml', Services::Redis::Configuration)
     end
 
     def env
+      return unless build?('.env')
+
       simple_copy('env', @env.root.join('.env'), overwrite: false)
     end
 
     def gitignore
+      return unless build?('.gitignore')
+
       path = @env.root.join('.gitignore')
       globs = %w[.build/ .deploy/ Gemfile Gemfile.lock docker-compose.local.yml]
       lines = %w[orchestration/.sidecar .env deploy.tar] + globs.map do |line|
@@ -111,6 +131,13 @@ module Orchestration
     end
 
     private
+
+    def build?(filename)
+      return true unless ENV.key?('build')
+      return true if ENV.fetch('build') == filename
+
+      false
+    end
 
     def t(key)
       I18n.t("orchestration.#{key}")
