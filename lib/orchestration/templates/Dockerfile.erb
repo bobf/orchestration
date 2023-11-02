@@ -2,18 +2,24 @@ FROM ruby:<%= ruby_version %>
 ARG BUNDLE_BITBUCKET__ORG
 ARG BUNDLE_GITHUB__COM
 ARG GIT_COMMIT
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
- && apt-get update \
+ENV NODE_MAJOR=20
+RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-      nodejs \
       gosu \
       sendmail \
+      ca-certificates \
+      curl \
+      gnupg \
+ && mkdir -p /etc/apt/keyrings \
+ && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+ && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+ && apt-get update \
+ && apt-get install nodejs \
  && rm -rf /var/lib/apt/lists/* \
  && gem install bundler \
  && mkdir /app<%if defined?(Webpacker) %> \
  && curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash \
  && . /root/.bashrc \
- && nvm install 14.16.0 \
  && npm config set user 0 \
  && npm config set unsafe-perm true \
  && npm install -g yarn<% end %>
