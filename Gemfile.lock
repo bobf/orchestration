@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    orchestration (0.7.10)
+    orchestration (0.7.11)
       database_url (~> 0.1.2)
       dotenv-rails (~> 2.8)
       erubis (~> 2.7)
