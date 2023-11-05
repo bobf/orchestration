@@ -14,14 +14,10 @@ RUN apt-get update \
  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
  && apt-get update \
- && apt-get install nodejs \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs \
  && rm -rf /var/lib/apt/lists/* \
  && gem install bundler \
  && mkdir /app<%if defined?(Webpacker) %> \
- && curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash \
- && . /root/.bashrc \
- && npm config set user 0 \
- && npm config set unsafe-perm true \
  && npm install -g yarn<% end %>
 WORKDIR /app
 COPY .build/Gemfile .build/Gemfile.lock ./
@@ -29,7 +25,7 @@ RUN bundle config set deployment 'true' \
  && bundle config set without 'development test' \
  && bundle install
 ADD .build/context.tar .
-<% if defined?(Webpacker) %>RUN . /root/.bashrc ; NODE_ENV=production RAILS_ENV=production yarn install && NODE_ENV=production RAILS_ENV=production SECRET_KEY_BASE=placeholder-secret bundle exec rake assets:precompile<% elsif Rake::Task.tasks.map(&:name).include?('assets:precompile') %>RUN NODE_ENV=production RAILS_ENV=production SECRET_KEY_BASE=placeholder-secret bundle exec rake assets:precompile<% end %>
+<% if defined?(Webpacker) %>RUN NODE_ENV=production RAILS_ENV=production yarn install && NODE_ENV=production RAILS_ENV=production SECRET_KEY_BASE=placeholder-secret bundle exec rake assets:precompile<% elsif Rake::Task.tasks.map(&:name).include?('assets:precompile') %>RUN NODE_ENV=production RAILS_ENV=production SECRET_KEY_BASE=placeholder-secret bundle exec rake assets:precompile<% end %>
 RUN echo "${GIT_COMMIT}" > /app/GIT_COMMIT
 HEALTHCHECK --interval=<%= healthcheck['interval'] %> \
             --timeout=<%= healthcheck['timeout'] %> \
