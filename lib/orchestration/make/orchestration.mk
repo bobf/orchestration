@@ -386,14 +386,13 @@ tag:
 .PHONY: deploy
 deploy: _log-notify _clean-logs
 ifdef env_file
-deploy: env_file_option = --env-file ${env_file}
+deploy: env_file_option = . ${env_file}
 endif
 deploy: RAILS_ENV := ${env}
 deploy: RACK_ENV := ${env}
 deploy: DOCKER_TAG = ${git_version}
 deploy: base_vars = DOCKER_ORGANIZATION=${docker_organization} DOCKER_REPOSITORY=${docker_repository} DOCKER_TAG=${git_version}
-deploy: compose_deploy := ${base_vars} COMPOSE_PROJECT_NAME=${project_base} HOST_UID=$(shell id -u) docker-compose ${env_file_option} --project-name ${project_base} -f orchestration/docker-compose.deployment.yml
-deploy: config_cmd = ${compose_deploy} config
+deploy: config_cmd := ( set -a ; ${env_file_option} ; ${base_vars} COMPOSE_PROJECT_NAME=${project_base} HOST_UID=$(shell id -u) docker stack config --compose-file orchestration/docker-compose.deployment.yml )
 deploy: remote_cmd = cat | docker stack deploy --prune --with-registry-auth -c - ${project_base}
 deploy: ssh_cmd = ssh "${manager}"
 deploy: deploy_cmd := ${config_cmd} | ${ssh_cmd} "/bin/bash -lc '${remote_cmd}'"
