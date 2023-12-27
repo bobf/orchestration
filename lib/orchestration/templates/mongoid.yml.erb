@@ -1,12 +1,12 @@
 development:
   clients:
     default:
-      uri: <%= "#{'<' + '%' + '='} ENV.fetch('MONGO_URL', 'mongodb://127.0.0.1:#{compose.call('development').local_port('mongo')}/development_db') #{'%' + '>'}" %>
+      uri: <%= "#{'<' + '%' + '='} ENV.fetch('DEVELOPMENT_MONGO_URL', 'mongodb://127.0.0.1:#{compose.call('development').local_port('mongo')}/development') #{'%' + '>'}" %>
 
 test:
   clients:
     default:
-      uri: <%= "#{'<' + '%' + '='} ENV.fetch('MONGO_URL', 'mongodb://127.0.0.1:#{compose.call('test').local_port('mongo')}/test_db') #{'%' + '>'}" %>
+      uri: <%= "#{'<' + '%' + '='} ENV.fetch('TEST_MONGO_URL', 'mongodb://127.0.0.1:#{compose.call('test').local_port('mongo')}/test') #{'%' + '>'}" %>
 
 production:
   clients:

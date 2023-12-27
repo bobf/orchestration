@@ -30,7 +30,14 @@ module Orchestration
     end
 
     def mongo_url
-      ENV.fetch('MONGO_URL', nil)
+      case environment
+      when 'development'
+        ENV.fetch('DEVELOPMENT_MONGO_URL') { ENV.fetch('MONGO_URL', nil) }
+      when 'test'
+        ENV.fetch('TEST_MONGO_URL') { ENV.fetch('MONGO_URL', nil) }
+      else
+        ENV.fetch('MONGO_URL', nil)
+      end
     end
 
     def mongoid_configuration_path
