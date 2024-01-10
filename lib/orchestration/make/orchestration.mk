@@ -191,7 +191,7 @@ else
 endif
 
 compose_base:=env -i \
-             PATH=$(PATH) \
+             PATH="$(PATH)" \
              HOST_UID=$(shell id -u) \
              DOCKER_ORGANIZATION="${docker_organization}" \
              DOCKER_REPOSITORY="${docker_repository}" \
