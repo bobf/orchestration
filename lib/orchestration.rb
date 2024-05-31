@@ -92,7 +92,7 @@ module Orchestration
   end
 end
 
-if ENV['RAILS_ENV'] == 'development' && !ENV.key?('ORCHESTRATION_DISABLE_ENV')
+if ENV.fetch('RAILS_ENV', 'development') == 'development' && !ENV.key?('ORCHESTRATION_DISABLE_ENV')
   require 'dotenv-rails'
   Dotenv::Railtie.load
   Orchestration.print_environment
